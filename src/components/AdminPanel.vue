@@ -734,8 +734,8 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import PhotoEraser from './PhotoEraser.vue'
-import { effectiveGallery } from '../composables/photoGallery.js'
 import { removeBackground } from '@imgly/background-removal'
+import { effectiveGallery } from '../composables/photoGallery.js'
 
 // Détourage : IMG.LY background-removal (isnet, optimisé ORT-Web, CDN hébergé).
 // API simple : await imglyRemoveBackground(imageData, config) → Blob PNG.
@@ -2128,12 +2128,6 @@ const loadData = () => {
 .section-desc { color: #888; font-size: 0.88em; margin-bottom: 20px; }
 
 /* FORMULAIRES */
-.gallery-choice { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 14px; }
-.gallery-choice-card { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left; padding: 14px; border: 2px solid #dde5e5; border-radius: 12px; background: #fff; font: inherit; cursor: pointer; }
-.gallery-choice-card span:last-child { font-size: 0.85em; color: #666; }
-.gallery-choice-card .gc-icon { font-size: 1.6em; }
-.gallery-choice-card.active { border-color: var(--primary-teal); background: #eef9f9; box-shadow: 0 0 0 2px var(--primary-teal) inset; }
-.gallery-warning { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; margin-bottom: 12px; border-radius: 10px; background: #fff6e5; border: 1px solid #f2c66d; }
 .form-row { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
 .form-block { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
 .form-block label { font-weight: 600; font-size: 0.9em; color: #444; }
@@ -3565,4 +3559,12 @@ const loadData = () => {
   transition: all 0.15s;
 }
 .btn-delete-photo:hover { background: #e53e3e; color: #fff; }
+
+/* Galerie : choix Boutique / Articles */
+.gallery-choice { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 14px; }
+.gallery-choice-card { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left; padding: 14px; border: 2px solid #dde5e5; border-radius: 12px; background: #fff; font: inherit; cursor: pointer; }
+.gallery-choice-card span:last-child { font-size: 0.85em; color: #666; }
+.gallery-choice-card .gc-icon { font-size: 1.6em; }
+.gallery-choice-card.active { border-color: var(--primary-teal); background: #eef9f9; box-shadow: 0 0 0 2px var(--primary-teal) inset; }
+.gallery-warning { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; margin-bottom: 12px; border-radius: 10px; background: #fff6e5; border: 1px solid #f2c66d; }
 </style>
