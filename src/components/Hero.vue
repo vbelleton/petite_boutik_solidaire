@@ -27,15 +27,13 @@
 <script setup>
 import { computed } from 'vue'
 import { useTextes } from '../composables/useTextes.js'
+import { heroBackground } from '../composables/heroGradient.js'
 
 const textes = useTextes()
 
 const mailSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 6.5C3 5.67157 3.67157 5 4.5 5H19.5C20.3284 5 21 5.67157 21 6.5V17.5C21 18.3284 20.3284 19 19.5 19H4.5C3.67157 19 3 18.3284 3 17.5V6.5Z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 6.5L12 12.5L3 6.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
 const clockSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.2"/><path d="M12 7v6l4 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
 
-const gradientStart = computed(() => textes.value.hero_gradient_start || '#1BA9A8')
-const gradientEnd = computed(() => textes.value.hero_gradient_end || '#E95E5E')
-const gradientAngle = computed(() => textes.value.hero_gradient_angle ?? 135)
 const btn1Label = computed(() => textes.value.hero_btn1_label || 'Horaires')
 const btn2Label = computed(() => textes.value.hero_btn2_label || 'Nous contacter')
 const contactTitle = computed(() => textes.value.hero_contact_title || "Besoin d'aide ?")
@@ -43,9 +41,7 @@ const contactDesc = computed(() => textes.value.hero_contact_desc || "Nous somme
 const iconHtml = computed(() => textes.value.hero_btn2_icon || mailSvg)
 const btn1IconHtml = computed(() => textes.value.hero_btn1_icon || clockSvg)
 
-const heroStyle = computed(() => ({
-  background: `linear-gradient(${gradientAngle.value}deg, ${gradientStart.value} 0%, ${gradientEnd.value} 100%)`
-}))
+const heroStyle = computed(() => ({ background: heroBackground(textes.value) }))
 
 function scrollTo(id) {
   const el = document.getElementById(id)
@@ -85,7 +81,7 @@ function scrollTo(id) {
 .full-btn:hover { transform: translateY(-2px); background: linear-gradient(180deg, var(--primary-teal), var(--primary-teal-dark)); color: white; border-color: rgba(27,169,168,0.28) }
 
 /* Voile sombre : garde le texte blanc lisible quelles que soient les couleurs choisies dans l'admin (RGAA 3.2) */
-.hero-overlay { position:absolute; inset:0; border-radius:15px; background: rgba(0,0,0,0.24); pointer-events:none }
+.hero-overlay { position:absolute; inset:0; border-radius:15px; background: rgba(0,0,0,0.14); pointer-events:none }
 
 .btn-icon { display:inline-flex; align-items:center; justify-content:center }
 .btn-icon svg { display:block; width:18px; height:18px }

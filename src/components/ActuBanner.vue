@@ -1,11 +1,11 @@
 <template>
-  <div class="actu-banner" v-if="actu.visible && actu.titre" :class="actu.type" role="alert">
-    <span class="actu-icon">{{ icons[actu.type] }}</span>
+  <aside class="actu-banner" v-if="actu.visible && actu.titre" :class="actu.type" aria-label="Actualité">
+    <span class="actu-icon" aria-hidden="true">{{ icons[actu.type] }}</span>
     <div class="actu-content">
       <strong>{{ actu.titre }}</strong>
       <p v-if="actu.message">{{ actu.message }}</p>
     </div>
-  </div>
+  </aside>
 </template>
 
 <script setup>
@@ -36,17 +36,17 @@ onUnmounted(() => { if (unsubscribe) unsubscribe() })
   border: 2px solid;
 }
 
-.actu-banner.info {
-  background: #e8f4fd;
-  border-color: var(--brand-teal);
+/* Fond sable comme les autres blocs, liseré de couleur selon le type */
+.actu-banner.info,
+.actu-banner.success {
+  background: linear-gradient(135deg, #FFF9F0 0%, #F5E6D3 100%);
+  border: none;
+  border-left: 5px solid var(--primary-teal);
 }
 .actu-banner.warning {
-  background: #FFF3CD;
-  border-color: #FFC107;
-}
-.actu-banner.success {
-  background: #e8f5e9;
-  border-color: #4CAF50;
+  background: #FFF6E0;
+  border: none;
+  border-left: 5px solid #E0A100;
 }
 
 .actu-icon { font-size: 1.3em; flex-shrink: 0; }
