@@ -600,6 +600,11 @@
               <button class="btn-delete" @click="deleteAdmin(a.id)" :disabled="a.email === user.email">✕</button>
             </div>
           </div>
+        
+          <h2 style="margin-top:32px">Sauvegarde</h2>
+          <p class="section-desc">Télécharge un fichier avec tout le contenu du site : horaires, textes, actualité, fermetures, ouvertures exceptionnelles, liste des photos et des admins. Les images elles-mêmes restent sur le serveur de photos. À faire de temps en temps, et avant tout gros changement. Gardez le fichier en lieu sûr.</p>
+          <button class="btn-save" @click="downloadBackup" :disabled="backupBusy">{{ backupBusy ? '⏳ Préparation…' : '💾 Télécharger une sauvegarde' }}</button>
+          <span class="error-msg" v-if="backupError">{{ backupError }}</span>
         </section>
 
       </main>
@@ -1788,6 +1793,34 @@ const actuAutoSave = useAutoSave(() => actu.value, (data) => setDoc(doc(db, 'con
 const actuStatus = actuAutoSave.status
 
 // Textes — remplacé par loadTextes défini dans la section blocs ci-dessus
+
+
+// Sauvegarde : export JSON de toutes les collections du site
+const backupBusy = ref(false)
+const backupError = ref('')
+const BACKUP_COLLECTIONS = ['config', 'fermetures', 'ouvertures_exceptionnelles', 'photos', 'admins']
+const downloadBackup = async () => {
+  backupBusy.value = true
+  backupError.value = ''
+  try {
+    const data = { site: 'petite-boutik-solidaire', exportedAt: new Date().toISOString(), collections: {} }
+    for (const name of BACKUP_COLLECTIONS) {
+      const snap = await getDocs(collection(db, name))
+      data.collections[name] = Object.fromEntries(snap.docs.map(d => [d.id, d.data()]))
+    }
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(blob)
+    a.download = `sauvegarde-petite-boutik-${isoDate(new Date())}.json`
+    a.click()
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000)
+  } catch (e) {
+    console.error(e)
+    backupError.value = 'La sauvegarde a échoué : ' + e.message
+  } finally {
+    backupBusy.value = false
+  }
+}
 
 // Admins
 const loadAdmins = () => {
