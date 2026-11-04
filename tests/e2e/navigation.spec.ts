@@ -29,7 +29,7 @@ test.describe('Navigation & ancres', () => {
     const bgAfter = await firstLink.evaluate(el => window.getComputedStyle(el).backgroundColor)
     console.log('BG après hover:', bgAfter)
 
-    expect(bgAfter).toBe('rgb(27, 169, 168)')
+    expect(bgAfter).toBe('rgb(20, 124, 123)')
   })
 
   test('touchstart ajoute la classe touch-active sur mobile', async ({ page, browserName }) => {
@@ -75,7 +75,7 @@ test.describe('Navigation & ancres', () => {
       return window.getComputedStyle(el).backgroundColor
     })
     console.log('BG avec touch-active:', bgDuring)
-    expect(bgDuring).toBe('rgb(27, 169, 168)')
+    expect(bgDuring).toBe('rgb(20, 124, 123)')
 
     // Dispatcher touchend → la classe doit disparaître
     await page.evaluate(() => {

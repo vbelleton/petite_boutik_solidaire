@@ -2,16 +2,16 @@
   <footer class="site-footer">
     <div class="footer-content">
       <div class="footer-section">
-        <h4>{{ name }}</h4>
+        <h2 class="footer-title">{{ name }}</h2>
         <p>{{ address }}</p>
         <p>{{ association }}</p>
       </div>
       <div class="footer-section">
-        <h4>Contact</h4>
+        <h2 class="footer-title">Contact</h2>
         <p>
-          <a :href="'tel:' + phoneRaw" class="footer-link">📞 {{ phone }}</a>
+          <a :href="'tel:' + phoneRaw" class="footer-link"><span aria-hidden="true">📞 </span>{{ phone }}</a>
         </p>
-        <p class="handle">📸 {{ handle }}</p>
+        <p class="handle"><span aria-hidden="true">📸 </span>{{ handle }}</p>
       </div>
     </div>
     <div class="footer-bottom">
@@ -58,7 +58,7 @@ export default {
   gap: 25px;
 }
 
-.footer-section h4 {
+.footer-section .footer-title {
   color: var(--secondary-cream);
   margin-bottom: 12px;
   font-size: 1.05em;

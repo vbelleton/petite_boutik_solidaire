@@ -228,7 +228,7 @@ const values = [
 }
 
 .dons-accepted h4 { color: var(--primary-teal) }
-.dons-rejected h4 { color: #d9534f }
+.dons-rejected h4 { color: var(--primary-coral) }
 
 .recognition h3 {
   color: var(--primary-teal);

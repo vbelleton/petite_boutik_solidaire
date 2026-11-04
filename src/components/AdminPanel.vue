@@ -312,12 +312,13 @@
                     v-for="p in gradientPresets"
                     :key="p.name"
                     class="preset-swatch"
-                    :style="{ background: `linear-gradient(${textesValues.hero_gradient_angle || 135}deg, ${p.start} 0%, ${p.end} 100%)` }"
+                    :class="{ active: heroBackground(textesValues) === presetCss(p) }"
+                    :style="{ background: presetCss(p) }"
                     :title="p.name"
                     @click="applyGradientPreset(p)"
                   ></button>
                 </div>
-                <div class="gradient-preview" :style="{ background: `linear-gradient(${textesValues.hero_gradient_angle || 135}deg, ${textesValues.hero_gradient_start || '#1BA9A8'} 0%, ${textesValues.hero_gradient_end || '#E95E5E'} 100%)` }">
+                <div class="gradient-preview" :style="{ background: heroBackground(textesValues) }">
                   <span>Aperçu du dégradé</span>
                 </div>
               </div>
@@ -334,8 +335,8 @@
 
                 <!-- Color picker -->
                 <div v-else-if="field.type === 'color'" class="color-input-row">
-                  <input type="color" v-model="textesValues[field.id]" class="input-color" />
-                  <input type="text" v-model="textesValues[field.id]" class="input-text" placeholder="#000000" style="width:110px;flex:none" />
+                  <input type="color" v-model="textesValues[field.id]" class="input-color" @input="onFieldEdited(field.id)" />
+                  <input type="text" v-model="textesValues[field.id]" class="input-text" placeholder="#000000" style="width:110px;flex:none" @input="onFieldEdited(field.id)" />
                   <div class="color-palette">
                     <button
                       v-for="c in COLOR_PALETTE" :key="c"
@@ -353,6 +354,7 @@
                   v-else-if="field.type === 'number'"
                   type="number"
                   v-model.number="textesValues[field.id]"
+                  @input="onFieldEdited(field.id)"
                   class="input-text"
                   style="width:90px"
                   :placeholder="field.default"
@@ -722,6 +724,7 @@
 </template>
 
 <script setup>
+import { HERO_PRESETS, heroBackground } from '../composables/heroGradient.js'
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import PhotoEraser from './PhotoEraser.vue'
 import AdminCalendar from './AdminCalendar.vue'
@@ -858,7 +861,8 @@ const moveBlocDown = (i) => {
 
 // Présets dégradés
 const gradientPresets = [
-  { name: 'Teal → Coral (défaut)', start: '#1BA9A8', end: '#E95E5E' },
+  ...HERO_PRESETS,
+  { name: 'Teal → Coral (ancien défaut)', start: '#1BA9A8', end: '#E95E5E' },
   { name: 'Coral → Teal', start: '#E95E5E', end: '#1BA9A8' },
   { name: 'Teal → Beige', start: '#1BA9A8', end: '#F5E6D3' },
   { name: 'Coral → Beige', start: '#E95E5E', end: '#F5E6D3' },
@@ -867,9 +871,19 @@ const gradientPresets = [
   { name: 'Vert → Teal', start: '#059669', end: '#1BA9A8' },
   { name: 'Marron → Beige', start: '#8B6F47', end: '#F5E6D3' },
 ]
+const presetCss = (p) => p.css || `linear-gradient(${textesValues.value.hero_gradient_angle || 135}deg, ${p.start} 0%, ${p.end} 100%)`
 const applyGradientPreset = (p) => {
-  textesValues.value.hero_gradient_start = p.start
-  textesValues.value.hero_gradient_end = p.end
+  if (p.css) {
+    textesValues.value.hero_gradient_css = p.css
+  } else {
+    textesValues.value.hero_gradient_css = ''
+    textesValues.value.hero_gradient_start = p.start
+    textesValues.value.hero_gradient_end = p.end
+  }
+}
+// Une couleur ou un angle réglé à la main remplace le préset choisi
+const onFieldEdited = (fieldId) => {
+  if (fieldId.startsWith('hero_gradient_')) textesValues.value.hero_gradient_css = ''
 }
 
 // Fermetures
@@ -947,6 +961,7 @@ const loadBlocs = () => {
   hero_gradient_start: '#1BA9A8',
   hero_gradient_end: '#E95E5E',
   hero_gradient_angle: 135,
+  hero_gradient_css: '',
   // Hero boutons
   hero_btn1_label: 'Voir les horaires',
   hero_btn1_visible: true,
@@ -1871,6 +1886,7 @@ const COLOR_PALETTE = [
 
 const applyColor = (fieldId, color) => {
   textesValues.value[fieldId] = color
+  onFieldEdited(fieldId)
 }
  const applyRegleColor = (regle, color) => {
    regle.color = color
@@ -3017,6 +3033,7 @@ const loadData = () => {
   cursor: pointer;
   transition: transform 0.15s, box-shadow 0.15s;
 }
+.preset-swatch.active { outline: 3px solid #333; outline-offset: 2px; }
 .preset-swatch:hover {
   transform: scale(1.15);
   box-shadow: 0 3px 10px rgba(0,0,0,0.2);

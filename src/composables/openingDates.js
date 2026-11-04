@@ -13,7 +13,32 @@ export const DEFAULT_EXTRA_LABEL = 'Ouverture exceptionnelle'
 export function regleColor(r) {
   if (r?.color) return r.color
   const jour = typeof r?.jour === 'number' ? r.jour : parseInt(r?.jour)
-  return jour === 6 ? '#E95E5E' : '#1BA9A8'
+  const samedi = jour === 6 || (isNaN(jour) && /samedi/i.test(`${r?.label || ''} ${r?.texte_jours || ''}`))
+  return samedi ? '#E95E5E' : '#1BA9A8'
+}
+
+// Version de la couleur assez foncée pour du texte sur fond clair (contraste 4,5:1, RGAA 3.2).
+// La couleur choisie dans l'admin reste telle quelle pour les bordures et pastilles.
+function luminance(rgb) {
+  const [r, g, b] = rgb.map((v) => {
+    const c = v / 255
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
+  })
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b
+}
+export function readableColor(hex, bg = '#FFFFFF', min = 4.5) {
+  const m = /^#?([0-9a-f]{6})$/i.exec((hex || '').trim())
+  if (!m) return hex
+  const rgb = [0, 2, 4].map((i) => parseInt(m[1].slice(i, i + 2), 16))
+  const bgL = luminance([1, 3, 5].map((i) => parseInt(bg.slice(i, i + 2), 16)))
+  for (let k = 1; k > 0; k -= 0.02) {
+    const c = rgb.map((v) => Math.round(v * k))
+    const l = luminance(c)
+    if ((Math.max(l, bgL) + 0.05) / (Math.min(l, bgL) + 0.05) >= min) {
+      return '#' + c.map((v) => v.toString(16).padStart(2, '0')).join('')
+    }
+  }
+  return '#000000'
 }
 
 // Motif d'une ouverture exceptionnelle, sans répéter « Ouverture exceptionnelle »

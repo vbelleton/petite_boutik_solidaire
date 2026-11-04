@@ -331,7 +331,7 @@ onUnmounted(() => {
   font-weight: 600;
 }
 .nav-ticker.is-open {
-  background: linear-gradient(90deg, var(--primary-teal) 0%, #16937f 100%);
+  background: linear-gradient(90deg, var(--primary-teal) 0%, var(--primary-teal-dark) 100%);
   color: #fff;
 }
 .ticker-mask { display: block; overflow: hidden; white-space: nowrap; }

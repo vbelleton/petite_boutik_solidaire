@@ -87,11 +87,13 @@ onMounted(() => {
 
 <template>
   <div class="container">
+    <a href="#contenu" class="skip-link">Aller au contenu</a>
     <SiteHeader />
     <ActuBanner />
 
     <SectionNav v-if="sectionLinks.length" :sections="sectionLinks" />
 
+    <main id="contenu" tabindex="-1">
     <template v-for="id in blocOrder" :key="id">
       <Hero          v-if="id === 'hero'             && isVisible('hero')"              id="hero" />
       <About         v-if="id === 'about'            && isVisible('about')"             id="about" />
@@ -108,6 +110,7 @@ onMounted(() => {
       <Contact       v-if="id === 'contact'          && isVisible('contact')"           id="contact" />
       <SocialMedia   v-if="id === 'social'           && isVisible('social')"            id="social" />
     </template>
+    </main>
 
     <SiteFooter />
     <MentionsLegales />
