@@ -70,72 +70,41 @@
 
       <main class="admin-main">
 
-        <!-- FERMETURES EXCEPTIONNELLES -->
+        <!-- CALENDRIER : fermetures et ouvertures exceptionnelles -->
         <section v-if="tab === 'fermetures'">
-          <h2>Fermetures exceptionnelles</h2>
-          <p class="section-desc">Ces dates apparaîtront barrées dans le calendrier du site.</p>
+          <h2>Calendrier d'ouverture</h2>
+          <p class="section-desc">Cliquez sur un jour pour le fermer exceptionnellement, le rouvrir, ou ouvrir la boutique un jour inhabituel. Le site est mis à jour immédiatement. Les jours habituels se règlent dans Site → Calendrier / horaires.</p>
 
-          <div class="form-row">
-            <input type="date" v-model="newClosure.date" class="input-date" />
-            <input type="text" v-model="newClosure.label" placeholder="Motif (ex: Jour férié)" class="input-text" />
-            <button class="btn-add" @click="addClosure" :disabled="!newClosure.date">Ajouter</button>
-          </div>
+          <AdminCalendar :regles="horairesRegles" :closures="closures" :extras="extras" />
 
-          <div class="list">
-            <div class="list-item" v-for="c in closures" :key="c.id">
-              <span class="item-date">{{ formatDate(c.date) }}</span>
-              <span v-if="editingClosure !== c.id" class="item-label" @click="startEditClosure(c)" title="Cliquer pour modifier le motif">{{ c.label || 'Fermeture exceptionnelle' }} ✏️</span>
-              <span v-else class="item-label-edit">
-                <input type="text" v-model="editingClosureLabel" class="input-text" @keyup.enter="saveClosureLabel(c)" @keyup.escape="editingClosure = null" />
-                <button class="btn-add" style="padding:5px 10px;font-size:0.85em" @click="saveClosureLabel(c)">✓</button>
-                <button class="btn-delete" @click="editingClosure = null">✕</button>
-              </span>
-              <button v-if="editingClosure !== c.id" class="btn-delete" @click="deleteClosure(c.id)">✕</button>
-            </div>
-            <p class="empty" v-if="closures.length === 0">Aucune fermeture exceptionnelle.</p>
-          </div>
+          <details class="dates-details">
+            <summary>Voir toutes les dates exceptionnelles à venir ({{ closuresUpcoming.length + extrasUpcoming.length }})</summary>
 
-
-          <!-- OUVERTURES EXCEPTIONNELLES -->
-          <h2 style="margin-top:32px">Ouvertures exceptionnelles</h2>
-          <p class="section-desc">Ajoutez un jour où la boutique ouvre en plus des jours habituels (vente de Noël, portes ouvertes…). Il apparaîtra dans le calendrier du site avec la mention « Ouverture exceptionnelle ».</p>
-
-          <div class="form-row">
-            <input type="date" v-model="newExtra.date" class="input-date" />
-            <input type="text" v-model="newExtra.label" placeholder="Motif (ex: Vente de Noël)" class="input-text" />
-            <input type="text" v-model="newExtra.horaires" placeholder="Horaires si différents (ex: 14h–18h)" class="input-text" />
-            <button class="btn-add" @click="addExtra" :disabled="!newExtra.date">Ajouter</button>
-          </div>
-
-          <div class="list">
-            <div class="list-item" v-for="e in extrasUpcoming" :key="e.id">
-              <span class="item-date">{{ formatDate(e.date) }}</span>
-              <span class="item-label">{{ e.label || 'Ouverture exceptionnelle' }}<template v-if="e.horaires"> · {{ e.horaires }}</template></span>
-              <button class="btn-delete" @click="deleteExtra(e.id)" title="Supprimer">✕</button>
-            </div>
-            <p class="empty" v-if="extrasUpcoming.length === 0">Aucune ouverture exceptionnelle à venir.</p>
-          </div>
-
-          <!-- Aperçu calendrier -->
-          <div class="preview-block">
-            <h3>Aperçu — cliquez sur une date pour fermer la boutique ce jour-là</h3>
-            <div class="preview-calendar">
-              <div
-                v-for="date in previewDates"
-                :key="date.iso"
-                class="preview-date"
-                :class="[date.weekday, { closed: date.closed, 'preview-clickable': !date.closed }]"
-                @click="onPreviewDateClick(date)"
-                :title="date.closed ? 'Cliquer pour annuler la fermeture' : 'Cliquer pour marquer fermé'"
-              >
-                <span class="preview-day">{{ date.day }}</span>
-                <span class="preview-label">{{ date.label }}</span>
-                <span class="preview-closed-tag" v-if="date.closed">{{ date.closureLabel }} — cliquer pour annuler</span>
-                <span class="preview-closed-tag" v-else-if="date.exceptional" style="color:#E8734A">✨ Ouverture exceptionnelle</span>
-                <span class="preview-add-tag" v-else>+ Ajouter fermeture</span>
+            <h3>Fermetures exceptionnelles</h3>
+            <div class="list">
+              <div class="list-item" v-for="c in closuresUpcoming" :key="c.id">
+                <span class="item-date">{{ formatDate(c.date) }}</span>
+                <span v-if="editingClosure !== c.id" class="item-label" @click="startEditClosure(c)" title="Cliquer pour modifier le motif">{{ c.label || 'Fermeture exceptionnelle' }} ✏️</span>
+                <span v-else class="item-label-edit">
+                  <input type="text" v-model="editingClosureLabel" class="input-text" @keyup.enter="saveClosureLabel(c)" @keyup.escape="editingClosure = null" />
+                  <button class="btn-add" style="padding:5px 10px;font-size:0.85em" @click="saveClosureLabel(c)">✓</button>
+                  <button class="btn-delete" @click="editingClosure = null">✕</button>
+                </span>
+                <button v-if="editingClosure !== c.id" class="btn-delete" @click="deleteClosure(c.id)" title="Rouvrir ce jour">✕</button>
               </div>
+              <p class="empty" v-if="closuresUpcoming.length === 0">Aucune fermeture exceptionnelle à venir.</p>
             </div>
-          </div>
+
+            <h3>Ouvertures exceptionnelles</h3>
+            <div class="list">
+              <div class="list-item" v-for="e in extrasUpcoming" :key="e.id">
+                <span class="item-date">{{ formatDate(e.date) }}</span>
+                <span class="item-label">{{ e.label || 'Ouverture exceptionnelle' }}<template v-if="e.horaires"> · {{ e.horaires }}</template></span>
+                <button class="btn-delete" @click="deleteExtra(e.id)" title="Supprimer">✕</button>
+              </div>
+              <p class="empty" v-if="extrasUpcoming.length === 0">Aucune ouverture exceptionnelle à venir.</p>
+            </div>
+          </details>
         </section>
 
         <!-- ACTUALITÉS -->
@@ -726,6 +695,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import PhotoEraser from './PhotoEraser.vue'
+import AdminCalendar from './AdminCalendar.vue'
 import { removeBackground } from '@imgly/background-removal'
 
 // Détourage : IMG.LY background-removal (isnet, optimisé ORT-Web, CDN hébergé).
@@ -867,7 +837,6 @@ const applyGradientPreset = (p) => {
 
 // Fermetures
 const closures = ref([])
-const newClosure = ref({ date: '', label: '' })
 
 // Actualités
 const actu = ref({ titre: '', message: '', type: 'info', visible: false })
@@ -1707,33 +1676,14 @@ const loadClosures = () => {
   })
 }
 
-const addClosure = async () => {
-  if (!newClosure.value.date) return
-  await addDoc(collection(db, 'fermetures'), {
-    date: newClosure.value.date,
-    label: newClosure.value.label || 'Fermeture exceptionnelle'
-  })
-  newClosure.value = { date: '', label: '' }
-}
-
-
-// Ouvertures exceptionnelles
+// Ouvertures exceptionnelles (ajout / modification depuis AdminCalendar.vue)
 const extras = ref([])
-const newExtra = ref({ date: '', label: '', horaires: '' })
+const closuresUpcoming = computed(() => closures.value.filter(c => c.date >= isoDate(new Date())))
 const extrasUpcoming = computed(() => extras.value.filter(e => e.date >= isoDate(new Date())))
 const loadExtras = () => {
   onSnapshot(query(collection(db, 'ouvertures_exceptionnelles'), orderBy('date')), snap => {
     extras.value = snap.docs.map(d => ({ id: d.id, ...d.data() }))
   })
-}
-const addExtra = async () => {
-  if (!newExtra.value.date) return
-  await addDoc(collection(db, 'ouvertures_exceptionnelles'), {
-    date: newExtra.value.date,
-    label: newExtra.value.label || 'Ouverture exceptionnelle',
-    horaires: newExtra.value.horaires || '',
-  })
-  newExtra.value = { date: '', label: '', horaires: '' }
 }
 const deleteExtra = async (id) => {
   await deleteDoc(doc(db, 'ouvertures_exceptionnelles', id))
@@ -1741,19 +1691,6 @@ const deleteExtra = async (id) => {
 
 const deleteClosure = async (id) => {
   await deleteDoc(doc(db, 'fermetures', id))
-}
-
-const onPreviewDateClick = (date) => {
-  if (date.closed) {
-    const closure = closures.value.find(c => c.date === date.iso)
-    if (closure && confirm(`Annuler la fermeture du ${date.label} ?`)) {
-      deleteClosure(closure.id)
-    }
-  } else {
-    newClosure.value.date = date.iso
-    newClosure.value.label = 'Fermeture exceptionnelle'
-    document.querySelector('.input-date')?.focus()
-  }
 }
 
 // Édition inline du motif de fermeture
@@ -1777,18 +1714,6 @@ const formatDate = (iso) => {
 const calPreview = computed(() =>
   buildOpeningDates({ regles: horairesRegles.value, extras: extras.value }).slice(0, 8).map(item => ({
     ...item,
-    day: item.date.toLocaleDateString('fr-FR', { weekday: 'long' }),
-    label: item.date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }),
-  }))
-)
-
-const previewDates = computed(() =>
-  buildOpeningDates({ regles: horairesRegles.value, closures: closures.value, extras: extras.value }).slice(0, 12).map(item => ({
-    iso: item.iso,
-    closed: item.closed,
-    closureLabel: item.closedLabel || 'Fermeture exceptionnelle',
-    exceptional: item.exceptional,
-    weekday: item.label_jour,
     day: item.date.toLocaleDateString('fr-FR', { weekday: 'long' }),
     label: item.date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }),
   }))
@@ -2103,6 +2028,9 @@ const loadData = () => {
 .section-desc { color: #888; font-size: 0.88em; margin-bottom: 20px; }
 
 /* FORMULAIRES */
+.dates-details { margin-top: 24px; }
+.dates-details summary { cursor: pointer; font-weight: 700; color: var(--primary-teal); padding: 8px 0; }
+.dates-details h3 { margin: 16px 0 8px; font-size: 1em; }
 .form-row { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
 .form-block { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
 .form-block label { font-weight: 600; font-size: 0.9em; color: #444; }
