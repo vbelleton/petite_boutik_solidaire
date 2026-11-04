@@ -45,7 +45,7 @@
           <span class="ticker-seg" v-for="n in 3" :key="n">
             <template v-if="openToday">
               <span class="ticker-dot" aria-hidden="true"></span>
-              <b>Ouvert aujourd'hui</b> · {{ plage }}
+              <b>Ouvert aujourd'hui</b> · {{ todayHoraires || plage }}
             </template>
             <template v-else-if="nextOpening">
               <span class="ticker-dot" aria-hidden="true"></span>
@@ -73,7 +73,7 @@ const props = defineProps({
   }
 })
 
-const { openToday, nextOpening, plage } = useOpeningStatus()
+const { openToday, todayHoraires, nextOpening, plage } = useOpeningStatus()
 
 // Annonce optionnelle (actualité) ajoutée au défilé
 const actu = ref({ visible: false, titre: '', message: '', defilant: true })

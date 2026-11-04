@@ -26,9 +26,8 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted, onUnmounted } from 'vue'
-import { collection, onSnapshot, query, orderBy, doc } from 'firebase/firestore'
-import { db } from '../firebase.js'
+import { computed } from 'vue'
+import { useOpeningStatus } from '../composables/useOpeningStatus.js'
 import { useTextes } from '../composables/useTextes.js'
 
 const textes = useTextes()
@@ -37,63 +36,8 @@ const phoneRaw = computed(() => textes.value.sticky_phone_raw || '0620705496')
 const address  = computed(() => textes.value.sticky_address  || '2 rue Jean-Monnet, Morlaix')
 const hours    = computed(() => textes.value.sticky_hours    || '1er/3e mer. & sam. 10h-17h30')
 
-// ── Statut d'ouverture (mêmes règles que le calendrier) ───────────────────────
-const DEFAULT_REGLES = [
-  { jour: 3, semaines: [1, 3], label: 'mercredi' },
-  { jour: 6, semaines: [1, 3], label: 'samedi' },
-]
-const regles = ref(DEFAULT_REGLES)
-const closures = ref([])
-let unsubClosures = null, unsubHoraires = null
-
-onMounted(() => {
-  unsubClosures = onSnapshot(
-    query(collection(db, 'fermetures'), orderBy('date')),
-    snap => { closures.value = snap.docs.map(d => d.data().date) },
-    () => {}
-  )
-  unsubHoraires = onSnapshot(doc(db, 'config', 'horaires'), snap => {
-    if (snap.exists() && snap.data().regles?.length) regles.value = snap.data().regles
-  }, () => {})
-})
-onUnmounted(() => {
-  if (unsubClosures) unsubClosures()
-  if (unsubHoraires) unsubHoraires()
-})
-
-const iso = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
-function nthWeekday(y, m, wd, n) {
-  const first = new Date(y, m, 1)
-  return new Date(y, m, 1 + ((wd - first.getDay() + 7) % 7) + (n - 1) * 7)
-}
-function openingDates() {
-  const out = []
-  const today = new Date(); today.setHours(0,0,0,0)
-  const end = new Date(today); end.setMonth(end.getMonth() + 3)
-  const cursor = new Date(today.getFullYear(), today.getMonth(), 1)
-  while (cursor <= end) {
-    const y = cursor.getFullYear(), m = cursor.getMonth()
-    for (const r of regles.value) {
-      const jour = typeof r.jour === 'number' ? r.jour : parseInt(r.jour)
-      if (isNaN(jour)) continue
-      for (const occ of (r.semaines || [1, 3])) {
-        const date = nthWeekday(y, m, jour, occ)
-        if (date >= today && date <= end && !closures.value.includes(iso(date))) out.push(date)
-      }
-    }
-    cursor.setMonth(cursor.getMonth() + 1)
-  }
-  return out.sort((a, b) => a - b)
-}
-const openToday = computed(() => {
-  const t = new Date(); t.setHours(0,0,0,0)
-  return openingDates().some(d => iso(d) === iso(t))
-})
-const nextOpening = computed(() => {
-  const t = new Date(); t.setHours(0,0,0,0)
-  const next = openingDates().find(d => iso(d) !== iso(t))
-  return next ? next.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) : ''
-})
+// ── Statut d'ouverture (même source que le calendrier) ───────────────────────
+const { openToday, nextOpening } = useOpeningStatus()
 </script>
 
 <style scoped>
