@@ -176,21 +176,23 @@
           <div class="upload-block">
             <h3>➕ Ajouter une photo</h3>
             <div class="form-block" style="margin-top:14px;">
-              <label>Type de galerie</label>
-              <div class="gallery-type-select">
-                <label class="radio-label" :class="{ active: upload.gallery === 'boutique' }">
-                  <input type="radio" v-model="upload.gallery" value="boutique" />
-                  🏬 Boutique
-                </label>
-                <label class="radio-label" :class="{ active: upload.gallery === 'articles' }">
-                  <input type="radio" v-model="upload.gallery" value="articles" />
-                  👕 Articles
-                </label>
+              <label>1. Où vont ces photos ?</label>
+              <div class="gallery-choice">
+                <button type="button" :class="['gallery-choice-card', { active: upload.gallery === 'boutique' }]" @click="upload.gallery = 'boutique'">
+                  <span class="gc-icon">🏬</span>
+                  <strong>Boutique</strong>
+                  <span>Le magasin : vitrine, rayons, équipe, événements.</span>
+                </button>
+                <button type="button" :class="['gallery-choice-card', { active: upload.gallery === 'articles' }]" @click="upload.gallery = 'articles'">
+                  <span class="gc-icon">👕</span>
+                  <strong>Articles</strong>
+                  <span>Un vêtement ou un objet en vente. Le fond est retiré automatiquement.</span>
+                </button>
               </div>
               <div v-if="bgModelLoading" class="bg-model-info">
                 <span class="bg-model-loading">⏳ Chargement modèle de détourage...</span>
               </div>
-              <label>Photo</label>
+              <label>2. Choisissez les photos</label>
               <div
                 class="drop-zone"
                 :class="{ 'drag-over': isDragging }"
@@ -220,8 +222,8 @@
                   </div>
                 </div>
               <div class="upload-actions" v-if="upload.files.length">
-                <button class="btn-save" @click="uploadPhoto" :disabled="upload.uploading">
-                  {{ upload.uploading ? '⏳ Envoi en cours...' : '⬆️ Envoyer les photos (' + upload.files.length + ')' }}
+                <button class="btn-save" @click="uploadPhoto" :disabled="upload.uploading || !upload.gallery">
+                  {{ upload.uploading ? '⏳ Envoi en cours...' : !upload.gallery ? 'Choisissez d\'abord Boutique ou Articles' : '⬆️ Envoyer ' + upload.files.length + ' photo(s) dans ' + (upload.gallery === 'articles' ? 'Articles' : 'Boutique') }}
                 </button>
                 <button class="btn-cancel" @click="cancelUpload" :disabled="upload.uploading">✕ Annuler</button>
               </div>
@@ -242,9 +244,14 @@
             </div>
             <div class="gallery-tab-filter">
               <button :class="['gtab', adminGalleryFilter === 'all' ? 'active' : '']" @click="adminGalleryFilter = 'all'">Toutes</button>
-              <button :class="['gtab', adminGalleryFilter === 'boutique' ? 'active' : '']" @click="adminGalleryFilter = 'boutique'">🏬 Boutique</button>
-              <button :class="['gtab', adminGalleryFilter === 'articles' ? 'active' : '']" @click="adminGalleryFilter = 'articles'">👕 Articles</button>
+              <button :class="['gtab', adminGalleryFilter === 'boutique' ? 'active' : '']" @click="adminGalleryFilter = 'boutique'">🏬 Boutique ({{ galleryCounts.boutique }})</button>
+              <button :class="['gtab', adminGalleryFilter === 'articles' ? 'active' : '']" @click="adminGalleryFilter = 'articles'">👕 Articles ({{ galleryCounts.articles }})</button>
             </div>
+          </div>
+
+          <div class="gallery-warning" v-if="suspectBoutique.length">
+            <span>⚠️ <strong>{{ suspectBoutique.length }} photo(s) détourée(s)</strong> sont rangées dans Boutique. Ce sont probablement des articles.</span>
+            <button class="btn-save" @click="moveSuspectsToArticles">Les déplacer dans Articles</button>
           </div>
 
           <!-- Grille unifiée -->
@@ -259,7 +266,8 @@
             >
               <img :src="photo._srcThumb || photo._src" :alt="photo._displayAlt" loading="lazy" width="320" height="240" />
               <div class="thumb-badges">
-                <span class="badge badge-gallery">{{ photo._raw.gallery === 'articles' ? '👕' : '🏬' }}</span>
+                <span class="badge badge-gallery" v-if="photo._gallery">{{ photo._gallery === 'articles' ? '👕 Articles' : '🏬 Boutique' }}</span>
+                <span class="badge badge-hidden" v-else>⚠️ non affichée</span>
                 <span v-if="photo._raw.removeBg" class="badge badge-nobg">sans fond</span>
                 <span v-if="!photo._active" class="badge badge-hidden">masquée</span>
               </div>
@@ -640,12 +648,12 @@
             <div class="drawer-row">
               <span class="drawer-label">Galerie</span>
               <div class="drawer-radio-group">
-                <label :class="['drawer-radio', drawerPhoto._raw.gallery === 'boutique' ? 'active' : '']">
-                  <input type="radio" :value="'boutique'" :checked="drawerPhoto._raw.gallery === 'boutique'" @change="changePhotoGallery(drawerPhoto._raw, 'boutique')" />
+                <label :class="['drawer-radio', drawerPhoto._gallery === 'boutique' ? 'active' : '']">
+                  <input type="radio" :value="'boutique'" :checked="drawerPhoto._gallery === 'boutique'" @change="changePhotoGallery(drawerPhoto._raw, 'boutique')" />
                   🏬 Boutique
                 </label>
-                <label :class="['drawer-radio', drawerPhoto._raw.gallery === 'articles' ? 'active' : '']">
-                  <input type="radio" :value="'articles'" :checked="drawerPhoto._raw.gallery === 'articles'" @change="changePhotoGallery(drawerPhoto._raw, 'articles')" />
+                <label :class="['drawer-radio', drawerPhoto._gallery === 'articles' ? 'active' : '']">
+                  <input type="radio" :value="'articles'" :checked="drawerPhoto._gallery === 'articles'" @change="changePhotoGallery(drawerPhoto._raw, 'articles')" />
                   👕 Articles
                 </label>
               </div>
@@ -726,6 +734,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import PhotoEraser from './PhotoEraser.vue'
+import { effectiveGallery } from '../composables/photoGallery.js'
 import { removeBackground } from '@imgly/background-removal'
 
 // Détourage : IMG.LY background-removal (isnet, optimisé ORT-Web, CDN hébergé).
@@ -1322,16 +1331,31 @@ const mergedPhotos = computed(() =>
     _srcThumb: p.url,
     _displayAlt: p.alt,
     _active: p.active,
+    _gallery: effectiveGallery(p),
   }))
 )
 
 const adminGalleryFilter = ref('all')
+const galleryCounts = computed(() => ({
+  boutique: mergedPhotos.value.filter(p => p._gallery === 'boutique').length,
+  articles: mergedPhotos.value.filter(p => p._gallery === 'articles').length,
+}))
+// Photos détourées rangées dans Boutique : ce sont presque toujours des articles mal classés
+const suspectBoutique = computed(() =>
+  mergedPhotos.value.filter(p => p._gallery === 'boutique' && p._raw.removeBg === true)
+)
+const moveSuspectsToArticles = async () => {
+  const list = suspectBoutique.value
+  if (!list.length) return
+  if (!confirm(`Déplacer ${list.length} photo(s) détourée(s) de Boutique vers Articles ?`)) return
+  for (const p of list) await setDoc(doc(db, 'photos', p.id), { ...p._raw, gallery: 'articles' })
+}
 
 const mergedPhotosFiltered = computed(() => {
   const q = (adminSearch.value || '').trim().toLowerCase()
   const gf = adminGalleryFilter.value
   return mergedPhotos.value.filter(p => {
-    if (gf !== 'all' && p._raw.gallery !== gf) return false
+    if (gf !== 'all' && p._gallery !== gf) return false
     if (!q) return true
     if ((p._displayAlt || '').toLowerCase().includes(q)) return true
     const tags = p._raw.tags
@@ -1377,7 +1401,7 @@ const photosWithDecorFiltered = computed(() => {
 const fileInput = ref(null)
 const processingBgId = ref(null)
 const isDragging = ref(false)
-const upload = ref({ gallery: 'boutique', files: [], previews: [], alts: [], removeBg: [], uploading: false, done: false, error: '', progress: { pct: 0, label: '' } })
+const upload = ref({ gallery: '', files: [], previews: [], alts: [], removeBg: [], uploading: false, done: false, error: '', progress: { pct: 0, label: '' } })
 
 const MAX_FILE_SIZE_MB = 15
 
@@ -1413,7 +1437,7 @@ watch(() => upload.value.gallery, (gallery) => {
 
   const uploadPhoto = async () => {
     const files = upload.value.files
-    if (!files.length) return
+    if (!files.length || !upload.value.gallery) return
     upload.value.uploading = true
     upload.value.error = ''
     upload.value.progress = { pct: 0, label: 'Préparation...' }
@@ -1478,6 +1502,7 @@ watch(() => upload.value.gallery, (gallery) => {
         setTimeout(() => { upload.value.done = false }, 4000)
       }
       upload.value.files = []
+      upload.value.gallery = ''  // obliger à choisir la galerie à chaque envoi
       upload.value.previews = []
       upload.value.alts = []
       upload.value.removeBg = []
@@ -2103,6 +2128,12 @@ const loadData = () => {
 .section-desc { color: #888; font-size: 0.88em; margin-bottom: 20px; }
 
 /* FORMULAIRES */
+.gallery-choice { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 14px; }
+.gallery-choice-card { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left; padding: 14px; border: 2px solid #dde5e5; border-radius: 12px; background: #fff; font: inherit; cursor: pointer; }
+.gallery-choice-card span:last-child { font-size: 0.85em; color: #666; }
+.gallery-choice-card .gc-icon { font-size: 1.6em; }
+.gallery-choice-card.active { border-color: var(--primary-teal); background: #eef9f9; box-shadow: 0 0 0 2px var(--primary-teal) inset; }
+.gallery-warning { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px; margin-bottom: 12px; border-radius: 10px; background: #fff6e5; border: 1px solid #f2c66d; }
 .form-row { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
 .form-block { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
 .form-block label { font-weight: 600; font-size: 0.9em; color: #444; }
