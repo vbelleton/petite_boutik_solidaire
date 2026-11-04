@@ -764,11 +764,17 @@ import {
 } from 'firebase/firestore'
 const STORAGE_WORKER = 'https://petite-boutik-storage.belletonv.workers.dev'
 
+// Jeton de connexion de l'admin, exigé par le Worker pour toute écriture
+async function authHeaders() {
+  const u = auth.currentUser
+  return u ? { Authorization: `Bearer ${await u.getIdToken()}` } : {}
+}
+
 async function uploadToWorker(file) {
   const formData = new FormData()
   const f = file instanceof File ? file : new File([file], 'image.png', { type: file.type || 'image/png' })
   formData.append('file', f)
-  const res = await fetch(`${STORAGE_WORKER}/upload`, { method: 'POST', body: formData })
+  const res = await fetch(`${STORAGE_WORKER}/upload`, { method: 'POST', body: formData, headers: await authHeaders() })
   if (!res.ok) throw new Error(`Upload failed: ${res.status}`)
   const data = await res.json()
   return data.url
@@ -777,7 +783,7 @@ async function uploadToWorker(file) {
 async function deleteFromWorker(url) {
   const key = url.split('/files/').pop()
   if (!key) return
-  await fetch(`${STORAGE_WORKER}/files/${key}`, { method: 'DELETE' }).catch(() => {})
+  await fetch(`${STORAGE_WORKER}/files/${key}`, { method: 'DELETE', headers: await authHeaders() }).catch(() => {})
 }
 
 import { auth, googleProvider, db } from '../firebase.js'
@@ -793,7 +799,7 @@ const tab = ref('fermetures')
 
 // Preview iframe
 const showPreview = ref(false)
-const previewMode = ref('local')
+const previewMode = ref('deployed')
 const previewTs = ref(0)
 const previewSrc = computed(() => {
   const base = previewMode.value === 'local' ? 'http://localhost:5173' : 'https://petite-boutik-solidaire.pages.dev'
@@ -1260,7 +1266,7 @@ const suggestFor = async () => {
   try {
     const res = await fetch(`${WORKER_URL}/suggest`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...(await authHeaders()) },
       body: JSON.stringify({ imageUrl: drawerPhoto.value._src }),
     })
     if (!res.ok) throw new Error(await res.text())
@@ -1574,7 +1580,9 @@ const deleteDynamicPhoto = async (photo) => {
 }
 
 const deleteAllDynamicPhotos = async () => {
-  if (!confirm('⚠️ Supprimer TOUTES les photos ? Cette action est irréversible.')) return
+  const n = dynamicPhotos.value.length
+  const typed = prompt(`⚠️ Cela supprime définitivement les ${n} photos du site, sans retour possible.\n\nPour confirmer, tapez SUPPRIMER :`)
+  if ((typed || '').trim().toUpperCase() !== 'SUPPRIMER') return
   const snap = await getDocs(collection(db, 'photos'))
   const deletions = snap.docs.map(async d => {
     const data = d.data()
@@ -1623,13 +1631,17 @@ onAuthStateChanged(auth, async (u) => {
 })
 
 const checkAdmin = async (email) => {
-  // Vérifier dans Firestore d'abord, puis dans la liste locale
+  const e = (email || '').toLowerCase()
+  if (ADMIN_EMAILS.map(x => x.toLowerCase()).includes(e)) { isAdmin.value = true; return }
+  try {
+    // Nouveau format : document admins/<email>
+    if ((await getDoc(doc(db, 'admins', e))).exists()) { isAdmin.value = true; return }
+  } catch { /* règles qui refusent la lecture : on tente l'ancien format */ }
   try {
     const snap = await getDocs(collection(db, 'admins'))
-    const emails = snap.docs.map(d => d.data().email)
-    isAdmin.value = emails.includes(email) || ADMIN_EMAILS.includes(email)
+    isAdmin.value = snap.docs.some(d => (d.data().email || '').toLowerCase() === e)
   } catch {
-    isAdmin.value = ADMIN_EMAILS.includes(email)
+    isAdmin.value = false
   }
 }
 
@@ -1781,13 +1793,29 @@ const actuStatus = actuAutoSave.status
 const loadAdmins = () => {
   onSnapshot(collection(db, 'admins'), snap => {
     adminList.value = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    migrateAdmins()
   })
 }
 
+// Chaque admin = un document dont l'identifiant est son adresse (en minuscules) :
+// les règles Firestore et le Worker vérifient l'accès avec exists(admins/<email>).
 const addAdmin = async () => {
-  if (!newAdminEmail.value) return
-  await addDoc(collection(db, 'admins'), { email: newAdminEmail.value })
+  const email = (newAdminEmail.value || '').trim().toLowerCase()
+  if (!email || !email.includes('@')) return
+  await setDoc(doc(db, 'admins', email), { email })
   newAdminEmail.value = ''
+}
+
+// Anciennes fiches admin (identifiant aléatoire) : recopiées sous l'adresse, puis retirées
+const migrateAdmins = async () => {
+  for (const a of adminList.value) {
+    const email = (a.email || '').trim().toLowerCase()
+    if (!email || a.id === email) continue
+    try {
+      await setDoc(doc(db, 'admins', email), { email })
+      await deleteDoc(doc(db, 'admins', a.id))
+    } catch (e) { console.warn('Migration admin impossible', e) }
+  }
 }
 
 const deleteAdmin = async (id) => {
