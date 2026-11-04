@@ -36,6 +36,7 @@
 </template>
 
 <script setup>
+import { isBoutique } from '../composables/photoGallery.js'
 import { ref, computed, watch, nextTick, onUnmounted } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Autoplay, Pagination, Navigation } from 'swiper/modules'
@@ -57,8 +58,6 @@ function galleryCardUrl(url) {
   return url.replace('/upload/', '/upload/w_600,c_limit,f_auto,q_auto/')
 }
 
-const isBoutique = (p) =>
-  p.gallery === 'boutique' || (p.gallery === 'gallery' && p.removeBg === false)
 
 const images = computed(() =>
   dynamicPhotos.value

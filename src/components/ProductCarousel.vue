@@ -130,6 +130,7 @@
 </template>
 
 <script setup>
+import { isArticles, isBoutique } from '../composables/photoGallery.js'
 import { ref, computed, onMounted, onUnmounted, watchEffect, watch } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Autoplay, Pagination, Navigation } from 'swiper/modules'
@@ -162,11 +163,6 @@ const toImg = (p) => ({ fullSrc: p.originalUrl || p.url, src: p.url, thumb: p.ur
 
 // Onglet Boutique : toutes les photos boutique actives (avec ou sans fond retiré)
 // Onglet Articles : uniquement les photos articles avec fond retiré (détourage)
-const isArticles = (p) =>
-  p.gallery === 'articles' || (p.gallery === 'gallery' && p.removeBg === true)
-
-const isBoutique = (p) =>
-  p.gallery === 'boutique' || (p.gallery === 'gallery' && p.removeBg === false)
 
 const baseImages = computed(() =>
   dynamicPhotos.value
