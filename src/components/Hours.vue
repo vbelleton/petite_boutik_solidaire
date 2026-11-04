@@ -2,9 +2,9 @@
   <div class="hours" id="horaires" style="scroll-margin-top:64px">
     <h2>{{ titre }}</h2>
     <div class="hours-grid">
-      <div class="hours-card" v-for="regle in regles" :key="regle.label" :style="{ borderColor: regle.color || '#1BA9A8' }">
+      <div class="hours-card" v-for="regle in regles" :key="regle.label" :style="{ borderColor: regleColor(regle) }">
         <span class="day-icon">{{ regle.emoji || '📅' }}</span>
-        <p :style="{ color: regle.color || '#1BA9A8' }">{{ regle.texte_jours }}</p>
+        <p :style="{ color: regleColor(regle) }">{{ regle.texte_jours }}</p>
       </div>
       <div class="hours-card">
         <span class="day-icon">🕙</span>
@@ -19,6 +19,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { onSnapshot, doc } from 'firebase/firestore'
 import { db } from '../firebase.js'
+import { regleColor } from '../composables/openingDates.js'
 
 const DEFAULT_REGLES = [
   { label: 'mercredi', texte_jours: '1ers et 3èmes mercredis' },
