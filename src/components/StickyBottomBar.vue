@@ -1,5 +1,5 @@
 <template>
-  <div class="sticky-bar" :class="{ 'is-open': openToday }">
+  <aside class="sticky-bar" :class="{ 'is-open': openToday }" aria-label="Infos pratiques">
     <div class="bar-status" :class="openToday ? 'open' : 'closed'">
       <span class="status-dot" aria-hidden="true"></span>
       <template v-if="openToday">Ouvert aujourd'hui</template>
@@ -22,7 +22,7 @@
         {{ hours }}
       </span>
     </div>
-  </div>
+  </aside>
 </template>
 
 <script setup>
@@ -67,7 +67,7 @@ body.modal-open .sticky-bar { pointer-events: none; }
 }
 .bar-status.open {
   color: #fff;
-  background: linear-gradient(135deg, #1BA9A8 0%, #16937f 100%);
+  background: linear-gradient(135deg, var(--primary-teal) 0%, var(--primary-teal-dark) 100%);
 }
 .bar-status.closed {
   color: var(--text-gray);

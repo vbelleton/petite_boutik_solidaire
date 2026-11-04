@@ -38,7 +38,7 @@ onUnmounted(() => { if (unsubscribe) unsubscribe() })
 
 .actu-banner.info {
   background: #e8f4fd;
-  border-color: #1BA9A8;
+  border-color: var(--brand-teal);
 }
 .actu-banner.warning {
   background: #FFF3CD;

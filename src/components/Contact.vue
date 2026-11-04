@@ -32,7 +32,7 @@
           target="_blank"
           rel="noopener noreferrer"
           class="maps-link"
-          aria-label="Ouvrir l'adresse dans Google Maps (ouvre un nouvel onglet)"
+          aria-label="Ouvrir dans Google Maps (nouvel onglet)"
         >Ouvrir dans Google Maps →</a>
       </div>
     </div>

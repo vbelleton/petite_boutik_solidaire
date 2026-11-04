@@ -68,7 +68,6 @@ const values = ref([
   box-shadow: 0 2px 8px rgba(27, 169, 168, 0.2);
   cursor: default;
   transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-  outline: none;
 }
 
 .badge:hover,

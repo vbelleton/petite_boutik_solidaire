@@ -3,11 +3,14 @@
     <h2>{{ titre }}</h2>
     <div class="hours-grid">
       <div class="hours-card" v-for="regle in regles" :key="regle.label" :style="{ borderColor: regleColor(regle) }">
-        <span class="day-icon">{{ regle.emoji || '📅' }}</span>
-        <p :style="{ color: regleColor(regle) }">{{ regle.texte_jours }}</p>
+        <span class="day-icon" aria-hidden="true">
+          <svg v-if="!regle.emoji || regle.emoji === '📅'" class="day-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" :style="{ color: readableColor(regleColor(regle)) }"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          <template v-else>{{ regle.emoji }}</template>
+        </span>
+        <p :style="{ color: readableColor(regleColor(regle)) }">{{ regle.texte_jours }}</p>
       </div>
       <div class="hours-card">
-        <span class="day-icon">🕙</span>
+        <span class="day-icon" aria-hidden="true">🕙</span>
         <p><strong>{{ plage }}</strong></p>
       </div>
     <!-- removed volunteer text card as requested -->
@@ -19,7 +22,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { onSnapshot, doc } from 'firebase/firestore'
 import { db } from '../firebase.js'
-import { regleColor } from '../composables/openingDates.js'
+import { regleColor, readableColor } from '../composables/openingDates.js'
 
 const DEFAULT_REGLES = [
   { label: 'mercredi', texte_jours: '1ers et 3èmes mercredis' },
@@ -89,4 +92,5 @@ onUnmounted(() => { if (unsubHoraires) unsubHoraires() })
   color: var(--primary-teal);
   font-weight: 700;
 }
+.day-svg { width: 1.6em; height: 1.6em; display: inline-block; vertical-align: middle }
 </style>
