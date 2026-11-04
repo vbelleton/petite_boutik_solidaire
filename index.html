@@ -47,6 +47,30 @@
     <meta property="og:url" content="https://petite-boutik-solidaire.pages.dev/" />
     <meta property="og:image" content="https://petite-boutik-solidaire.pages.dev/og-image.png" />
     <meta property="og:locale" content="fr_FR" />
+    <meta name="robots" content="index, follow" />
+    <!-- Fiche « commerce local » pour Google. Les dates d'ouverture précises
+         (y compris fermetures et ouvertures exceptionnelles) sont ajoutées par
+         src/composables/useLocalBusinessJsonLd.js une fois le calendrier chargé. -->
+    <script type="application/ld+json" id="ld-business">
+    {
+      "@context": "https://schema.org",
+      "@type": "Store",
+      "name": "La P'tite Boutik Solidaire",
+      "description": "Vêtements enfants 0-10 ans, chaussures et puériculture de seconde main à prix mini. Association Bras Ouverts de Morlaix.",
+      "url": "https://petite-boutik-solidaire.pages.dev/",
+      "image": "https://petite-boutik-solidaire.pages.dev/og-image.png",
+      "telephone": "+33620705496",
+      "priceRange": "€",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "2 rue Jean-Monnet",
+        "postalCode": "29600",
+        "addressLocality": "Morlaix",
+        "addressCountry": "FR"
+      },
+      "parentOrganization": { "@type": "Organization", "name": "Association Bras Ouverts de Morlaix" }
+    }
+    </script>
   </head>
   <body>
     <div id="app"></div>

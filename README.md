@@ -35,6 +35,12 @@ Données Firestore : `config/*` (horaires, textes, actualité, blocs, galeries),
 - Le Worker vérifie le jeton Firebase (signature, projet, expiration), puis l'existence de `admins/<email>`. Seule la lecture des images `/files/...` est publique.
 - Une nouvelle collection Firestore doit être ajoutée dans `firestore.rules`, sinon elle est refusée.
 
+## Garde-fous et sauvegarde
+
+- `npm run build` vérifie ensuite la taille des fichiers (`scripts/check-dist-size.js`) : alerte au-delà de 22 Mio, échec au-delà de 25 Mio, la limite de Cloudflare Pages.
+- Admin → onglet Admins → **Télécharger une sauvegarde** : export JSON de toutes les collections Firestore.
+- Référencement : `public/robots.txt`, `public/sitemap.xml`, et la fiche « commerce local » (`index.html`, `#ld-business`), complétée par les prochaines dates d'ouverture (`src/composables/useLocalBusinessJsonLd.js`).
+
 ## Travailler en local
 
 ```sh

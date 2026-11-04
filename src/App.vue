@@ -18,6 +18,12 @@ import SiteFooter from './components/SiteFooter.vue'
 import ActuBanner from './components/ActuBanner.vue'
 import SectionNav from './components/SectionNav.vue'
 import StickyBottomBar from './components/StickyBottomBar.vue'
+import { useOpeningStatus } from './composables/useOpeningStatus.js'
+import { useLocalBusinessJsonLd } from './composables/useLocalBusinessJsonLd.js'
+
+// Fiche Google : prochaines dates d'ouverture (habituelles et exceptionnelles)
+const { dates: openingDates, plage: openingPlage } = useOpeningStatus()
+useLocalBusinessJsonLd({ dates: openingDates, plage: openingPlage })
 import MentionsLegales from './components/MentionsLegales.vue'
 
 const blocs = ref({})
