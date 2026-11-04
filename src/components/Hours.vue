@@ -1,25 +1,31 @@
 <template>
   <div class="hours" id="horaires" style="scroll-margin-top:64px">
     <h2>{{ titre }}</h2>
-    <div class="hours-grid">
-      <div class="hours-card" v-for="regle in regles" :key="regle.label" :style="{ borderColor: regleColor(regle) }">
-        <span class="day-icon" aria-hidden="true">
-          <svg v-if="!regle.emoji || regle.emoji === '📅'" class="day-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" :style="{ color: readableColor(regleColor(regle)) }"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-          <template v-else>{{ regle.emoji }}</template>
+    <div class="hours-card">
+      <ul class="hours-list">
+        <li class="hours-row" v-for="regle in regles" :key="regle.label">
+          <span class="row-icon" aria-hidden="true" :style="{ color: readableColor(regleColor(regle)), background: tint(regleColor(regle)) }">
+            <svg v-if="!regle.emoji || regle.emoji === '📅'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            <template v-else>{{ regle.emoji }}</template>
+          </span>
+          <span class="row-text">{{ regle.texte_jours }}</span>
+        </li>
+      </ul>
+      <div class="hours-time">
+        <span class="row-icon time-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
         </span>
-        <p :style="{ color: readableColor(regleColor(regle)) }">{{ regle.texte_jours }}</p>
+        <span class="time-text">
+          <strong>{{ plageParts.main }}</strong>
+          <span v-if="plageParts.sub" class="time-sub">{{ plageParts.sub }}</span>
+        </span>
       </div>
-      <div class="hours-card">
-        <span class="day-icon" aria-hidden="true">🕙</span>
-        <p><strong>{{ plage }}</strong></p>
-      </div>
-    <!-- removed volunteer text card as requested -->
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { onSnapshot, doc } from 'firebase/firestore'
 import { db } from '../firebase.js'
 import { regleColor, readableColor } from '../composables/openingDates.js'
@@ -33,6 +39,20 @@ const titre    = ref("Horaires d'ouverture")
 const regles   = ref(DEFAULT_REGLES)
 const plage    = ref('10h00 – 17h30 sans interruption')
 const benevoles = ref('Accueil par une équipe de bénévoles (mamans, amies et mamies)')
+
+// « 10h00 – 17h30 sans interruption » → heure en gros, précision en dessous
+const plageParts = computed(() => {
+  const m = /^(.*\d)\s+(\D.*)$/.exec((plage.value || '').trim())
+  return m ? { main: m[1], sub: m[2] } : { main: plage.value, sub: '' }
+})
+
+// Fond pâle de la couleur d'une règle (pastille de l'icône)
+function tint(hex) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex || '')
+  if (!m) return '#eef6f6'
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(m[1].slice(i, i + 2), 16))
+  return `rgba(${r}, ${g}, ${b}, 0.12)`
+}
 
 let unsubHoraires = null
 
@@ -61,36 +81,80 @@ onUnmounted(() => { if (unsubHoraires) unsubHoraires() })
   text-align: center;
 }
 
-.hours-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 15px;
-  margin-bottom: 25px;
-}
-
 .hours-card {
-  background: linear-gradient(135deg, #E8F5F5 0%, #E0F2F1 100%);
-  padding: 20px;
-  border-radius: 12px;
-  border: 2px solid var(--primary-teal);
-  text-align: center;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  max-width: 520px;
+  margin: 0 auto;
 }
 
-.day-icon {
-  font-size: 2em;
-  display: block;
-  margin-bottom: 10px;
-}
-
-.hours-card p {
-  color: var(--text-dark);
-  line-height: 1.6;
+.hours-list {
+  list-style: none;
   margin: 0;
+  padding: 6px 20px;
 }
 
-.hours-card strong {
-  color: var(--primary-teal);
+.hours-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0;
+}
+
+.hours-row + .hours-row {
+  border-top: 1px solid #eee;
+}
+
+.row-icon {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3em;
+}
+
+.row-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.row-text {
+  font-size: 1.05em;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.hours-time {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  background: var(--primary-teal);
+  color: #fff;
+}
+
+.time-icon {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+
+.time-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+
+.time-text strong {
+  font-size: 1.2em;
   font-weight: 700;
 }
-.day-svg { width: 1.6em; height: 1.6em; display: inline-block; vertical-align: middle }
+
+.time-sub {
+  font-size: 0.9em;
+}
 </style>

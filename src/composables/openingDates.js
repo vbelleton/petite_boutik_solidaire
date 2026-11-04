@@ -13,7 +13,8 @@ export const DEFAULT_EXTRA_LABEL = 'Ouverture exceptionnelle'
 export function regleColor(r) {
   if (r?.color) return r.color
   const jour = typeof r?.jour === 'number' ? r.jour : parseInt(r?.jour)
-  return jour === 6 ? '#E95E5E' : '#1BA9A8'
+  const samedi = jour === 6 || (isNaN(jour) && /samedi/i.test(`${r?.label || ''} ${r?.texte_jours || ''}`))
+  return samedi ? '#E95E5E' : '#1BA9A8'
 }
 
 // Version de la couleur assez foncée pour du texte sur fond clair (contraste 4,5:1, RGAA 3.2).
