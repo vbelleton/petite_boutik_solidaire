@@ -61,7 +61,7 @@
       </div>
 
       <nav class="admin-nav">
-        <button :class="{ active: tab === 'fermetures' }" @click="tab = 'fermetures'">📅 Fermetures</button>
+        <button :class="{ active: tab === 'fermetures' }" @click="tab = 'fermetures'">📅 Calendrier</button>
         <button :class="{ active: tab === 'actualites' }" @click="tab = 'actualites'">📢 Actualités</button>
         <button :class="{ active: tab === 'galeries' }" @click="tab = 'galeries'">🖼️ Galeries</button>
         <button :class="{ active: tab === 'site' }" @click="tab = 'site'">🌐 Site</button>
@@ -95,6 +95,27 @@
             <p class="empty" v-if="closures.length === 0">Aucune fermeture exceptionnelle.</p>
           </div>
 
+
+          <!-- OUVERTURES EXCEPTIONNELLES -->
+          <h2 style="margin-top:32px">Ouvertures exceptionnelles</h2>
+          <p class="section-desc">Ajoutez un jour où la boutique ouvre en plus des jours habituels (vente de Noël, portes ouvertes…). Il apparaîtra dans le calendrier du site avec la mention « Ouverture exceptionnelle ».</p>
+
+          <div class="form-row">
+            <input type="date" v-model="newExtra.date" class="input-date" />
+            <input type="text" v-model="newExtra.label" placeholder="Motif (ex: Vente de Noël)" class="input-text" />
+            <input type="text" v-model="newExtra.horaires" placeholder="Horaires si différents (ex: 14h–18h)" class="input-text" />
+            <button class="btn-add" @click="addExtra" :disabled="!newExtra.date">Ajouter</button>
+          </div>
+
+          <div class="list">
+            <div class="list-item" v-for="e in extrasUpcoming" :key="e.id">
+              <span class="item-date">{{ formatDate(e.date) }}</span>
+              <span class="item-label">{{ e.label || 'Ouverture exceptionnelle' }}<template v-if="e.horaires"> · {{ e.horaires }}</template></span>
+              <button class="btn-delete" @click="deleteExtra(e.id)" title="Supprimer">✕</button>
+            </div>
+            <p class="empty" v-if="extrasUpcoming.length === 0">Aucune ouverture exceptionnelle à venir.</p>
+          </div>
+
           <!-- Aperçu calendrier -->
           <div class="preview-block">
             <h3>Aperçu — cliquez sur une date pour fermer la boutique ce jour-là</h3>
@@ -110,6 +131,7 @@
                 <span class="preview-day">{{ date.day }}</span>
                 <span class="preview-label">{{ date.label }}</span>
                 <span class="preview-closed-tag" v-if="date.closed">{{ date.closureLabel }} — cliquer pour annuler</span>
+                <span class="preview-closed-tag" v-else-if="date.exceptional" style="color:#E8734A">✨ Ouverture exceptionnelle</span>
                 <span class="preview-add-tag" v-else>+ Ajouter fermeture</span>
               </div>
             </div>
@@ -764,6 +786,7 @@ async function deleteFromWorker(url) {
 
 import { auth, googleProvider, db } from '../firebase.js'
 import { ADMIN_EMAILS } from '../admins.js'
+import { buildOpeningDates, isoDate } from '../composables/openingDates.js'
 
 const user = ref(null)
 const isAdmin = ref(false)
@@ -1693,6 +1716,29 @@ const addClosure = async () => {
   newClosure.value = { date: '', label: '' }
 }
 
+
+// Ouvertures exceptionnelles
+const extras = ref([])
+const newExtra = ref({ date: '', label: '', horaires: '' })
+const extrasUpcoming = computed(() => extras.value.filter(e => e.date >= isoDate(new Date())))
+const loadExtras = () => {
+  onSnapshot(query(collection(db, 'ouvertures_exceptionnelles'), orderBy('date')), snap => {
+    extras.value = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+  })
+}
+const addExtra = async () => {
+  if (!newExtra.value.date) return
+  await addDoc(collection(db, 'ouvertures_exceptionnelles'), {
+    date: newExtra.value.date,
+    label: newExtra.value.label || 'Ouverture exceptionnelle',
+    horaires: newExtra.value.horaires || '',
+  })
+  newExtra.value = { date: '', label: '', horaires: '' }
+}
+const deleteExtra = async (id) => {
+  await deleteDoc(doc(db, 'ouvertures_exceptionnelles', id))
+}
+
 const deleteClosure = async (id) => {
   await deleteDoc(doc(db, 'fermetures', id))
 }
@@ -1727,62 +1773,26 @@ const formatDate = (iso) => {
   return new Date(y, m - 1, d).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 }
 
-// Calcul aperçu calendrier (même logique que Calendar.vue)
-// -- APERÇU CALENDRIER (admin) --------------------------------------------
-function nthWeekdayOfMonth(year, month, weekday, n) {
-  const first = new Date(year, month, 1)
-  const diff = (weekday - first.getDay() + 7) % 7
-  const day = 1 + diff + (n - 1) * 7
-  return new Date(year, month, day)
-}
+// Aperçu calendrier : même calcul que le site (openingDates.js)
+const calPreview = computed(() =>
+  buildOpeningDates({ regles: horairesRegles.value, extras: extras.value }).slice(0, 8).map(item => ({
+    ...item,
+    day: item.date.toLocaleDateString('fr-FR', { weekday: 'long' }),
+    label: item.date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }),
+  }))
+)
 
-function getOpeningDatesFromRegles(regles, monthsAhead = 3) {
-  const dates = []
-  const today = new Date(); today.setHours(0,0,0,0)
-  const end = new Date(today); end.setMonth(end.getMonth() + monthsAhead)
-  const cursor = new Date(today.getFullYear(), today.getMonth(), 1)
-  while (cursor <= end) {
-    for (const regle of regles) {
-      const jourNum = typeof regle.jour === 'number' ? regle.jour : parseInt(regle.jour)
-      for (const occ of (regle.semaines || [1, 3])) {
-        const date = nthWeekdayOfMonth(cursor.getFullYear(), cursor.getMonth(), jourNum, occ)
-        if (date >= today && date <= end) dates.push({ date, label_jour: regle.label || 'ouverture', color: regle.color || '#1BA9A8' })
-      }
-    }
-    cursor.setMonth(cursor.getMonth() + 1)
-  }
-  return dates.sort((a, b) => a.date - b.date)
-}
-
-const calPreview = computed(() => {
-  return getOpeningDatesFromRegles(horairesRegles.value).slice(0, 8).map(item => {
-    const { date, label_jour, color } = item
-    const iso = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`
-    return {
-      iso,
-      label_jour,
-      color,
-      day: date.toLocaleDateString('fr-FR', { weekday: 'long' }),
-      label: date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }),
-    }
-  })
-})
-
-const previewDates = computed(() => {
-  const closedMap = {}
-  closures.value.forEach(c => { closedMap[c.date] = c.label || 'Fermeture exceptionnelle' })
-  return getOpeningDatesFromRegles(horairesRegles.value, 3).slice(0, 10).map(({ date, label_jour }) => {
-    const iso = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`
-    return {
-      iso,
-      closed: !!closedMap[iso],
-      closureLabel: closedMap[iso] || '',
-      weekday: label_jour,
-      day: date.toLocaleDateString('fr-FR', { weekday: 'long' }),
-      label: date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }),
-    }
-  })
-})
+const previewDates = computed(() =>
+  buildOpeningDates({ regles: horairesRegles.value, closures: closures.value, extras: extras.value }).slice(0, 12).map(item => ({
+    iso: item.iso,
+    closed: item.closed,
+    closureLabel: item.closedLabel || 'Fermeture exceptionnelle',
+    exceptional: item.exceptional,
+    weekday: item.label_jour,
+    day: item.date.toLocaleDateString('fr-FR', { weekday: 'long' }),
+    label: item.date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }),
+  }))
+)
 
 // Actualités
 const loadActu = () => {
@@ -1915,6 +1925,7 @@ const saveHoraires = async () => {
 
 const loadData = () => {
   loadClosures()
+  loadExtras()
   loadActu()
   loadTextes()
   loadAdmins()
