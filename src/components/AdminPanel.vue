@@ -131,8 +131,12 @@
               <input type="checkbox" :checked="actu.defilant !== false" @change="actu.defilant = $event.target.checked" />
               Faire défiler le message en haut du site (bandeau animé)
             </label>
-            <button class="btn-save" @click="saveActu">💾 Enregistrer</button>
-            <span class="saved-msg" v-if="actuSaved">✓ Enregistré</span>
+<span class="autosave-msg" :class="actuStatus">
+              <template v-if="actuStatus === 'pending' || actuStatus === 'saving'">Enregistrement…</template>
+              <template v-else-if="actuStatus === 'saved'">✓ Enregistré, le site est à jour</template>
+              <template v-else-if="actuStatus === 'error'">⚠️ Échec de l'enregistrement. <button class="btn-save" @click="actuAutoSave.flush()">Réessayer</button></template>
+              <template v-else>Les modifications sont enregistrées automatiquement.</template>
+            </span>
           </div>
         </section>
 
@@ -416,8 +420,12 @@
                 />
               </div>
               <div class="bloc-actions">
-                <button class="btn-save" @click="saveTextesForBloc(bloc)">💾 Enregistrer</button>
-                <span class="saved-msg" v-if="bloc.saved">✓ Enregistré</span>
+<span class="autosave-msg" :class="textesStatus">
+              <template v-if="textesStatus === 'pending' || textesStatus === 'saving'">Enregistrement…</template>
+              <template v-else-if="textesStatus === 'saved'">✓ Enregistré, le site est à jour</template>
+              <template v-else-if="textesStatus === 'error'">⚠️ Échec de l'enregistrement. <button class="btn-save" @click="textesAutoSave.flush()">Réessayer</button></template>
+              <template v-else>Les modifications sont enregistrées automatiquement.</template>
+            </span>
               </div>
             </div>
             <div class="bloc-body bloc-no-fields" v-else-if="bloc.open && (!bloc.fields || !bloc.fields.length)">
@@ -565,8 +573,12 @@
               </div>
 
               <div class="bloc-actions" style="margin-top:18px">
-                <button class="btn-save" @click="saveTextesForBloc(bloc)">💾 Enregistrer</button>
-                <span class="saved-msg" v-if="bloc.saved">✓ Enregistré</span>
+<span class="autosave-msg" :class="textesStatus">
+              <template v-if="textesStatus === 'pending' || textesStatus === 'saving'">Enregistrement…</template>
+              <template v-else-if="textesStatus === 'saved'">✓ Enregistré, le site est à jour</template>
+              <template v-else-if="textesStatus === 'error'">⚠️ Échec de l'enregistrement. <button class="btn-save" @click="textesAutoSave.flush()">Réessayer</button></template>
+              <template v-else>Les modifications sont enregistrées automatiquement.</template>
+            </span>
               </div>
             </div>
           </div>
@@ -710,6 +722,7 @@ import PhotoEraser from './PhotoEraser.vue'
 import AdminCalendar from './AdminCalendar.vue'
 import { removeBackground } from '@imgly/background-removal'
 import { effectiveGallery } from '../composables/photoGallery.js'
+import { useAutoSave } from '../composables/useAutoSave.js'
 
 // Détourage : IMG.LY background-removal (isnet, optimisé ORT-Web, CDN hébergé).
 // API simple : await imglyRemoveBackground(imageData, config) → Blob PNG.
@@ -853,7 +866,6 @@ const closures = ref([])
 
 // Actualités
 const actu = ref({ titre: '', message: '', type: 'info', visible: false })
-const actuSaved = ref(false)
 
 // Blocs du site — structure style Wix
 const blocsState = ref({})  // { hero: { visible: true }, about: { visible: true }, ... }
@@ -1087,6 +1099,7 @@ const DEFAULT_PRODUCTS_PRICES = [
 
 const loadTextes = () => {
   onSnapshot(doc(db, 'config', 'textes'), snap => {
+    if (textesAutoSave.isDirty()) return
     if (snap.exists()) {
       const data = snap.data()
       Object.keys(textesValues.value).forEach(k => {
@@ -1108,6 +1121,7 @@ const loadTextes = () => {
           { text: 'À la une dans la presse locale', icon: '📰', src: '/documents/PHOTO-2026-05-02-21-17-283.jpg' }
         ]
     }
+    textesAutoSave.markSaved()
   })
 }
 
@@ -1162,15 +1176,15 @@ const sanitizeIconInput = (s) => {
   return String(s).replace(/<[^>]*>/g, '').slice(0, 8)
 }
 
-const saveTextesForBloc = async (bloc) => {
-  const data = {}
-  ;(bloc.fields || []).forEach(f => { data[f.id] = textesValues.value[f.id] })
-  const existingSnap = await getDoc(doc(db, 'config', 'textes'))
-  const existing = existingSnap.exists() ? existingSnap.data() : {}
-  await setDoc(doc(db, 'config', 'textes'), { ...existing, ...data })
-  bloc.saved = true
-  setTimeout(() => bloc.saved = false, 2000)
-}
+// Textes du site : enregistrement automatique, seuls les champs modifiés sont envoyés
+const textesAutoSave = useAutoSave(() => textesValues.value, (current, previous) => {
+  const changed = {}
+  for (const k of Object.keys(current)) {
+    if (JSON.stringify(current[k]) !== JSON.stringify(previous[k])) changed[k] = current[k]
+  }
+  return setDoc(doc(db, 'config', 'textes'), changed, { merge: true })
+})
+const textesStatus = textesAutoSave.status
 
 // Admins
 const adminList = ref([])
@@ -1751,15 +1765,15 @@ const calPreview = computed(() =>
 // Actualités
 const loadActu = () => {
   onSnapshot(doc(db, 'config', 'actualite'), snap => {
+    if (actuAutoSave.isDirty()) return
     if (snap.exists()) Object.assign(actu.value, snap.data())
+    actuAutoSave.markSaved()
   })
 }
 
-const saveActu = async () => {
-  await setDoc(doc(db, 'config', 'actualite'), { ...actu.value })
-  actuSaved.value = true
-  setTimeout(() => actuSaved.value = false, 2000)
-}
+// Actualités : enregistrement automatique
+const actuAutoSave = useAutoSave(() => actu.value, (data) => setDoc(doc(db, 'config', 'actualite'), data))
+const actuStatus = actuAutoSave.status
 
 // Textes — remplacé par loadTextes défini dans la section blocs ci-dessus
 
@@ -1832,6 +1846,8 @@ const SEMAINES_OPTIONS = [
 const loadHoraires = () => {
   onSnapshot(doc(db, 'config', 'horaires'), snap => {
     if (!snap.exists()) return
+    // Saisie en cours non enregistrée : ne pas l'écraser
+    if (horairesLastSaved !== null && horairesJson() !== horairesLastSaved) return
     const d = snap.data()
     if (d.regles && d.regles.length) horairesRegles.value = d.regles
     if (d.plage)      horairesPlageTxt.value = d.plage
