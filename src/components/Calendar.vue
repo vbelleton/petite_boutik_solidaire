@@ -115,7 +115,7 @@ const nextDates = computed(() =>
 .date-exceptional {
   font-size: 0.8em;
   font-weight: 700;
-  color: #E8734A;
+  color: #7B5CC4;
   margin-top: 2px;
 }
 

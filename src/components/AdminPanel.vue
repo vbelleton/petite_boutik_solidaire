@@ -99,7 +99,7 @@
             <div class="list">
               <div class="list-item" v-for="e in extrasUpcoming" :key="e.id">
                 <span class="item-date">{{ formatDate(e.date) }}</span>
-                <span class="item-label">{{ e.label || 'Ouverture exceptionnelle' }}<template v-if="e.horaires"> · {{ e.horaires }}</template></span>
+                <span class="item-label">✨ Ouverture exceptionnelle<template v-if="extraMotif(e.label)"> · {{ extraMotif(e.label) }}</template><template v-if="e.horaires"> · {{ e.horaires }}</template></span>
                 <button class="btn-delete" @click="deleteExtra(e.id)" title="Supprimer">✕</button>
               </div>
               <p class="empty" v-if="extrasUpcoming.length === 0">Aucune ouverture exceptionnelle à venir.</p>
@@ -486,8 +486,12 @@
               </div>
 
               <div class="bloc-actions">
-                <button class="btn-save" @click="saveHoraires">💾 Enregistrer les horaires</button>
-                <span class="saved-msg" v-if="horairesSaved">✓ Enregistré</span>
+                <span class="autosave-msg" :class="horairesStatus">
+                  <template v-if="horairesStatus === 'pending' || horairesStatus === 'saving'">Enregistrement…</template>
+                  <template v-else-if="horairesStatus === 'saved'">✓ Enregistré, le site est à jour</template>
+                  <template v-else-if="horairesStatus === 'error'">⚠️ Échec de l'enregistrement. <button class="btn-save" @click="saveHoraires">Réessayer</button></template>
+                  <template v-else>Les modifications sont enregistrées automatiquement.</template>
+                </span>
               </div>
 
               <!-- Aperçu calendrier -->
@@ -756,7 +760,7 @@ async function deleteFromWorker(url) {
 
 import { auth, googleProvider, db } from '../firebase.js'
 import { ADMIN_EMAILS } from '../admins.js'
-import { buildOpeningDates, isoDate } from '../composables/openingDates.js'
+import { buildOpeningDates, isoDate, extraMotif } from '../composables/openingDates.js'
 
 const user = ref(null)
 const isAdmin = ref(false)
@@ -1809,6 +1813,7 @@ const loadHoraires = () => {
     if (d.benevoles)  horairesBenevoles.value = d.benevoles
     if (d.titre_calendrier) horairesTitreCalendrier.value = d.titre_calendrier
     if (d.horaires_titre)   horairesTitreSection.value   = d.horaires_titre
+    horairesLastSaved = horairesJson()
   }, () => {})
 }
 
@@ -1836,17 +1841,46 @@ const updateRegleJour = (regle, jourNum) => {
   regle.color = colorMap[regle.jour] || '#1BA9A8'
 }
 
+const horairesPayload = () => ({
+  regles: horairesRegles.value,
+  plage: horairesPlageTxt.value,
+  benevoles: horairesBenevoles.value,
+  titre_calendrier: horairesTitreCalendrier.value,
+  horaires_titre: horairesTitreSection.value,
+})
+const horairesJson = () => JSON.stringify(horairesPayload())
+let horairesLastSaved = null   // null tant que les horaires ne sont pas chargés
+let horairesTimer = null
+const horairesStatus = ref('')  // '', 'pending', 'saving', 'saved', 'error'
+
 const saveHoraires = async () => {
-  await setDoc(doc(db, 'config', 'horaires'), {
-    regles: horairesRegles.value,
-    plage: horairesPlageTxt.value,
-    benevoles: horairesBenevoles.value,
-    titre_calendrier: horairesTitreCalendrier.value,
-    horaires_titre: horairesTitreSection.value,
-  })
-  horairesSaved.value = true
-  setTimeout(() => horairesSaved.value = false, 2000)
+  clearTimeout(horairesTimer)
+  const json = horairesJson()
+  horairesStatus.value = 'saving'
+  try {
+    await setDoc(doc(db, 'config', 'horaires'), JSON.parse(json))
+    horairesLastSaved = json
+    horairesStatus.value = 'saved'
+    horairesSaved.value = true
+    setTimeout(() => { horairesSaved.value = false; if (horairesStatus.value === 'saved') horairesStatus.value = '' }, 2500)
+  } catch (e) {
+    console.error(e)
+    horairesStatus.value = 'error'
+  }
 }
+
+// Enregistrement automatique : chaque modification des horaires est envoyée au site
+// 1 seconde après la dernière frappe, sans bouton à cliquer.
+watch(
+  [horairesRegles, horairesPlageTxt, horairesBenevoles, horairesTitreCalendrier, horairesTitreSection],
+  () => {
+    if (horairesLastSaved === null || horairesJson() === horairesLastSaved) return
+    horairesStatus.value = 'pending'
+    clearTimeout(horairesTimer)
+    horairesTimer = setTimeout(saveHoraires, 1000)
+  },
+  { deep: true }
+)
 
 const loadData = () => {
   loadClosures()
@@ -2028,6 +2062,9 @@ const loadData = () => {
 .section-desc { color: #888; font-size: 0.88em; margin-bottom: 20px; }
 
 /* FORMULAIRES */
+.autosave-msg { font-size: 0.9em; color: #777; }
+.autosave-msg.saved { color: var(--primary-teal); font-weight: 700; }
+.autosave-msg.error { color: var(--primary-coral); }
 .dates-details { margin-top: 24px; }
 .dates-details summary { cursor: pointer; font-weight: 700; color: var(--primary-teal); padding: 8px 0; }
 .dates-details h3 { margin: 16px 0 8px; font-size: 1em; }
