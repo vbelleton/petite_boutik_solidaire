@@ -5,36 +5,20 @@
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <script>
-      // set --vh for mobile vh units
-      window.__defineViewportHeight = function(){
-        var t = window.innerHeight;
-        document.documentElement.style.setProperty('--vh', t + 'px');
-      };
-
-      // If the device supports touch, enforce a maximum-scale to avoid accidental pinch/double-tap zoom.
-      // This makes the UI more stable on mobile orientation changes. We only apply it on touch devices.
-      function enforceMobileViewportZoom() {
-        try {
-          var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0;
-          var meta = document.querySelector('meta[name="viewport"]');
-          if (!meta) return;
-          var base = 'width=device-width, initial-scale=1.0, viewport-fit=cover';
-          if (isTouch) {
-            // Prevent pinch/double-tap zoom which often breaks layout on orientation change
-            meta.setAttribute('content', base + ', maximum-scale=1.0, user-scalable=0');
-          } else {
-            meta.setAttribute('content', base);
-          }
-        } catch (e) { /* ignore */ }
-      }
-
-      window.addEventListener('resize', function(){ window.__defineViewportHeight(); enforceMobileViewportZoom(); });
-      window.addEventListener('orientationchange', function(){
-        setTimeout(function(){ window.__defineViewportHeight(); enforceMobileViewportZoom(); }, 120);
-      });
-      // initial run
-      window.__defineViewportHeight();
-      enforceMobileViewportZoom();
+      // --vh : hauteur visible, utilisée par les galeries photos.
+      // On ne réécrit plus la balise viewport à chaque « resize » : sur iPhone,
+      // la barre d'adresse de Safari déclenche des resize pendant le défilement,
+      // et réécrire la balise viewport à ce moment-là faisait « décrocher » la
+      // barre d'infos fixée en bas, qui se retrouvait au milieu de l'écran.
+      (function(){
+        var raf = 0;
+        function setVh(){
+          raf = 0;
+          document.documentElement.style.setProperty('--vh', window.innerHeight + 'px');
+        }
+        window.addEventListener('resize', function(){ if (!raf) raf = requestAnimationFrame(setVh); }, { passive: true });
+        setVh();
+      })();
     </script>
     <meta name="color-scheme" content="light only" />
     <meta name="theme-color" content="#FAFAFA" />

@@ -124,7 +124,8 @@ onMounted(() => {
 }
 body {
   padding-top: 48px;
-  padding-bottom: 48px;
+  /* hauteur réelle de la barre d'infos du bas (mesurée par StickyBottomBar) */
+  padding-bottom: var(--sticky-bar-h, 96px);
   min-height: 100vh;
   min-height: 100dvh;
   display: flex;
