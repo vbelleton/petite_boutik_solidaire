@@ -12,6 +12,7 @@ Site de la boutique solidaire de l'association Bras Ouverts (Morlaix) : Vue 3 + 
 | `src/composables/openingDates.js` | Calcul des dates d'ouverture, partagé par le site et l'admin |
 | `src/composables/photoGallery.js` | Règle unique « Boutique » / « Articles » pour les photos |
 | `src/composables/useAutoSave.js` | Enregistrement automatique dans l'admin |
+| `public/manifest.webmanifest`, `public/sw.js`, `public/icons/` | Application installable (PWA) : icône sur l'écran d'accueil, secours hors connexion |
 | `worker/` | Worker `petite-boutik-storage` : envoi, lecture, suppression des photos, suggestions IA |
 | `firestore.rules` | Règles d'accès Firestore de référence (à coller dans la console Firebase) |
 
@@ -28,6 +29,10 @@ Données Firestore : `config/*` (horaires, textes, actualité, blocs, galeries),
   ```
   Variable facultative `ADMIN_EMAILS` (adresses séparées par des virgules) dans Workers → petite-boutik-storage → Settings → Variables.
 - **Règles Firestore** : elles ne sont pas déployées automatiquement. Après une modification de `firestore.rules`, copiez son contenu dans la console Firebase (Firestore Database → Règles → Publier).
+
+## Application installable (PWA)
+
+Le site peut être ajouté à l'écran d'accueil (Android : « Installer l'application » dans le menu de Chrome ; iPhone : Partager → « Sur l'écran d'accueil »). Le service worker `public/sw.js` demande toujours les pages au réseau d'abord, donc le contenu reste à jour ; le cache ne sert que sans connexion. Les données (Firestore) et les photos (Worker) ne passent jamais par lui, et l'admin n'est pas concerné. Si le comportement du cache doit changer, augmenter `VERSION` dans `sw.js`.
 
 ## Sécurité
 
