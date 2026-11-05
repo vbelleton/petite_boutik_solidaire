@@ -1,5 +1,5 @@
 <template>
-  <aside class="sticky-bar" :class="{ 'is-open': openToday }" aria-label="Infos pratiques">
+  <aside ref="barEl" class="sticky-bar" :class="{ 'is-open': openToday }" aria-label="Infos pratiques">
     <div class="bar-status" :class="openToday ? 'open' : 'closed'">
       <span class="status-dot" aria-hidden="true"></span>
       <template v-if="openToday">Ouvert aujourd'hui</template>
@@ -26,7 +26,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useOpeningStatus } from '../composables/useOpeningStatus.js'
 import { useTextes } from '../composables/useTextes.js'
 
@@ -38,6 +38,23 @@ const hours    = computed(() => textes.value.sticky_hours    || '1er/3e mer. & s
 
 // ── Statut d'ouverture (même source que le calendrier) ───────────────────────
 const { openToday, nextOpening } = useOpeningStatus()
+
+// ── Réserve en bas de page la hauteur réelle de la barre ─────────────────────
+// (sinon le bas du site reste caché derrière la barre sur téléphone)
+const barEl = ref(null)
+let ro = null
+function syncHeight() {
+  if (!barEl.value) return
+  document.documentElement.style.setProperty('--sticky-bar-h', barEl.value.offsetHeight + 'px')
+}
+onMounted(() => {
+  syncHeight()
+  if (typeof ResizeObserver !== 'undefined') {
+    ro = new ResizeObserver(syncHeight)
+    ro.observe(barEl.value)
+  }
+})
+onUnmounted(() => { if (ro) ro.disconnect() })
 </script>
 
 <style scoped>
@@ -47,12 +64,13 @@ const { openToday, nextOpening } = useOpeningStatus()
   left: 0;
   right: 0;
   z-index: 700;
-  background: rgba(255, 255, 255, 0.95);
+  background: #fff;
   border-top: 1px solid #e8e8e8;
   box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
-  backface-visibility: hidden;
-  overscroll-behavior: none;
-  touch-action: pan-y;
+  /* Calque à part : sur iPhone, la barre reste collée au bas de l'écran
+     pendant que la barre d'adresse de Safari se replie. */
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
 }
 
 /* When modal is open, ensure sticky bar does not intercept pointer events */
@@ -137,7 +155,7 @@ body.modal-open .sticky-bar { pointer-events: none; }
   .bar-inner {
     flex-wrap: wrap;
     gap: 3px 8px;
-    padding: 6px 10px;
+    padding: 6px 10px calc(6px + env(safe-area-inset-bottom, 0px));
     font-size: 0.72em;
   }
   .bar-sep:nth-child(4) {
@@ -154,7 +172,7 @@ body.modal-open .sticky-bar { pointer-events: none; }
 @media (max-width: 420px) {
   .bar-inner {
     font-size: 0.65em;
-    padding: 5px 8px;
+    padding: 5px 8px calc(5px + env(safe-area-inset-bottom, 0px));
   }
   .bar-sep:nth-child(2) {
     display: none;
