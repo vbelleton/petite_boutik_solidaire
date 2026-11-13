@@ -36,7 +36,7 @@ const SECTION_LABELS = {
   'boutique-gallery': 'Boutique',
   carousel: 'Galerie photos',
   collection: 'Nos produits',
-  association: 'Association',
+  association: 'Bénévoles',
   calendrier: 'Horaires',
   engagement: 'Engagement',
   contact: 'Contact',

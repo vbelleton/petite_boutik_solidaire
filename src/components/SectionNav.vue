@@ -37,7 +37,7 @@
         @touchend="onTouchEnd"
         @touchcancel="onTouchEnd"
       >{{ sec.label }}</a>
-      <a v-if="lienAsso" href="/" class="dropdown-link dropdown-asso">← Association Bras Ouverts</a>
+      <a v-if="lienAsso" href="/" class="dropdown-link dropdown-asso">← Site Bras Ouverts</a>
     </div>
 
     <!-- Bandeau défilant intégré au menu : ouverture + annonce -->
@@ -316,7 +316,7 @@ onUnmounted(() => {
   display: block;
 }
 
-.dropdown-asso { border-top: 1px solid #e8e8e8; font-weight: 600; color: #a94631; }
+.dropdown-link.dropdown-asso { border-top: 1px solid #e8e8e8; font-weight: 600; color: #a94631; }
 .nav-asso { color: #a94631; }
 
 .dropdown-link {
@@ -416,18 +416,19 @@ onUnmounted(() => {
     height: calc(100vh - var(--nav-h, 94px));
     height: calc(100dvh - var(--nav-h, 94px));
     max-height: none;
-    padding: 8px 0 calc(24px + env(safe-area-inset-bottom, 0px));
+    /* marge basse généreuse : la barre d'outils de Safari ne doit jamais masquer la dernière rubrique */
+    padding: 4px 0 calc(88px + env(safe-area-inset-bottom, 0px));
     border-bottom: 0;
     box-shadow: none;
     overflow-y: auto;
     overscroll-behavior: contain;
   }
   .dropdown-link {
-    padding: 15px 24px;
-    font-size: 1.25em;
+    padding: 13px 24px;
+    font-size: 1.15em;
     border-bottom: 1px solid #eef1f1;
   }
-  .dropdown-asso { margin-top: 8px; font-size: 1.05em; }
+  .dropdown-link.dropdown-asso { margin-top: 10px; font-size: 1.05em; border-top: 2px solid #f1d9d2; border-bottom: 0; background: #fdf3ef; }
 }
 @media (max-width: 767px) and (max-height: 640px) {
   .dropdown-link { padding: 10px 24px; font-size: 1.1em; }
