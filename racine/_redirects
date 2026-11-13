@@ -1,0 +1,8 @@
+# Le site est servi sous /boutik/ (sur brasouverts.bzh, la racine est le site de l'association).
+# Ici, sur petite-boutik-solidaire.pages.dev, les anciennes adresses mènent à la nouvelle.
+/                /boutik/                301
+/admin           /boutik/admin           301
+/admin/*         /boutik/admin/:splat    301
+/mentions        /boutik/mentions        301
+/boutik          /boutik/                301
+/boutik/*        /boutik/index.html      200

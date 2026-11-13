@@ -56,3 +56,11 @@ npm test         # tests Playwright
 ```
 
 Le mode d'emploi pour les bénévoles est tenu à part : https://claude.ai/artifact/HL3fgE2r8yYTBAmwoxUCxZ
+
+## Adresse : sous /boutik/
+
+Le site est servi sous `/boutik/` (`vite.config.js` → `base`, sortie `dist/boutik/`), pour vivre à `brasouverts.bzh/boutik` à côté du site de l'association (`vbelleton/bras-ouverts-site`, qui relaie `/boutik/*` vers ce projet Pages). Sur `petite-boutik-solidaire.pages.dev`, la racine redirige vers `/boutik/` (`racine/_redirects`).
+
+- Toute adresse « /… » écrite en dur ou enregistrée en base passe par `chemin()` (`src/chemin.js`).
+- `racine/` est copié à la racine de `dist/` après le build (`scripts/racine.js`) : `_redirects`, `_headers`, et un `sw.js` qui désinstalle l'ancien service worker des téléphones qui avaient installé l'appli avant le changement.
+- Le jour où `brasouverts.bzh` est branché : l'ajouter dans Firebase → Authentication → Authorized domains (connexion à l'admin) et dans `ALLOWED_ORIGINS` du Worker photos (puis le redéployer).

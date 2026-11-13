@@ -2,13 +2,15 @@
 // Règle d'or : le contenu doit toujours être à jour. Les pages sont donc demandées au réseau
 // d'abord, et le cache ne sert qu'en secours (pas de réseau). Les données (Firestore, photos
 // du Worker) ne passent jamais par ici.
-const VERSION = 'v1'
+const VERSION = 'v2'
+// Le site vit sous /boutik/ : toutes les adresses partent du dossier de ce fichier.
+const BASE = new URL('./', self.location).pathname
 const SHELL = `ptb-shell-${VERSION}`
 const ASSETS = `ptb-assets-${VERSION}`
 const STATIC = `ptb-static-${VERSION}`
 
 // Réservé à l'admin ou trop lourd (suppression de fond des photos) : jamais mis en cache
-const SKIP = /^\/admin|ort-wasm|\/ort\.[\w.]*bundle|\.wasm$|\.onnx$/i
+const SKIP = /^\/boutik\/admin|ort-wasm|\/ort\.[\w.]*bundle|\.wasm$|\.onnx$/i
 
 // Les fichiers /assets/ changent de nom à chaque mise en ligne : on garde les plus récents seulement
 async function trim(cacheName, max) {
@@ -19,7 +21,7 @@ async function trim(cacheName, max) {
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(SHELL).then((c) => c.addAll(['/', '/icons/icon-192.png'])).then(() => self.skipWaiting())
+    caches.open(SHELL).then((c) => c.addAll([BASE, BASE + 'icons/icon-192.png'])).then(() => self.skipWaiting())
   )
 })
 
@@ -35,7 +37,8 @@ self.addEventListener('fetch', (event) => {
   const req = event.request
   if (req.method !== 'GET') return
   const url = new URL(req.url)
-  if (url.origin !== self.location.origin) return   // Firestore, Worker, Cloudinary, Google : réseau direct
+  if (url.origin !== self.location.origin) return
+  if (!url.pathname.startsWith(BASE)) return   // le reste du domaine (site de l'association) ne nous regarde pas   // Firestore, Worker, Cloudinary, Google : réseau direct
   if (SKIP.test(url.pathname)) return
 
   // Pages : réseau d'abord, cache en secours
@@ -43,16 +46,16 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(req)
         .then((res) => {
-          if (res.ok) { const copy = res.clone(); caches.open(SHELL).then((c) => c.put('/', copy)) }
+          if (res.ok) { const copy = res.clone(); caches.open(SHELL).then((c) => c.put(BASE, copy)) }
           return res
         })
-        .catch(() => caches.match('/').then((r) => r || Response.error()))
+        .catch(() => caches.match(BASE).then((r) => r || Response.error()))
     )
     return
   }
 
   // Fichiers /assets/ : leur nom change à chaque version, on peut les garder tels quels
-  if (url.pathname.startsWith('/assets/')) {
+  if (url.pathname.startsWith(BASE + 'assets/')) {
     event.respondWith(
       caches.match(req).then((hit) => hit || fetch(req).then((res) => {
         if (res.ok) { const copy = res.clone(); caches.open(ASSETS).then((c) => c.put(req, copy)).then(() => trim(ASSETS, 30)) }

@@ -18,6 +18,7 @@
 </template>
 
 <script setup>
+import { chemin } from '../chemin.js'
 import { ref, onMounted, nextTick } from 'vue'
 import Modal from './Modal.vue'
 
@@ -48,7 +49,7 @@ const sanitizeIconSafe = (html) => {
 const openModal = async (r, idx) => {
   if (!r || !r.src) return
   try { _lastBadgeEl = document.querySelector(`.badge[data-recognition-index="${idx}"]`) } catch (e) { _lastBadgeEl = null }
-  try { modalImage.value = r.src ? new URL(r.src, window.location.href).href : r.src } catch (e) { modalImage.value = r.src }
+  try { modalImage.value = r.src ? new URL(chemin(r.src), window.location.href).href : r.src } catch (e) { modalImage.value = r.src }
   modalAlt.value = r.alt || r.text || r.title || 'Article'
   modalOpen.value = true
   await nextTick()

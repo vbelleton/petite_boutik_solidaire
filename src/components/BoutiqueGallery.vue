@@ -15,12 +15,12 @@
     >
     <swiper-slide v-for="(img, idx) in slides" :key="img.id || idx">
         <img
-          :src="img.src"
+          :src="chemin(img.src)"
           loading="lazy"
           :alt="img.alt"
           class="slide-image"
           data-test="slide-image"
-          @error="($event.target).src = img.fallback || '/placeholder.jpg'"
+          @error="($event.target).src = img.fallback || chemin('/placeholder.jpg')"
         />
       </swiper-slide>
     </swiper>
@@ -36,6 +36,7 @@
 </template>
 
 <script setup>
+import { chemin } from '../chemin.js'
 import { isBoutique } from '../composables/photoGallery.js'
 import { ref, computed, watch, nextTick, onUnmounted } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
@@ -66,12 +67,12 @@ const images = computed(() =>
       id: p.id,
       src: galleryCardUrl(p.url),
       alt: p.alt || '',
-      fallback: p.fallback || '/placeholder.jpg'
+      fallback: p.fallback || chemin('/placeholder.jpg')
     }))
 )
 
 // Slides: use images; if empty, return a single placeholder slide to keep layout stable.
-const slides = computed(() => images.value && images.value.length ? images.value : [{ id: '__placeholder', src: '/placeholder.jpg', alt: 'Aucune photo', fallback: '/placeholder.jpg' }])
+const slides = computed(() => images.value && images.value.length ? images.value : [{ id: '__placeholder', src: chemin('/placeholder.jpg'), alt: 'Aucune photo', fallback: chemin('/placeholder.jpg') }])
 
 // debug toggles removed (migration applied)
 

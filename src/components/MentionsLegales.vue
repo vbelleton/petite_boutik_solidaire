@@ -12,6 +12,7 @@
 </template>
 
 <script setup>
+import { BASE } from '../chemin.js'
 import { ref, onMounted, onUnmounted } from 'vue'
 import { onSnapshot, doc } from 'firebase/firestore'
 import { db } from '../firebase.js'
@@ -58,7 +59,7 @@ onSnapshot(doc(db, 'config', 'textes'), snap => {
 
 // open via global event — when opened we push a route so /mentions is reachable
 const handler = () => {
-  try { history.pushState(null, '', '/mentions') } catch (e) {}
+  try { history.pushState(null, '', BASE + 'mentions') } catch (e) {}
   fullPage.value = true
   open.value = true
   // enable escape key to close
@@ -84,7 +85,7 @@ const close = () => {
   open.value = false
   if (fullPage.value) {
     // go back to root without reloading if possible
-    try { history.replaceState(null, '', '/') } catch (e) {}
+    try { history.replaceState(null, '', BASE) } catch (e) {}
   }
 }
 
