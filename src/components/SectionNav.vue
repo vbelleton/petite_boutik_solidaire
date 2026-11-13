@@ -15,16 +15,17 @@
           :class="{ active: activeId === sec.id }"
           @click="onClick(sec.id)"
         >{{ sec.label }}</a>
+        <a v-if="lienAsso" href="/" class="nav-link nav-asso" title="Site de l'association Bras Ouverts">Bras Ouverts</a>
       </div>
 
-      <button class="nav-burger" @click="toggleMenu" aria-label="Menu">
+      <button class="nav-burger" type="button" @click="toggleMenu" :aria-label="open ? 'Fermer le menu' : 'Ouvrir le menu'" :aria-expanded="String(open)" aria-controls="menu-mobile">
         <span class="burger-line"></span>
         <span class="burger-line"></span>
         <span class="burger-line"></span>
       </button>
     </div>
 
-    <div class="nav-dropdown" :class="{ open }">
+    <div id="menu-mobile" class="nav-dropdown" :class="{ open }">
       <a
         v-for="sec in sections"
         :key="sec.id"
@@ -36,6 +37,7 @@
         @touchend="onTouchEnd"
         @touchcancel="onTouchEnd"
       >{{ sec.label }}</a>
+      <a v-if="lienAsso" href="/" class="dropdown-link dropdown-asso">← Association Bras Ouverts</a>
     </div>
 
     <!-- Bandeau défilant intégré au menu : ouverture + annonce -->
@@ -98,6 +100,17 @@ function toggleMenu() {
   open.value = !open.value
 }
 
+// Sur brasouverts.bzh, la boutique est sous /boutik/ et la racine est le site de l'association :
+// lien de retour. Sur petite-boutik-solidaire.pages.dev, la racine renvoie ici : pas de lien.
+const lienAsso = typeof window !== 'undefined' && !/(^|\.)petite-boutik-solidaire\.pages\.dev$|^localhost$|^127\./.test(window.location.hostname)
+
+function onKeydown(e) {
+  if (e.key === 'Escape' && open.value) {
+    open.value = false
+    document.querySelector('.nav-burger')?.focus()
+  }
+}
+
 function onClick(id) {
   lastClickedId = id
   activeId.value = id
@@ -143,6 +156,7 @@ function onScroll() {
 
 onMounted(() => {
   window.addEventListener('scroll', onScroll, { passive: true })
+  document.addEventListener('keydown', onKeydown)
   refreshActive()
   unsubActu = onSnapshot(doc(db, 'config', 'actualite'), snap => {
     if (snap.exists()) Object.assign(actu.value, snap.data())
@@ -151,6 +165,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('scroll', onScroll)
+  document.removeEventListener('keydown', onKeydown)
   if (scrollTick) cancelAnimationFrame(scrollTick)
   if (clickTimeout) clearTimeout(clickTimeout)
   if (unsubActu) unsubActu()
@@ -285,6 +300,9 @@ onUnmounted(() => {
   display: block;
 }
 
+.dropdown-asso { border-top: 1px solid #e8e8e8; font-weight: 600; color: #a94631; }
+.nav-asso { color: #a94631; }
+
 .dropdown-link {
   display: block;
   padding: 12px 20px;
@@ -372,7 +390,8 @@ onUnmounted(() => {
 @media (max-width: 767px) {
   .nav-links { display: none; }
   .nav-burger { display: flex; }
-  .nav-dropdown { position: fixed; top: 48px; }
+  /* Sous tout le bandeau (ticker compris), sinon le menu recouvrait le bandeau défilant */
+  .nav-dropdown { top: 100%; max-height: calc(100vh - 110px); max-height: calc(100dvh - 110px); }
 }
 
 @media (min-width: 768px) and (max-width: 899px) {
