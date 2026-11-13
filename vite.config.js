@@ -4,6 +4,8 @@ import { fileURLToPath } from 'node:url'
 
 // https://vite.dev/config/
 export default defineConfig({
+  // Servi sous /boutik/ : voir src/chemin.js et racine/ (fichiers posés à la racine du déploiement)
+  base: '/boutik/',
   plugins: [vue()],
   resolve: {
     conditions: ['onnxruntime-web-use-extern-wasm'],
@@ -12,6 +14,8 @@ export default defineConfig({
     }
   },
   build: {
+    outDir: 'dist/boutik',
+    emptyOutDir: true,
     rollupOptions: {
       output: {
         manualChunks(id) {

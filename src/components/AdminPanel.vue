@@ -35,7 +35,7 @@
       <header class="admin-header">
         <h1>🛍️ Admin — La P'tite Boutik</h1>
         <div class="admin-header-right">
-          <a href="https://petite-boutik-solidaire.pages.dev" target="_blank" rel="noopener" class="btn-preview-site">🌐 Voir le site</a>
+          <a href="https://petite-boutik-solidaire.pages.dev/boutik/" target="_blank" rel="noopener" class="btn-preview-site">🌐 Voir le site</a>
           <button class="btn-preview-toggle" @click="showPreview = !showPreview" :title="showPreview ? 'Fermer l\'aperçu' : 'Ouvrir l\'aperçu'">
             {{ showPreview ? '✕ Fermer aperçu' : '👁 Aperçu' }}
           </button>
@@ -724,6 +724,7 @@
 </template>
 
 <script setup>
+import { BASE } from '../chemin.js'
 import { HERO_PRESETS, heroBackground } from '../composables/heroGradient.js'
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import PhotoEraser from './PhotoEraser.vue'
@@ -810,7 +811,7 @@ const showPreview = ref(false)
 const previewMode = ref('deployed')
 const previewTs = ref(0)
 const previewSrc = computed(() => {
-  const base = previewMode.value === 'local' ? 'http://localhost:5173' : 'https://petite-boutik-solidaire.pages.dev'
+  const base = (previewMode.value === 'local' ? 'http://localhost:5173' : 'https://petite-boutik-solidaire.pages.dev') + BASE
   return base + '?t=' + previewTs.value
 })
 const refreshPreview = () => { previewTs.value = Date.now() }
