@@ -392,6 +392,11 @@ onUnmounted(() => {
   .nav-burger { display: flex; }
   /* Sous tout le bandeau (ticker compris), sinon le menu recouvrait le bandeau défilant */
   .nav-dropdown { top: 100%; max-height: calc(100vh - 110px); max-height: calc(100dvh - 110px); }
+  /* Petits écrans (iPhone SE, Safari avec ses barres) : rubriques plus serrées pour que le menu tienne en entier, sans défiler */
+  .nav-dropdown { padding: 4px 0; overscroll-behavior: contain; }
+}
+@media (max-width: 767px) and (max-height: 760px) {
+  .dropdown-link { padding: 9px 20px; }
 }
 
 @media (min-width: 768px) and (max-width: 899px) {
