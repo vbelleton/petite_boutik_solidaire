@@ -1,5 +1,5 @@
 <template>
-  <nav class="section-nav">
+  <nav ref="navEl" class="section-nav" :style="{ '--nav-h': navH + 'px' }">
     <div class="nav-inner">
       <div class="nav-brand">
         <img src="@/assets/logo.jpg" alt="Logo" class="nav-logo" />
@@ -63,7 +63,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { doc, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase.js'
 import { useOpeningStatus } from '../composables/useOpeningStatus.js'
@@ -95,6 +95,19 @@ const siteName = ref((typeof document !== 'undefined' && document.title ? docume
 let lastClickedId = null
 let clickTimeout = null
 let scrollTick = null
+
+const navEl = ref(null)
+const navH = ref(94)
+
+// Menu plein écran (mobile) : il commence juste sous l'en-tête + bandeau défilant, dont on mesure la hauteur,
+// et la page derrière ne défile plus tant qu'il est ouvert.
+function mesurer() {
+  if (navEl.value) navH.value = Math.round(navEl.value.getBoundingClientRect().height)
+}
+watch(open, (oui) => {
+  if (oui) mesurer()
+  document.documentElement.classList.toggle('menu-ouvert', oui)
+})
 
 function toggleMenu() {
   open.value = !open.value
@@ -157,6 +170,7 @@ function onScroll() {
 onMounted(() => {
   window.addEventListener('scroll', onScroll, { passive: true })
   document.addEventListener('keydown', onKeydown)
+  window.addEventListener('resize', mesurer)
   refreshActive()
   unsubActu = onSnapshot(doc(db, 'config', 'actualite'), snap => {
     if (snap.exists()) Object.assign(actu.value, snap.data())
@@ -166,6 +180,8 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('scroll', onScroll)
   document.removeEventListener('keydown', onKeydown)
+  window.removeEventListener('resize', mesurer)
+  document.documentElement.classList.remove('menu-ouvert')
   if (scrollTick) cancelAnimationFrame(scrollTick)
   if (clickTimeout) clearTimeout(clickTimeout)
   if (unsubActu) unsubActu()
@@ -390,16 +406,43 @@ onUnmounted(() => {
 @media (max-width: 767px) {
   .nav-links { display: none; }
   .nav-burger { display: flex; }
-  /* Sous tout le bandeau (ticker compris), sinon le menu recouvrait le bandeau défilant */
-  .nav-dropdown { top: 100%; max-height: calc(100vh - 110px); max-height: calc(100dvh - 110px); }
-  /* Petits écrans (iPhone SE, Safari avec ses barres) : rubriques plus serrées pour que le menu tienne en entier, sans défiler */
-  .nav-dropdown { padding: 4px 0; overscroll-behavior: contain; }
+  /* Menu plein écran : de sous le bandeau défilant jusqu'en bas de l'écran, avec de grandes rubriques */
+  .nav-dropdown {
+    /* .section-nav a un transform : « fixed » s'y rapporterait à lui, d'où une hauteur calculée */
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: calc(100vh - var(--nav-h, 94px));
+    height: calc(100dvh - var(--nav-h, 94px));
+    max-height: none;
+    padding: 8px 0 calc(24px + env(safe-area-inset-bottom, 0px));
+    border-bottom: 0;
+    box-shadow: none;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .dropdown-link {
+    padding: 15px 24px;
+    font-size: 1.25em;
+    border-bottom: 1px solid #eef1f1;
+  }
+  .dropdown-asso { margin-top: 8px; font-size: 1.05em; }
 }
-@media (max-width: 767px) and (max-height: 760px) {
-  .dropdown-link { padding: 9px 20px; }
+@media (max-width: 767px) and (max-height: 640px) {
+  .dropdown-link { padding: 10px 24px; font-size: 1.1em; }
+}
+@media (max-width: 767px) and (prefers-reduced-motion: no-preference) {
+  .nav-dropdown.open { animation: menu-apparait .18s ease-out; }
+  @keyframes menu-apparait { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 }
 
 @media (min-width: 768px) and (max-width: 899px) {
   .nav-link { padding: 6px 4px; font-size: 0.68em; }
 }
+</style>
+
+<style>
+/* Page figée derrière le menu plein écran */
+html.menu-ouvert, html.menu-ouvert body { overflow: hidden; }
 </style>
