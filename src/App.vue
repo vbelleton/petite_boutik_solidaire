@@ -168,7 +168,7 @@ onMounted(() => {
 
 <style>
 :root {
-  --site-max-width: 1120px;
+  --site-max-width: 1520px; /* toute la largeur possible, comme le site Bras Ouverts */
 }
 /* Page publique seulement (classe posée par main.js) : l'admin n'a ni menu ni barre du bas. */
 body.site {

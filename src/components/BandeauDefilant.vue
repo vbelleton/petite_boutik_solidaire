@@ -1,0 +1,64 @@
+<template>
+  <!-- Bandeau défilant sous l'en-tête : ouverture du jour ou prochaine ouverture, et l'actualité si l'admin
+       a coché « Faire défiler le message en haut du site ». Il mène aux horaires. -->
+  <a v-if="texte" class="bandeau" :class="{ ouvert: openToday }" :href="`${prefix}#calendrier`" :aria-label="texte">
+    <span class="masque" aria-hidden="true">
+      <span class="piste">
+        <span class="seg" v-for="n in 3" :key="n">
+          <template v-if="openToday"><span class="point"></span><b>Ouvert aujourd'hui</b>&nbsp;· {{ todayHoraires || plage }}</template>
+          <template v-else-if="nextOpening"><span class="point"></span>Prochaine ouverture :&nbsp;<b>{{ nextOpening }}</b>&nbsp;· {{ plage }}</template>
+          <template v-if="annonce"><span class="sep">✦</span>{{ annonce }}</template>
+          <span class="sep">✦</span>
+        </span>
+      </span>
+    </span>
+  </a>
+</template>
+
+<script setup>
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { doc, onSnapshot } from 'firebase/firestore'
+import { db } from '../firebase.js'
+import { useOpeningStatus } from '../composables/useOpeningStatus.js'
+
+defineProps({ prefix: { type: String, default: '' } })
+
+const { openToday, todayHoraires, nextOpening, plage } = useOpeningStatus()
+
+const actu = ref({ visible: false, titre: '', message: '', defilant: true })
+const annonce = computed(() => {
+  if (!actu.value.visible || actu.value.defilant === false) return ''
+  return [actu.value.titre, actu.value.message].filter(Boolean).join(' — ').trim()
+})
+const ouverture = computed(() => openToday.value
+  ? `Ouvert aujourd'hui · ${todayHoraires.value || plage.value}`
+  : nextOpening.value ? `Prochaine ouverture : ${nextOpening.value} · ${plage.value}` : '')
+const texte = computed(() => [ouverture.value, annonce.value].filter(Boolean).join(' — '))
+
+let stop = null
+onMounted(() => {
+  stop = onSnapshot(doc(db, 'config', 'actualite'), (snap) => {
+    if (snap.exists()) actu.value = { ...actu.value, ...snap.data() }
+  }, () => {})
+})
+onUnmounted(() => { if (stop) stop() })
+</script>
+
+<style scoped>
+.bandeau { display: block; overflow: hidden; text-decoration: none; background: var(--lagon-doux); color: var(--ink); border-top: 1px solid var(--line); font-size: 0.88rem; font-weight: 600; }
+.bandeau.ouvert { background: var(--accent); color: var(--accent-ink); }
+.masque { display: block; overflow: hidden; white-space: nowrap; }
+.piste { display: inline-flex; align-items: center; padding: 6px 0; animation: defile 30s linear infinite; will-change: transform; }
+.bandeau:hover .piste, .bandeau:focus-visible .piste { animation-play-state: paused; }
+.seg { display: inline-flex; align-items: center; }
+.seg b { font-weight: 800; }
+.sep { margin: 0 18px; opacity: 0.55; }
+.point { width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; flex-shrink: 0; background: currentColor; }
+.bandeau.ouvert .point { animation: pouls 1.7s infinite; }
+@keyframes defile { from { transform: translateX(0); } to { transform: translateX(-33.333%); } }
+@keyframes pouls { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 70%, transparent); } 70%, 100% { box-shadow: 0 0 0 8px transparent; } }
+@media (prefers-reduced-motion: reduce) {
+  .piste { animation: none; padding-left: 20px; }
+  .bandeau.ouvert .point { animation: none; }
+}
+</style>

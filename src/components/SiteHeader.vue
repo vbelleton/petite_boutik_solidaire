@@ -104,6 +104,13 @@ const titreParts = computed(() => {
 @media (max-width: 600px) {
   .header-content { align-items: flex-start; }
   .statut { border-radius: 14px; font-size: 0.9rem; padding: 8px 12px; }
+  /* Prochaine ouverture : toute la largeur, sous le titre et le logo */
+  .header-content { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 16px; align-items: center; }
+  .header-text { display: contents; }
+  .kicker { grid-column: 1 / -1; }
+  .header-text h1 { grid-column: 1; grid-row: 2; }
+  .logo { grid-column: 2; grid-row: 2; }
+  .statut { grid-column: 1 / -1; grid-row: 3; display: flex; width: 100%; }
   .logo { width: 72px; border-radius: 20px; padding: 6px; }
 }
 </style>

@@ -45,7 +45,7 @@ const nextDates = computed(() =>
 .next-dates h3 { font-size: 1.15rem; color: var(--muted); margin-bottom: 14px; }
 .dates-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* toute la largeur, même avec peu de dates */
   gap: 12px;
 }
 .date-item {
