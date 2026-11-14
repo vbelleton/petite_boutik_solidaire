@@ -15,7 +15,7 @@
         <a v-for="l in liens" :key="l.url" :href="lien(l.url)" :aria-current="estBoutik(l.url) ? 'page' : null">{{ l.label }}</a>
         <template v-if="rubriques.length">
           <p class="nav-sous-titre">Dans la boutique</p>
-          <a v-for="r in rubriques" :key="r.id" class="nav-rubrique" :href="`${prefix}#${r.id}`">{{ r.label }}</a>
+          <a v-for="r in rubriques" :key="r.id" class="nav-rubrique" :href="lienRubrique(r.id)" :aria-current="actif === r.id ? 'location' : null" @click="allerA($event, r.id)">{{ r.label }}</a>
         </template>
       </nav>
       <button class="theme-toggle" type="button" :aria-pressed="String(sombre)" :aria-label="sombre ? 'Passer au thème clair' : 'Passer au thème sombre'"
@@ -26,8 +26,9 @@
     </div>
     <!-- Rubriques de la boutique (ordinateur) : petite ligne sous le menu commun -->
     <nav v-if="rubriques.length" class="rubriques" aria-label="Rubriques de la boutique">
-      <div class="wrap">
-        <a v-for="r in rubriques.filter(x => !x.secondaire)" :key="r.id" :href="`${prefix}#${r.id}`">{{ r.label }}</a>
+      <div ref="ligneEl" class="wrap">
+        <a v-for="r in rubriques.filter(x => !x.secondaire)" :key="r.id" :href="lienRubrique(r.id)" :data-id="r.id"
+          :aria-current="actif === r.id ? 'location' : null" @click="allerA($event, r.id)">{{ r.label }}</a>
       </div>
     </nav>
   </header>
@@ -39,7 +40,7 @@
 import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { BASE, ASSO } from '../chemin.js'
 
-defineProps({
+const props = defineProps({
   rubriques: { type: Array, default: () => [] },
   // Sur une autre page que l'accueil de la boutique (la galerie), les rubriques ramènent à l'accueil.
   prefix: { type: String, default: '' },
@@ -55,6 +56,50 @@ const liens = ref([
 ])
 const lien = (url) => (url.startsWith('/') && !url.startsWith('//') ? ASSO + url : url)
 const estBoutik = (url) => url.replace(/\/+$/, '') === BASE.replace(/\/+$/, '')
+
+// Rubrique affichée à l'écran, soulignée dans la ligne des rubriques ; « Accueil » = tout en haut de la page.
+const actif = ref('')
+const ligneEl = ref(null)
+const lienRubrique = (id) => (id === 'hero' ? (props.prefix || '#') : `${props.prefix}#${id}`)
+function allerA(e, id) {
+  ouvert.value = false
+  if (props.prefix) return // autre page (galerie) : on laisse le lien ramener à l'accueil
+  e.preventDefault()
+  const cible = id === 'hero' ? null : document.getElementById(id)
+  const calme = matchMedia('(prefers-reduced-motion: reduce)').matches
+  if (cible) cible.scrollIntoView({ behavior: calme ? 'auto' : 'smooth', block: 'start' })
+  else window.scrollTo({ top: 0, behavior: calme ? 'auto' : 'smooth' })
+  history.replaceState(null, '', id === 'hero' ? location.pathname : `#${id}`)
+  actif.value = id
+}
+let tic = null
+function suivre() {
+  if (tic) return
+  tic = requestAnimationFrame(() => {
+    tic = null
+    if (props.prefix) return
+    const seuil = (hautEl.value?.getBoundingClientRect().height || 100) + 24
+    let courant = props.rubriques[0]?.id || ''
+    for (const r of props.rubriques) {
+      const el = document.getElementById(r.id)
+      if (el && el.getBoundingClientRect().top <= seuil) courant = r.id
+    }
+    // Tout en bas de la page : la dernière rubrique, même si elle est trop courte pour atteindre le haut.
+    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) {
+      const der = [...props.rubriques].reverse().find((r) => document.getElementById(r.id))
+      if (der) courant = der.id
+    }
+    if (window.scrollY < 40) courant = props.rubriques.find((r) => r.id === 'hero') ? 'hero' : courant
+    actif.value = courant
+  })
+}
+// La rubrique active reste visible dans la ligne (qui défile sur les écrans étroits).
+watch(actif, (id) => {
+  const a = ligneEl.value?.querySelector(`[data-id="${id}"]`)
+  const ligne = ligneEl.value
+  if (!a || !ligne || ligne.scrollWidth <= ligne.clientWidth) return
+  ligne.scrollTo({ left: a.offsetLeft - ligne.clientWidth / 2 + a.offsetWidth / 2, behavior: 'smooth' })
+})
 
 const ouvert = ref(false)
 const hautEl = ref(null)
@@ -86,6 +131,9 @@ const large = matchMedia('(min-width: 701px)')
 const onLarge = (m) => { if (m.matches) ouvert.value = false }
 
 onMounted(async () => {
+  window.addEventListener('scroll', suivre, { passive: true })
+  window.addEventListener('resize', suivre)
+  setTimeout(suivre, 300)
   document.addEventListener('keydown', onKey)
   document.addEventListener('click', onClic)
   window.addEventListener('resize', mesurer)
@@ -100,6 +148,9 @@ onMounted(async () => {
   } catch { /* menu par défaut */ }
 })
 onUnmounted(() => {
+  window.removeEventListener('scroll', suivre)
+  window.removeEventListener('resize', suivre)
+  if (tic) cancelAnimationFrame(tic)
   document.removeEventListener('keydown', onKey)
   document.removeEventListener('click', onClic)
   window.removeEventListener('resize', mesurer)
@@ -144,7 +195,10 @@ onUnmounted(() => {
 .rubriques .wrap { display: flex; gap: 4px 18px; padding-block: 6px; overflow-x: auto; scrollbar-width: none; }
 .rubriques .wrap::-webkit-scrollbar { display: none; }
 .rubriques a { flex: none; font-size: 0.85rem; font-weight: 700; color: var(--corail); text-decoration: none; white-space: nowrap; }
-.rubriques a:hover { text-decoration: underline; }
+.rubriques a { padding-block: 3px; color: var(--muted); border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; }
+.rubriques a:hover { color: var(--corail); text-decoration: none; }
+.rubriques a[aria-current="location"] { color: var(--corail); border-bottom-color: var(--corail); }
+#menu-principal a.nav-rubrique[aria-current="location"] { color: var(--corail); }
 
 @media (max-width: 1000px) and (min-width: 701px) {
   .sous-site { font-size: 0.92rem; white-space: normal; max-width: 9.5em; }

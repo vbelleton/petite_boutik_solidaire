@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app'
 import { getAuth, GoogleAuthProvider } from 'firebase/auth'
-import { getFirestore } from 'firebase/firestore'
+import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore'
 import { getStorage } from 'firebase/storage'
 
 const firebaseConfig = {
@@ -16,5 +16,16 @@ const app = initializeApp(firebaseConfig)
 export const auth = getAuth(app)
 export const googleProvider = new GoogleAuthProvider()
 googleProvider.setCustomParameters({ prompt: 'select_account' })
-export const db = getFirestore(app)
+// Site public : les données Firestore sont gardées dans le navigateur (IndexedDB). À la visite suivante,
+// textes, horaires et rubriques s'affichent tout de suite, puis se mettent à jour. L'admin lit toujours en direct.
+const surAdmin = typeof window !== 'undefined' && /\/admin(\/|$)/.test(window.location.pathname)
+function creerDb() {
+  if (surAdmin) return getFirestore(app)
+  try {
+    return initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) })
+  } catch {
+    return getFirestore(app)
+  }
+}
+export const db = creerDb()
 export const storage = getStorage(app)

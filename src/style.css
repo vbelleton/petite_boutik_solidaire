@@ -144,9 +144,9 @@ a:hover {
   scroll-margin-top: 100px;
 }
 
-/* Contenir les sections hors-écran pour améliorer les perfs de rendu */
+/* Pas de content-visibility: auto ici : la hauteur des rubriques changeait pendant le défilement
+   (la page « sautait » et les liens du menu s'arrêtaient avant la bonne rubrique). */
 #association, #engagement, #contact, #social {
-  content-visibility: auto;
   contain-intrinsic-size: 400px;
 }
 
