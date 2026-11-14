@@ -106,7 +106,7 @@ const onModalClose = () => {
   padding: 20px;
 }
 .mentions-content {
-  background: #fff;
+  background: var(--surface);
   max-width: 720px;
   width: 100%;
   border-radius: 10px;

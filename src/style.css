@@ -10,6 +10,8 @@
   --muted: #546071;
   --line: #e0dbd1;
   --accent: #0f6e67;        /* turquoise assombri : contraste AA sur sable et blanc */
+  --accent-ink: #ffffff;    /* texte sur fond --accent */
+  --nuit: #1f2a3a;          /* fonds bleu nuit (pied de page, encart horaires), texte blanc dessus */
   --corail: #a94631;        /* couleur de la P'tite Boutik sur le site Bras Ouverts */
   --corail-doux: #fbe3d9;
   --lagon-doux: #d9efec;
@@ -46,7 +48,7 @@
 
 html {
   scroll-behavior: smooth;
-  background-color: #f6efe3;
+  background-color: var(--bg);
   touch-action: manipulation;
   -webkit-text-size-adjust: 100%;
 }
@@ -61,13 +63,25 @@ body {
   min-height: 100dvh;
 }
 
-/* Forcer le thème clair même sur les navigateurs en dark mode (Opera, Samsung...) */
+/* Thème sombre du site public (html.site, posé par index.html), mêmes couleurs que le site Bras Ouverts.
+   L'admin n'a pas la classe « site » : il reste toujours en clair. */
 @media (prefers-color-scheme: dark) {
-  html, body {
-    background-color: #f6efe3 !important;
-    color: #1f2a3a !important;
+  html.site:not([data-theme="light"]) {
+    --bg: #131a22; --surface: #1c2631; --ink: #eef2f5; --muted: #a9b5c2; --line: #2b3745;
+    --accent: #3cc5b8; --accent-ink: #131a22; --nuit: #0c1117; --soft: #1a2a30; --corail: #f08a72; --corail-doux: #3a2523; --lagon-doux: #17312f;
+    --primary-teal: #3cc5b8; --primary-teal-dark: #2a9d92; --primary-coral: #f08a72; --primary-coral-light: #f4a08c;
+    --secondary-beige: #2b3745; --secondary-cream: #1c2631; --text-dark: #eef2f5; --text-gray: #a9b5c2; --text-light: #a9b5c2; --bg-light: #131a22;
+    color-scheme: dark;
   }
 }
+html.site[data-theme="dark"] {
+  --bg: #131a22; --surface: #1c2631; --ink: #eef2f5; --muted: #a9b5c2; --line: #2b3745;
+  --accent: #3cc5b8; --accent-ink: #131a22; --nuit: #0c1117; --soft: #1a2a30; --corail: #f08a72; --corail-doux: #3a2523; --lagon-doux: #17312f;
+  --primary-teal: #3cc5b8; --primary-teal-dark: #2a9d92; --primary-coral: #f08a72; --primary-coral-light: #f4a08c;
+  --secondary-beige: #2b3745; --secondary-cream: #1c2631; --text-dark: #eef2f5; --text-gray: #a9b5c2; --text-light: #a9b5c2; --bg-light: #131a22;
+  color-scheme: dark;
+}
+html.site[data-theme="light"] { color-scheme: light; }
 
 h1, h2, h3 {
   font-family: var(--display);
@@ -102,7 +116,7 @@ h2 {
   align-items: center;
   gap: 8px;
   background: var(--accent);
-  color: #fff;
+  color: var(--accent-ink);
   font: inherit;
   font-weight: 700;
   padding: 10px 22px;
@@ -124,10 +138,10 @@ a:hover {
   text-decoration: underline;
 }
 
-/* Offset pour les ancres sous la nav fixe (48px) */
+/* Ancres sous l’en-tête collant (menu commun + ligne des rubriques) */
 #hero, #about, #boutique-gallery, #collection, #carousel,
 #association, #calendrier, #horaires, #engagement, #contact, #social {
-  scroll-margin-top: 64px;
+  scroll-margin-top: 100px;
 }
 
 /* Contenir les sections hors-écran pour améliorer les perfs de rendu */

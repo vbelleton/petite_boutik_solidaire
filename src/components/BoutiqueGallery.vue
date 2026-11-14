@@ -148,7 +148,7 @@ onUnmounted(() => {
 
 <style scoped>
 .carousel-container {
-  background: linear-gradient(135deg, #FFF9F0 0%, #F5E6D3 100%);
+  background: linear-gradient(135deg, var(--surface) 0%, var(--corail-doux) 100%);
   padding: 25px;
   border-radius: 12px;
   margin: 20px 0;

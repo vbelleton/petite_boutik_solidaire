@@ -127,7 +127,7 @@ body.modal-open .sticky-bar { pointer-events: none; }
 .bar-sep {
   width: 1px;
   height: 14px;
-  background: #ddd;
+  background: var(--line);
   flex-shrink: 0;
 }
 

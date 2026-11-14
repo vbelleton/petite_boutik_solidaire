@@ -176,14 +176,14 @@ const values = [
 .dons-grid h4 { color: var(--primary-teal); margin-bottom: 8px }
 .dons-grid ul { list-style: none; padding: 0; margin: 0; color: var(--text-dark) }
 .dons-grid li { padding: 6px 0; display:flex; gap:8px; align-items:flex-start }
-.dons-accepted, .dons-rejected { background: #ffffff; border: 1px solid rgba(0,0,0,0.04); padding: 12px; border-radius: 8px; transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.12s ease }
+.dons-accepted, .dons-rejected { background: var(--surface); border: 1px solid var(--line); padding: 12px; border-radius: 8px; transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.12s ease }
 
 /* Hover / focus style for individual accept/reject cards */
 .dons-accepted:hover,
 .dons-accepted:focus-visible {
   transform: translateY(-6px);
   box-shadow: 0 12px 28px rgba(27,169,168,0.12);
-  background: linear-gradient(180deg, #f7fffe 0%, #e6fffd 100%);
+  background: var(--lagon-doux);
   border-color: rgba(14,169,167,0.18);
 }
 
@@ -191,7 +191,7 @@ const values = [
 .dons-rejected:focus-visible {
   transform: translateY(-6px);
   box-shadow: 0 12px 28px rgba(255,90,90,0.08);
-  background: linear-gradient(180deg, #fff6f6 0%, #ffecec 100%);
+  background: var(--corail-doux);
   border-color: rgba(255,90,90,0.12);
 }
 
@@ -214,7 +214,7 @@ const values = [
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: white;
+  background: var(--surface);
   border: 2px solid var(--primary-teal);
   color: var(--primary-teal);
   padding: 10px 18px;

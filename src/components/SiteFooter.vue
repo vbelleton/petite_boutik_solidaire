@@ -53,7 +53,7 @@ export default {
 
 <style scoped>
 .site-footer {
-  background: var(--ink);
+  background: var(--nuit);
   color: #fff;
   margin-top: 0;
 }

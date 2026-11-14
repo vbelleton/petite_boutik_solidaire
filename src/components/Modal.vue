@@ -29,7 +29,7 @@ const close = () => {
 const onKey = (e) => { if (e.key === 'Escape') close() }
 
 let _previousActive = null
-const interceptorSelectors = ['.sticky-bar', '.section-nav', '.nav-inner']
+const interceptorSelectors = ['.sticky-bar', 'header.top']
 const disableInterceptors = () => {
   try {
     interceptorSelectors.forEach(sel => document.querySelectorAll(sel).forEach(el => {

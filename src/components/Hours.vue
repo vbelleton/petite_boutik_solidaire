@@ -97,7 +97,7 @@ onUnmounted(() => { if (unsubHoraires) unsubHoraires() })
   align-items: center;
   gap: 14px;
   padding: 18px 20px;
-  background: var(--ink);
+  background: var(--nuit);
   color: #fff;
 }
 .time-icon { background: rgba(255, 255, 255, 0.14); color: #fff; }

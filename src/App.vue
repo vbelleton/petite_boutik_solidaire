@@ -18,7 +18,7 @@ import Contact from './components/Contact.vue'
 import SocialMedia from './components/SocialMedia.vue'
 import SiteFooter from './components/SiteFooter.vue'
 import ActuBanner from './components/ActuBanner.vue'
-import SectionNav from './components/SectionNav.vue'
+import SiteMenu from './components/SiteMenu.vue'
 import StickyBottomBar from './components/StickyBottomBar.vue'
 import { useOpeningStatus } from './composables/useOpeningStatus.js'
 import { useLocalBusinessJsonLd } from './composables/useLocalBusinessJsonLd.js'
@@ -48,7 +48,7 @@ const SECTION_LABELS = {
   contact: 'Contact',
   social: 'Réseaux'
 }
-// Rubriques secondaires : dans le menu du téléphone, mais pas dans la barre du haut (pour qu'elle tienne sur une ligne)
+// Rubriques secondaires : dans le menu du téléphone, mais pas dans la ligne des rubriques (pour qu'elle tienne sur une ligne)
 const SECONDAIRES = new Set(['association', 'engagement', 'social'])
 
 // Surtitres des rubriques (petites capitales au-dessus du titre, comme sur le site Bras Ouverts)
@@ -109,7 +109,7 @@ onMounted(() => {
 <template>
   <div class="container">
     <a href="#contenu" class="skip-link">Aller au contenu</a>
-    <SectionNav v-if="sectionLinks.length" :sections="sectionLinks" :prefix="pageGalerie ? BASE : ''" />
+    <SiteMenu :rubriques="sectionLinks" :prefix="pageGalerie ? BASE : ''" />
 
     <main v-if="pageGalerie" id="contenu" tabindex="-1" class="page-galerie">
       <div class="galerie-titre">
@@ -154,9 +154,8 @@ onMounted(() => {
 :root {
   --site-max-width: 1120px;
 }
-/* Page publique seulement (classe posée par main.js) : l'admin n'a ni menu fixe ni barre du bas. */
+/* Page publique seulement (classe posée par main.js) : l'admin n'a ni menu ni barre du bas. */
 body.site {
-  padding-top: 86px;
   padding-bottom: 84px;
   min-height: 100vh;
   min-height: 100dvh;
@@ -207,7 +206,7 @@ body.site {
 }
 
 .calendrier-section {
-  scroll-margin-top: 80px;
+  scroll-margin-top: 100px;
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
   gap: 32px;

@@ -7,88 +7,24 @@ test.describe('Navigation & ancres', () => {
     await page.waitForTimeout(2000)
   })
 
-  test('hover desktop sur dropdown-link montre le fond teal', async ({ page }) => {
+  test('menu commun Bras Ouverts : ouverture plein écran sur téléphone', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 })
-
-    const burger = page.locator('.nav-burger')
-    await expect(burger).toBeVisible({ timeout: 10000 })
-    await burger.click()
-
-    const dropdown = page.locator('.nav-dropdown.open')
-    await expect(dropdown).toBeVisible({ timeout: 5000 })
-
-    const firstLink = dropdown.locator('.dropdown-link').first()
-    await expect(firstLink).toBeVisible()
-
-    const bgBefore = await firstLink.evaluate(el => window.getComputedStyle(el).backgroundColor)
-    console.log('BG avant hover:', bgBefore)
-
-    await firstLink.hover()
-    await page.waitForTimeout(300)
-
-    const bgAfter = await firstLink.evaluate(el => window.getComputedStyle(el).backgroundColor)
-    console.log('BG après hover:', bgAfter)
-
-    expect(bgAfter).toBe('rgb(20, 124, 123)')
+    const bouton = page.locator('header.top .menu-toggle')
+    await expect(bouton).toBeVisible({ timeout: 10000 })
+    await bouton.click()
+    const menu = page.locator('#menu-principal')
+    await expect(menu).toBeVisible()
+    await expect(menu.locator('a[aria-current="page"]')).toHaveCount(1)
+    await page.keyboard.press('Escape')
+    await expect(menu).toBeHidden()
   })
 
-  test('touchstart ajoute la classe touch-active sur mobile', async ({ page, browserName }) => {
-    // Firefox desktop n'expose pas TouchEvent (events tactiles désactivés) :
-    // ce comportement est couvert par les projets WebKit/Chromium/Mobile.
-    test.skip(browserName === 'firefox', 'TouchEvent non disponible sur Firefox desktop')
-    await page.setViewportSize({ width: 393, height: 851 })
-
-    const burger = page.locator('.nav-burger')
-    await expect(burger).toBeVisible({ timeout: 10000 })
-    await burger.click()
-
-    const dropdown = page.locator('.nav-dropdown.open')
-    await expect(dropdown).toBeVisible({ timeout: 5000 })
-
-    // Vérifier qu'aucun lien n'a touch-active avant le touch
-    const hasClassBefore = await page.evaluate(() => {
-      const el = document.querySelector('.dropdown-link')
-      return el?.classList.contains('touch-active')
-    })
-    expect(hasClassBefore).toBe(false)
-
-    // Dispatcher touchstart
-    await page.evaluate(() => {
-      const el = document.querySelector('.dropdown-link')
-      if (el) el.dispatchEvent(new TouchEvent('touchstart', { bubbles: true, cancelable: true }))
-    })
-
-    // Attendre que Vue réagisse (nextTick)
-    await page.waitForTimeout(100)
-
-    // Vérifier la classe touch-active
-    const hasClass = await page.evaluate(() => {
-      const el = document.querySelector('.dropdown-link')
-      return el?.classList.contains('touch-active')
-    })
-    expect(hasClass).toBe(true)
-
-    // Vérifier la couleur de fond
-    const bgDuring = await page.evaluate(() => {
-      const el = document.querySelector('.dropdown-link.touch-active')
-      if (!el) return 'no-element'
-      return window.getComputedStyle(el).backgroundColor
-    })
-    console.log('BG avec touch-active:', bgDuring)
-    expect(bgDuring).toBe('rgb(20, 124, 123)')
-
-    // Dispatcher touchend → la classe doit disparaître
-    await page.evaluate(() => {
-      const el = document.querySelector('.dropdown-link')
-      if (el) el.dispatchEvent(new TouchEvent('touchend', { bubbles: true, cancelable: true }))
-    })
-    await page.waitForTimeout(100)
-
-    const hasClassAfter = await page.evaluate(() => {
-      const el = document.querySelector('.dropdown-link')
-      return el?.classList.contains('touch-active')
-    })
-    expect(hasClassAfter).toBe(false)
+  test('le thème sombre est mémorisé (même clé que le site Bras Ouverts)', async ({ page }) => {
+    await page.locator('header.top .theme-toggle').click()
+    const theme = await page.evaluate(() => [document.documentElement.dataset.theme, localStorage.getItem('bras-ouverts-theme')])
+    expect(theme[0]).toBe(theme[1])
+    await page.reload({ waitUntil: 'domcontentloaded' })
+    expect(await page.evaluate(() => document.documentElement.dataset.theme)).toBe(theme[1])
   })
 
   test('clic bouton Hero défile jusqu\'à la section calendrier', async ({ page }) => {
