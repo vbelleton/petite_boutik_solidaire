@@ -15,27 +15,11 @@ const texte = computed(() => textes.value.about_texte || "La P'tite Boutik Solid
 </script>
 
 <style scoped>
-.about {
-  margin-bottom: 25px;
-  padding: 25px;
-  background: var(--secondary-cream);
-  border-radius: 12px;
-  border-left: 5px solid var(--primary-teal);
-}
-
-.about h2 {
-  color: var(--primary-teal);
-  margin-bottom: 12px;
-}
-
+.about { display: grid; gap: 4px; }
 .about p {
+  max-width: 68ch;
+  font-size: 1.15rem;
   line-height: 1.7;
-  font-size: 1.05em;
-  color: var(--text-dark);
-}
-
-.about strong {
-  color: var(--primary-coral);
-  font-weight: 600;
+  color: var(--muted);
 }
 </style>

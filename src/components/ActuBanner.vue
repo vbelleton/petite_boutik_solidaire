@@ -26,40 +26,22 @@ onUnmounted(() => { if (unsubscribe) unsubscribe() })
 </script>
 
 <style scoped>
+/* Actualité : carte posée sous le titre de la page, liseré de couleur selon le type */
 .actu-banner {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  padding: 14px 18px;
-  border-radius: 10px;
-  margin-bottom: 16px;
-  border: 2px solid;
+  gap: 14px;
+  max-width: var(--site-max-width, 1120px);
+  margin: 0 auto 24px;
+  width: calc(100% - 40px);
+  padding: 16px 20px;
+  border-radius: var(--r);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 6px solid var(--accent);
 }
-
-/* Fond sable comme les autres blocs, liseré de couleur selon le type */
-.actu-banner.info,
-.actu-banner.success {
-  background: linear-gradient(135deg, #FFF9F0 0%, #F5E6D3 100%);
-  border: none;
-  border-left: 5px solid var(--primary-teal);
-}
-.actu-banner.warning {
-  background: #FFF6E0;
-  border: none;
-  border-left: 5px solid #E0A100;
-}
-
+.actu-banner.warning { border-left-color: #c98a00; background: #fff8e6; }
 .actu-icon { font-size: 1.3em; flex-shrink: 0; }
-
-.actu-content strong {
-  display: block;
-  font-size: 0.95em;
-  margin-bottom: 3px;
-  color: #333;
-}
-.actu-content p {
-  font-size: 0.88em;
-  color: #555;
-  margin: 0;
-}
+.actu-content strong { display: block; font-size: 1rem; font-weight: 800; line-height: 1.35; margin-bottom: 4px; color: var(--ink); }
+.actu-content p { font-size: 0.95rem; color: var(--muted); margin: 0; }
 </style>

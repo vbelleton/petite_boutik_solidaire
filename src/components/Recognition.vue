@@ -66,9 +66,11 @@ const onModalClose = () => {
 </script>
 
 <style scoped>
-.recognition { margin-top: 35px; text-align: center }
-.badges { display:flex; justify-content:center; gap:15px; flex-wrap:wrap }
-.badge { display:inline-flex; align-items:center; gap:6px; background:white; border:2px solid var(--primary-teal); color:var(--primary-teal); padding:8px 14px; border-radius:24px; font-weight:600; cursor:pointer }
+.recognition { margin-top: 32px; }
+.recognition h3 { font-size: 1.3rem; margin-bottom: 12px; }
+.badges { display:flex; gap:10px; flex-wrap:wrap }
+.badge { display:inline-flex; align-items:center; gap:6px; background:var(--surface); border:1px solid var(--line); color:var(--ink); padding:9px 18px; border-radius:999px; font: inherit; font-weight:700; cursor:pointer }
+.badge:hover { border-color: var(--accent); color: var(--accent) }
 .badge-icon { display:none }
 .badge-image { display:none }
 .badge-text { display:block; max-width: 12rem; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }

@@ -662,39 +662,18 @@ const onSlideChange = (e) => {
 </script>
 
 <style scoped>
-.gallery-container {
-  background: linear-gradient(135deg, #FFF9F0 0%, #F5E6D3 100%);
-  padding: 25px;
-  border-radius: 12px;
-  margin: 20px 0;
-  border: 2px solid var(--secondary-beige);
-}
-
-@media (max-width: 600px) {
-  .gallery-container {
-    padding: 15px;
-    margin: 12px 0;
-  }
-}
-
-.gallery-container h2 {
-  color: var(--primary-teal);
-  margin-bottom: 8px;
-  text-align: center;
-}
+.gallery-container h2 { margin-bottom: 6px; }
 
 .subtitle {
-  text-align: center;
-  color: var(--text-gray);
+  color: var(--muted);
   margin-bottom: 20px;
-  font-size: 0.9em;
-  font-style: italic;
+  font-size: 1rem;
 }
 
 .my-swiper {
   width: 100%;
-  max-width: var(--site-max-width, 800px);
-  margin: 0 auto;
+  max-width: 900px;
+  margin: 0;
   padding-bottom: 40px;
 }
 

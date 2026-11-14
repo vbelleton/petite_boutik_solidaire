@@ -43,6 +43,19 @@ const SECTION_LABELS = {
   social: 'Réseaux'
 }
 
+// Surtitres des rubriques (petites capitales au-dessus du titre, comme sur le site Bras Ouverts)
+const KICKERS = {
+  about: 'La boutique',
+  'boutique-gallery': 'La boutique',
+  carousel: 'En images',
+  collection: 'Nos produits',
+  association: "L'association",
+  calendrier: 'Horaires',
+  engagement: 'Nos valeurs',
+  contact: 'Nous trouver · Nous écrire',
+  social: 'Réseaux',
+}
+
 const isVisible = (id) => {
   if (blocs.value[id] === undefined) return true
   return blocs.value[id].visible !== false
@@ -96,19 +109,19 @@ onMounted(() => {
     <main id="contenu" tabindex="-1">
     <template v-for="id in blocOrder" :key="id">
       <Hero          v-if="id === 'hero'             && isVisible('hero')"              id="hero" />
-      <About         v-if="id === 'about'            && isVisible('about')"             id="about" />
-      <BoutiqueGallery v-if="id === 'boutique-gallery' && isVisible('boutique-gallery')" id="boutique-gallery" />
-      <Products      v-if="id === 'collection'       && isVisible('collection')"        id="collection" />
-      <Gallery       v-if="id === 'carousel'         && isVisible('carousel')"          id="carousel" />
+      <About         v-if="id === 'about'            && isVisible('about')"             id="about" :data-lab="KICKERS['about']" />
+      <BoutiqueGallery v-if="id === 'boutique-gallery' && isVisible('boutique-gallery')" id="boutique-gallery" :data-lab="KICKERS['boutique-gallery']" />
+      <Products      v-if="id === 'collection'       && isVisible('collection')"        id="collection" :data-lab="KICKERS['collection']" />
+      <Gallery       v-if="id === 'carousel'         && isVisible('carousel')"          id="carousel" :data-lab="KICKERS['carousel']" />
       <FouilleGallery v-if="id === 'fouille'          && isVisible('fouille')"           id="fouille" />
-      <Association   v-if="id === 'association'      && isVisible('association')"       id="association" />
-      <div         v-if="id === 'calendrier'       && isVisible('calendrier')"        id="calendrier" class="calendrier-section">
+      <Association   v-if="id === 'association'      && isVisible('association')"       id="association" :data-lab="KICKERS['association']" />
+      <div         v-if="id === 'calendrier'       && isVisible('calendrier')"        id="calendrier" class="calendrier-section" :data-lab="KICKERS.calendrier">
         <Calendar />
         <Hours />
       </div>
-      <Engagement    v-if="id === 'engagement'       && isVisible('engagement')"        id="engagement" />
-      <Contact       v-if="id === 'contact'          && isVisible('contact')"           id="contact" />
-      <SocialMedia   v-if="id === 'social'           && isVisible('social')"            id="social" />
+      <Engagement    v-if="id === 'engagement'       && isVisible('engagement')"        id="engagement" :data-lab="KICKERS['engagement']" />
+      <Contact       v-if="id === 'contact'          && isVisible('contact')"           id="contact" :data-lab="KICKERS['contact']" />
+      <SocialMedia   v-if="id === 'social'           && isVisible('social')"            id="social" :data-lab="KICKERS['social']" />
     </template>
     </main>
 
@@ -120,11 +133,11 @@ onMounted(() => {
 
 <style>
 :root {
-  --site-max-width: 100%;
+  --site-max-width: 1120px;
 }
 body {
-  padding-top: 48px;
-  padding-bottom: 48px;
+  padding-top: 86px;
+  padding-bottom: 84px;
   min-height: 100vh;
   min-height: 100dvh;
   display: flex;
@@ -133,24 +146,45 @@ body {
 
 /* ensure container expands so footer sticks to bottom reliably */
 .container { flex: 1 0 auto }
+
+/* Rubriques en bandes pleine largeur séparées d'un filet, contenu centré (comme Bras Ouverts) */
+#contenu > * {
+  margin: 0 !important;
+  padding: clamp(44px, 7vw, 80px) max(20px, calc((100% - var(--site-max-width)) / 2)) !important;
+  border: 0 !important;
+  border-top: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  text-align: left;
+}
+#contenu > #hero { border-top: 0 !important; padding-top: 8px !important; }
+#contenu > #calendrier { background: linear-gradient(180deg, transparent, var(--soft)) !important; }
+#contenu > #engagement { background: linear-gradient(180deg, transparent, var(--corail-doux) 160%) !important; }
+#contenu h2 { text-align: left; color: var(--ink); margin-bottom: 18px; }
+#calendrier h2 { font-size: clamp(1.5rem, 3vw, 2rem); }
 </style>
 
 <style scoped>
 .container {
-  max-width: var(--site-max-width, 800px);
   margin: 0 auto;
-  padding: 20px;
-  background-color: #FAFAFA !important;
-  color: #333333 !important;
-}
-
-@media (max-width: 600px) {
-  .container {
-    padding: 12px;
-  }
+  width: 100%;
+  /* Halo turquoise et corail du haut de page, comme l'accueil du site Bras Ouverts */
+  background:
+    radial-gradient(70% 520px at 100% 0%, var(--lagon-doux), transparent 70%),
+    radial-gradient(60% 520px at 0% 620px, var(--corail-doux), transparent 70%);
+  background-repeat: no-repeat;
 }
 
 .calendrier-section {
-  scroll-margin-top: 64px;
+  scroll-margin-top: 80px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+.calendrier-section::before { grid-column: 1 / -1; }
+@media (max-width: 900px) {
+  .calendrier-section { grid-template-columns: minmax(0, 1fr); }
 }
 </style>

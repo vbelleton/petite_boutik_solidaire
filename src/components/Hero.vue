@@ -1,24 +1,20 @@
 <template>
-  <section class="hero" :style="heroStyle">
-    <div class="hero-content">
-      <div class="hero-overlay"></div>
-
-      <div class="hero-center">
-        <div class="cta-card">
-          <div class="cta-title" v-if="contactTitle">{{ contactTitle }}</div>
-          <div class="cta-desc" v-if="contactDesc">{{ contactDesc }}</div>
-
-          <div class="cta-actions">
-            <a href="#contact" class="full-btn primary" @click="scrollTo('contact')" :aria-label="btn2Label" :title="btn2Label">
-              <span class="btn-icon" aria-hidden="true" v-html="iconHtml"></span>
-              <span class="btn-label">{{ btn2Label }}</span>
-            </a>
-            <a href="#calendrier" class="full-btn" @click="scrollTo('calendrier')" :aria-label="btn1Label" :title="btn1Label">
-              <span class="btn-icon" aria-hidden="true" v-html="btn1IconHtml"></span>
-              <span class="btn-label">{{ btn1Label }}</span>
-            </a>
-          </div>
-        </div>
+  <section class="hero">
+    <div class="hero-card" :style="heroStyle">
+      <div class="hero-overlay" aria-hidden="true"></div>
+      <div class="cta-text">
+        <h2 class="cta-title" v-if="contactTitle">{{ contactTitle }}</h2>
+        <p class="cta-desc" v-if="contactDesc">{{ contactDesc }}</p>
+      </div>
+      <div class="cta-actions">
+        <a href="#contact" class="full-btn primary" @click="scrollTo('contact')">
+          <span class="btn-icon" aria-hidden="true" v-html="iconHtml"></span>
+          <span class="btn-label">{{ btn2Label }}</span>
+        </a>
+        <a href="#calendrier" class="full-btn" @click="scrollTo('calendrier')">
+          <span class="btn-icon" aria-hidden="true" v-html="btn1IconHtml"></span>
+          <span class="btn-label">{{ btn1Label }}</span>
+        </a>
       </div>
     </div>
   </section>
@@ -50,45 +46,45 @@ function scrollTo(id) {
 </script>
 
 <style scoped>
-.hero {
-  color: white;
-  padding: 30px 12px; /* reduced to make block ~50% smaller */
-  text-align: center;
-  border-radius: 12px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 18px rgba(27, 169, 168, 0.08);
+/* Encart d'accueil : carte arrondie au dégradé choisi dans l'admin, boutons « pilule » */
+.hero-card {
   position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px 32px;
+  padding: clamp(22px, 4vw, 36px) clamp(22px, 4vw, 40px);
+  border-radius: calc(var(--r) + 8px);
+  color: #fff;
+  box-shadow: 0 18px 40px rgba(15, 110, 103, 0.18);
 }
-
-.hero-content {
-  max-width: var(--site-max-width, 800px);
-  margin: 0 auto;
-}
-
-.hero-center { position:relative; display:flex; align-items:center; justify-content:center; padding: 12px 8px }
-
-.cta-card { background: transparent; padding:0; border-radius:0; max-width:100%; box-shadow: none; text-align:left; width:100% }
-.cta-title { font-weight:700; color:white; margin-bottom:2px; font-size:0.95em }
-.cta-desc { color: #fff; font-size:0.9em; margin-bottom:6px; line-height:1.25; max-height:2.4em; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical }
-
-.cta-actions { display:flex; gap:10px; align-items:center; justify-content:center; width:100% }
-.full-btn { display:inline-flex; align-items:center; justify-content:center; gap:10px; padding:8px 12px; border-radius:8px; width:100%; text-decoration:none; border: 2px solid rgba(27,169,168,0.16); background: transparent; color: rgba(255,255,255,0.95); font-weight:700 }
-.full-btn.primary { font-weight:800 }
-.full-btn:not(.primary) { font-weight:700 }
-.full-btn .btn-icon svg { width:18px; height:18px }
-.full-btn { transition: transform 140ms ease, background 140ms ease, color 140ms ease, border-color 140ms ease }
-.full-btn:focus-visible { outline: 3px solid #fff; outline-offset: 3px }
-.full-btn:hover { transform: translateY(-2px); background: linear-gradient(180deg, var(--primary-teal), var(--primary-teal-dark)); color: white; border-color: rgba(27,169,168,0.28) }
+.hero-card > * { position: relative; }
 
 /* Voile sombre : garde le texte blanc lisible quelles que soient les couleurs choisies dans l'admin (RGAA 3.2) */
-.hero-overlay { position:absolute; inset:0; border-radius:15px; background: rgba(0,0,0,0.14); pointer-events:none }
+.hero-overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.16); pointer-events: none; }
 
-.btn-icon { display:inline-flex; align-items:center; justify-content:center }
-.btn-icon svg { display:block; width:18px; height:18px }
+.cta-text { display: grid; gap: 6px; min-width: 0; flex: 1 1 320px; }
+#contenu .cta-title { color: #fff; font-size: clamp(1.4rem, 3vw, 1.9rem); margin: 0; }
+.cta-desc { color: #fff; font-size: 1.05rem; max-width: 46ch; }
+
+.cta-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.full-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 12px 22px; border-radius: 999px;
+  text-decoration: none; font-weight: 700;
+  border: 1.5px solid rgba(255, 255, 255, 0.75); color: #fff; background: transparent;
+  transition: transform 140ms ease, background 140ms ease, color 140ms ease;
+}
+.full-btn.primary { background: #fff; color: var(--ink); border-color: #fff; }
+.full-btn:hover { transform: translateY(-2px); text-decoration: none; background: #fff; color: var(--ink); }
+.full-btn:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+.btn-icon { display: inline-flex; }
+.btn-icon :deep(svg) { display: block; width: 18px; height: 18px; }
 
 @media (max-width: 600px) {
-  .hero {
-    padding: 40px 15px;
-  }
+  .cta-actions { width: 100%; }
+  .full-btn { flex: 1 1 auto; justify-content: center; }
 }
 </style>

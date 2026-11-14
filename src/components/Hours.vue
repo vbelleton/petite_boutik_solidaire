@@ -71,90 +71,37 @@ onUnmounted(() => { if (unsubHoraires) unsubHoraires() })
 </script>
 
 <style scoped>
-.hours {
-  margin: 40px 0;
-}
-
-.hours h2 {
-  color: var(--primary-teal);
-  margin-bottom: 20px;
-  text-align: center;
-}
-
 .hours-card {
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: calc(var(--r) + 4px);
   overflow: hidden;
-  max-width: 520px;
-  margin: 0 auto;
 }
-
-.hours-list {
-  list-style: none;
-  margin: 0;
-  padding: 6px 20px;
-}
-
-.hours-row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 14px 0;
-}
-
-.hours-row + .hours-row {
-  border-top: 1px solid #eee;
-}
-
+.hours-list { list-style: none; margin: 0; padding: 6px 20px; }
+.hours-row { display: flex; align-items: center; gap: 14px; padding: 14px 0; }
+.hours-row + .hours-row { border-top: 1px solid var(--line); }
 .row-icon {
   flex: 0 0 auto;
   width: 44px;
   height: 44px;
-  border-radius: 50%;
+  border-radius: 14px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-size: 1.3em;
 }
-
-.row-icon svg {
-  width: 22px;
-  height: 22px;
-}
-
-.row-text {
-  font-size: 1.05em;
-  font-weight: 600;
-  color: var(--text-dark);
-}
-
+.row-icon svg { width: 22px; height: 22px; }
+.row-text { font-size: 1.05rem; font-weight: 700; color: var(--ink); }
 .hours-time {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 16px 20px;
-  background: var(--primary-teal);
+  padding: 18px 20px;
+  background: var(--ink);
   color: #fff;
 }
-
-.time-icon {
-  background: rgba(255, 255, 255, 0.18);
-  color: #fff;
-}
-
-.time-text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.3;
-}
-
-.time-text strong {
-  font-size: 1.2em;
-  font-weight: 700;
-}
-
-.time-sub {
-  font-size: 0.9em;
-}
+.time-icon { background: rgba(255, 255, 255, 0.14); color: #fff; }
+.time-text { display: flex; flex-direction: column; line-height: 1.3; }
+.time-text strong { font-family: var(--display); font-size: 1.4rem; font-weight: 700; }
+.time-sub { font-size: 0.92rem; opacity: 0.9; }
 </style>

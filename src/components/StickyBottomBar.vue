@@ -47,8 +47,10 @@ const { openToday, nextOpening } = useOpeningStatus()
   left: 0;
   right: 0;
   z-index: 700;
-  background: rgba(255, 255, 255, 0.95);
-  border-top: 1px solid #e8e8e8;
+  background: color-mix(in srgb, var(--surface) 95%, transparent);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--line);
   box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
   backface-visibility: hidden;
   overscroll-behavior: none;
@@ -67,11 +69,11 @@ body.modal-open .sticky-bar { pointer-events: none; }
 }
 .bar-status.open {
   color: #fff;
-  background: linear-gradient(135deg, var(--primary-teal) 0%, var(--primary-teal-dark) 100%);
+  background: var(--accent);
 }
 .bar-status.closed {
-  color: var(--text-gray);
-  background: #f3f1ec;
+  color: var(--muted);
+  background: var(--bg);
   text-transform: none;
   font-weight: 600;
   font-size: 0.78em;
@@ -96,7 +98,7 @@ body.modal-open .sticky-bar { pointer-events: none; }
   display: flex;
   align-items: center;
   justify-content: center;
-  max-width: var(--site-max-width, 800px);
+  max-width: var(--site-max-width, 1120px);
   margin: 0 auto;
   padding: 8px 12px;
   padding-bottom: calc(8px + env(safe-area-inset-bottom, 0));
@@ -113,8 +115,8 @@ body.modal-open .sticky-bar { pointer-events: none; }
 }
 
 .bar-phone {
-  color: var(--primary-teal);
-  font-weight: 600;
+  color: var(--accent);
+  font-weight: 700;
   text-decoration: none;
 }
 

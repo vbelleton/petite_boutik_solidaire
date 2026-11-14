@@ -971,6 +971,7 @@ const loadBlocs = () => {
   // Contact
   contact_address: '',
   contact_titre: '',
+  contact_ecrire: '',
   contact_phone: '',
   contact_phone_raw: '',
   contact_map_url: '',
@@ -1078,9 +1079,10 @@ const siteBlocs = ref([
   },
   {
     id: 'contact', icon: '📍', label: 'Contact', open: false, saved: false,
-    desc: 'Adresse, téléphone, lien Google Maps',
+    desc: 'Adresse, téléphone, lien Google Maps, encart « Nous écrire »',
     fields: [
-      { id: 'contact_titre', label: 'Titre de section', multiline: false, default: 'Nous trouver' },
+      { id: 'contact_titre', label: 'Titre de section', multiline: false, default: 'Nous trouver et nous écrire' },
+      { id: 'contact_ecrire', label: 'Texte de l’encart « Nous écrire »', multiline: true, default: 'Une question sur la boutique ou un don ? Laissez-nous un message : nous répondons à tous les messages.' },
       { id: 'contact_address', label: 'Adresse', multiline: false, default: '2 rue Jean-Monnet, 29600 Morlaix' },
       { id: 'contact_phone', label: 'Téléphone (affichage)', multiline: false, default: '06 20 70 54 96' },
       { id: 'contact_phone_raw', label: 'Téléphone (pour lien tel:)', multiline: false, default: '0620705496' },
