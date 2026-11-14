@@ -63,5 +63,6 @@ Le mode d'emploi pour les bénévoles est tenu à part : https://claude.ai/artif
 Le site est servi sous `/boutik/` (`vite.config.js` → `base`, sortie `dist/boutik/`), pour vivre à `brasouverts.bzh/boutik` à côté du site de l'association (`vbelleton/bras-ouverts-site`, qui relaie `/boutik/*` vers ce projet Pages). Sur `petite-boutik-solidaire.pages.dev`, la racine redirige vers `/boutik/` (`racine/_redirects`).
 
 - Toute adresse « /… » écrite en dur ou enregistrée en base passe par `chemin()` (`src/chemin.js`).
+- En-tête commun avec le site de l'association (`src/components/SiteMenu.vue`) : logo Bras Ouverts + « La P'tite Boutik Solidaire », menu lu dans `/menu.json` du site Bras Ouverts (menu par défaut si absent), bouton de thème clair/sombre. Le thème est mémorisé sous `bras-ouverts-theme`, posé avant l'affichage par `index.html` ; couleurs sombres dans `src/style.css` (`html.site`). L'admin reste toujours en clair.
 - `racine/` est copié à la racine de `dist/` après le build (`scripts/racine.js`) : `_redirects`, `_headers`, et un `sw.js` qui désinstalle l'ancien service worker des téléphones qui avaient installé l'appli avant le changement.
 - Le jour où `brasouverts.bzh` est branché : l'ajouter dans Firebase → Authentication → Authorized domains (connexion à l'admin) et dans `ALLOWED_ORIGINS` du Worker photos (puis le redéployer).

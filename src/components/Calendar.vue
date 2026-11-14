@@ -61,7 +61,7 @@ const nextDates = computed(() =>
 }
 .date-day { font-size: 0.76rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700; color: var(--accent); }
 .date-full { font-family: var(--display); font-size: 1.15rem; font-weight: 600; color: var(--ink); }
-.date-item.closed { opacity: 0.65; background: #fbf4f1; border-left-color: #c9c1b6 !important; }
+.date-item.closed { opacity: 0.65; background: color-mix(in srgb, var(--corail-doux) 45%, var(--surface)); border-left-color: var(--line) !important; }
 .date-item.closed .date-day,
 .date-item.closed .date-full { text-decoration: line-through; color: var(--muted) !important; }
 .date-exceptional { font-size: 0.82rem; font-weight: 700; color: #6247a8; margin-top: 2px; }

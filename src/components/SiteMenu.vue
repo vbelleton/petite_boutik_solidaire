@@ -1,0 +1,179 @@
+<template>
+  <header ref="hautEl" class="top" :style="{ '--haut': haut + 'px' }">
+    <div class="wrap">
+      <div class="marque">
+        <a class="logo" :href="ASSO + '/'" title="Accueil du site Bras Ouverts">
+          <img :src="BASE + 'logo-bras-ouverts.png'" alt="Bras Ouverts" width="178" height="34" />
+        </a>
+        <a class="sous-site" :href="BASE">La P'tite Boutik Solidaire</a>
+      </div>
+      <button class="menu-toggle" type="button" :aria-expanded="String(ouvert)" aria-controls="menu-principal"
+        :aria-label="ouvert ? 'Fermer le menu' : 'Ouvrir le menu'" @click="ouvert = !ouvert">
+        <span class="menu-ico" aria-hidden="true"><span></span><span></span><span></span></span><span class="menu-txt">Menu</span>
+      </button>
+      <nav id="menu-principal" aria-label="Navigation principale" @click="fermerSiLien">
+        <a v-for="l in liens" :key="l.url" :href="lien(l.url)" :aria-current="estBoutik(l.url) ? 'page' : null">{{ l.label }}</a>
+        <template v-if="rubriques.length">
+          <p class="nav-sous-titre">Dans la boutique</p>
+          <a v-for="r in rubriques" :key="r.id" class="nav-rubrique" :href="`${prefix}#${r.id}`">{{ r.label }}</a>
+        </template>
+      </nav>
+      <button class="theme-toggle" type="button" :aria-pressed="String(sombre)" :aria-label="sombre ? 'Passer au thème clair' : 'Passer au thème sombre'"
+        :title="sombre ? 'Passer au thème clair' : 'Passer au thème sombre'" @click="basculerTheme">
+        <svg v-if="!sombre" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="currentColor"/></svg>
+        <svg v-else viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1.5v2.5M12 20v2.5M1.5 12H4M20 12h2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></g></svg>
+      </button>
+    </div>
+    <!-- Rubriques de la boutique (ordinateur) : petite ligne sous le menu commun -->
+    <nav v-if="rubriques.length" class="rubriques" aria-label="Rubriques de la boutique">
+      <div class="wrap">
+        <a v-for="r in rubriques.filter(x => !x.secondaire)" :key="r.id" :href="`${prefix}#${r.id}`">{{ r.label }}</a>
+      </div>
+    </nav>
+  </header>
+</template>
+
+<script setup>
+// En-tête commun avec le site Bras Ouverts : même logo, même menu (lu dans /menu.json, publié par
+// le site de l'association), même bouton de thème (même mémoire : « bras-ouverts-theme »).
+import { ref, watch, onMounted, onUnmounted } from 'vue'
+import { BASE, ASSO } from '../chemin.js'
+
+defineProps({
+  rubriques: { type: Array, default: () => [] },
+  // Sur une autre page que l'accueil de la boutique (la galerie), les rubriques ramènent à l'accueil.
+  prefix: { type: String, default: '' },
+})
+
+// Menu par défaut (si /menu.json ne répond pas) : le même que sur le site Bras Ouverts.
+const liens = ref([
+  { label: 'Découvrir l’association', url: '/#deux-cotes' },
+  { label: 'Petite boutik', url: '/boutik/' },
+  { label: 'Maraude', url: '/#maraudes' },
+  { label: 'Agenda', url: '/#agenda' },
+  { label: 'Contact', url: '/#contact' },
+])
+const lien = (url) => (url.startsWith('/') && !url.startsWith('//') ? ASSO + url : url)
+const estBoutik = (url) => url.replace(/\/+$/, '') === BASE.replace(/\/+$/, '')
+
+const ouvert = ref(false)
+const hautEl = ref(null)
+const haut = ref(61)
+const mesurer = () => { if (hautEl.value) haut.value = Math.round(hautEl.value.getBoundingClientRect().height) }
+watch(ouvert, (oui) => {
+  if (oui) mesurer()
+  document.documentElement.classList.toggle('menu-ouvert', oui)
+})
+const fermerSiLien = (e) => { if (e.target.closest('a')) ouvert.value = false }
+
+// Thème clair / sombre : suit le système, le choix du visiteur est mémorisé (posé avant l'affichage par index.html).
+const KEY = 'bras-ouverts-theme'
+const root = document.documentElement
+const systeme = matchMedia('(prefers-color-scheme: dark)')
+const courant = () => root.dataset.theme || (systeme.matches ? 'dark' : 'light')
+const sombre = ref(courant() === 'dark')
+function basculerTheme() {
+  const suivant = courant() === 'dark' ? 'light' : 'dark'
+  root.dataset.theme = suivant
+  try { localStorage.setItem(KEY, suivant) } catch {}
+  sombre.value = suivant === 'dark'
+}
+const surSysteme = () => { sombre.value = courant() === 'dark' }
+
+const onKey = (e) => { if (e.key === 'Escape' && ouvert.value) { ouvert.value = false; hautEl.value?.querySelector('.menu-toggle')?.focus() } }
+const onClic = (e) => { if (ouvert.value && !e.target.closest('.top')) ouvert.value = false }
+const large = matchMedia('(min-width: 701px)')
+const onLarge = (m) => { if (m.matches) ouvert.value = false }
+
+onMounted(async () => {
+  document.addEventListener('keydown', onKey)
+  document.addEventListener('click', onClic)
+  window.addEventListener('resize', mesurer)
+  systeme.addEventListener('change', surSysteme)
+  large.addEventListener('change', onLarge)
+  try {
+    const res = await fetch(ASSO + '/menu.json', { signal: AbortSignal.timeout(5000) })
+    if (res.ok) {
+      const { liens: l } = await res.json()
+      if (Array.isArray(l) && l.length && l.every((x) => x && typeof x.label === 'string' && typeof x.url === 'string' && /^(\/|https:)/.test(x.url))) liens.value = l
+    }
+  } catch { /* menu par défaut */ }
+})
+onUnmounted(() => {
+  document.removeEventListener('keydown', onKey)
+  document.removeEventListener('click', onClic)
+  window.removeEventListener('resize', mesurer)
+  systeme.removeEventListener('change', surSysteme)
+  large.removeEventListener('change', onLarge)
+  root.classList.remove('menu-ouvert')
+})
+</script>
+
+<style scoped>
+/* Repris de l'en-tête du site Bras Ouverts (src/style.css de bras-ouverts-site) */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 800; background: color-mix(in srgb, var(--bg) 92%, transparent); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 20px; }
+.top > .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px; padding-block: 10px; position: relative; }
+.marque { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.logo { display: flex; align-items: center; flex: none; }
+.logo img { display: block; height: 34px; width: auto; }
+.sous-site { padding-left: 12px; border-left: 1px solid var(--line); font-family: var(--display); font-weight: 700; font-size: 1.02rem; line-height: 1.15; color: var(--corail); text-decoration: none; white-space: nowrap; }
+.sous-site:hover { text-decoration: underline; }
+:root[data-theme="dark"] .logo img { filter: brightness(0) invert(0.94); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .logo img { filter: brightness(0) invert(0.94); } }
+
+#menu-principal { display: flex; flex-wrap: wrap; gap: 4px 20px; margin-left: auto; }
+#menu-principal a { color: var(--muted); text-decoration: none; font-weight: 700; font-size: 0.95rem; }
+#menu-principal a:hover { color: var(--accent); }
+#menu-principal a[aria-current="page"] { color: var(--ink); box-shadow: inset 0 -2px 0 var(--corail); }
+.nav-sous-titre, .nav-rubrique { display: none; }
+
+.theme-toggle { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); cursor: pointer; flex: none; }
+.theme-toggle:hover { color: var(--accent); border-color: var(--accent); }
+
+.menu-toggle { display: none; align-items: center; gap: 8px; height: 40px; padding: 0 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); font: inherit; font-weight: 700; font-size: 0.95rem; cursor: pointer; }
+.menu-toggle:hover { color: var(--accent); border-color: var(--accent); }
+.menu-ico { display: grid; gap: 4px; width: 18px; }
+.menu-ico span { display: block; height: 2px; border-radius: 2px; background: currentColor; transition: transform .2s, opacity .2s; }
+.menu-toggle[aria-expanded="true"] .menu-ico span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.menu-toggle[aria-expanded="true"] .menu-ico span:nth-child(2) { opacity: 0; }
+.menu-toggle[aria-expanded="true"] .menu-ico span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+@media (prefers-reduced-motion: reduce) { .menu-ico span { transition: none; } }
+
+.rubriques { border-top: 1px solid var(--line); }
+.rubriques .wrap { display: flex; gap: 4px 18px; padding-block: 6px; overflow-x: auto; scrollbar-width: none; }
+.rubriques .wrap::-webkit-scrollbar { display: none; }
+.rubriques a { flex: none; font-size: 0.85rem; font-weight: 700; color: var(--corail); text-decoration: none; white-space: nowrap; }
+.rubriques a:hover { text-decoration: underline; }
+
+@media (max-width: 1000px) and (min-width: 701px) {
+  .sous-site { font-size: 0.92rem; white-space: normal; max-width: 9.5em; }
+  #menu-principal { gap: 4px 14px; }
+  #menu-principal a { font-size: 0.9rem; }
+}
+
+@media (max-width: 700px) {
+  .top > .wrap { flex-wrap: nowrap; gap: 8px; }
+  .marque { gap: 8px; flex: 1 1 auto; }
+  .logo img { height: 24px; }
+  .sous-site { padding-left: 8px; font-size: 0.82rem; white-space: normal; max-width: 7.5em; }
+  .rubriques { display: none; }
+  .menu-toggle { display: inline-flex; margin-left: auto; }
+  .menu-txt { display: none; }
+  .menu-toggle { padding: 0; width: 40px; justify-content: center; }
+  /* Menu plein écran sous l'en-tête, comme sur le site Bras Ouverts */
+  #menu-principal { display: none; position: absolute; top: 100%; left: 0; right: 0; height: calc(100vh - var(--haut)); height: calc(100dvh - var(--haut));
+    flex-direction: column; flex-wrap: nowrap; gap: 0; margin: 0; padding: 8px max(20px, env(safe-area-inset-left)) calc(96px + env(safe-area-inset-bottom)); overflow-y: auto; overscroll-behavior: contain;
+    background: var(--bg); border-top: 1px solid var(--line); }
+  .menu-toggle[aria-expanded="true"] ~ #menu-principal { display: flex; }
+  #menu-principal a { flex: none; padding: 16px 4px; font-family: var(--display); font-size: 1.45rem; color: var(--ink); border-bottom: 1px solid var(--line); }
+  #menu-principal a[aria-current="page"] { box-shadow: none; color: var(--corail); }
+  .nav-sous-titre { display: block; margin: 22px 4px 2px; font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; color: var(--corail); }
+  #menu-principal a.nav-rubrique { display: block; padding: 12px 4px; font-size: 1.15rem; }
+}
+</style>
+
+<style>
+/* Page figée derrière le menu plein écran */
+html.menu-ouvert, html.menu-ouvert body { overflow: hidden; }
+</style>

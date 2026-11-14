@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fr" style="background-color:#f6efe3">
+<html lang="fr">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/favicon.png" />
@@ -38,6 +38,19 @@
     </script>
     <meta name="color-scheme" content="light only" />
     <meta name="theme-color" content="#f6efe3" />
+    <script>
+      // Thème du site public, partagé avec le site Bras Ouverts (même clé « bras-ouverts-theme ») :
+      // posé avant l'affichage pour éviter un flash. L'admin reste toujours en clair.
+      (function () {
+        if (/\/admin(\/|$)/.test(location.pathname)) return;
+        var root = document.documentElement;
+        root.classList.add('site');
+        try { var t = localStorage.getItem('bras-ouverts-theme'); if (t === 'light' || t === 'dark') root.dataset.theme = t; } catch (e) {}
+        document.querySelector('meta[name="color-scheme"]').setAttribute('content', 'light dark');
+        var sombre = root.dataset.theme === 'dark' || (!root.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches);
+        if (sombre) document.querySelector('meta[name="theme-color"]').setAttribute('content', '#131a22');
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,400;0,6..12,600;0,6..12,700;0,6..12,800;1,6..12,400&family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600;1,9..144,700&display=swap" />

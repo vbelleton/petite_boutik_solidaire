@@ -40,7 +40,7 @@ onUnmounted(() => { if (unsubscribe) unsubscribe() })
   border: 1px solid var(--line);
   border-left: 6px solid var(--accent);
 }
-.actu-banner.warning { border-left-color: #c98a00; background: #fff8e6; }
+.actu-banner.warning { border-left-color: #c98a00; background: color-mix(in srgb, #c98a00 12%, var(--surface)); }
 .actu-icon { font-size: 1.3em; flex-shrink: 0; }
 .actu-content strong { display: block; font-size: 1rem; font-weight: 800; line-height: 1.35; margin-bottom: 4px; color: var(--ink); }
 .actu-content p { font-size: 0.95rem; color: var(--muted); margin: 0; }

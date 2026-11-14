@@ -77,8 +77,8 @@ function scrollTo(id) {
   border: 1.5px solid rgba(255, 255, 255, 0.75); color: #fff; background: transparent;
   transition: transform 140ms ease, background 140ms ease, color 140ms ease;
 }
-.full-btn.primary { background: #fff; color: var(--ink); border-color: #fff; }
-.full-btn:hover { transform: translateY(-2px); text-decoration: none; background: #fff; color: var(--ink); }
+.full-btn.primary { background: #fff; color: #1f2a3a; border-color: #fff; }
+.full-btn:hover { transform: translateY(-2px); text-decoration: none; background: #fff; color: #1f2a3a; }
 .full-btn:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
 .btn-icon { display: inline-flex; }
 .btn-icon :deep(svg) { display: block; width: 18px; height: 18px; }
