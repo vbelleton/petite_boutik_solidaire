@@ -85,10 +85,26 @@ const sectionLinks = computed(() =>
     .map(id => ({ id, label: SECTION_LABELS[id], secondaire: SECONDAIRES.has(id) }))
 )
 
+// Affichage sans « trous » : le contenu apparaît d'un coup (fondu) quand la liste des rubriques et les textes
+// (et l'actualité) sont arrivés, au lieu de montrer des rubriques qui sautent ou des textes qui changent. Au plus 1,5 s d'attente ;
+// aux visites suivantes, le cache du navigateur répond tout de suite.
+const pret = ref(false)
+let attendus = 3
+const unPret = () => { if (--attendus <= 0) pret.value = true }
+setTimeout(() => { pret.value = true }, 1500)
+
 onMounted(() => {
+  let blocsVus = false
   onSnapshot(doc(db, 'config', 'blocs'), snap => {
     if (snap.exists()) blocs.value = snap.data()
-  })
+    if (!blocsVus) { blocsVus = true; unPret() }
+  }, () => { if (!blocsVus) { blocsVus = true; unPret() } })
+  let textesVus = false
+  const finTextes = () => { if (!textesVus) { textesVus = true; unPret() } }
+  onSnapshot(doc(db, 'config', 'textes'), finTextes, finTextes)
+  let actuVue = false
+  const finActu = () => { if (!actuVue) { actuVue = true; unPret() } }
+  onSnapshot(doc(db, 'config', 'actualite'), finActu, finActu)
 
   // Intercepte tous les clics sur ancres # (au cas où l'élément cible
   // ne serait pas trouvé par la navigation native du navigateur)
@@ -107,7 +123,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container">
+  <div class="container" :class="{ pret }">
     <a href="#contenu" class="skip-link">Aller au contenu</a>
     <SiteMenu :rubriques="sectionLinks" :prefix="pageGalerie ? BASE : ''" />
 
@@ -162,6 +178,11 @@ body.site {
   display: flex;
   flex-direction: column;
 }
+
+/* Contenu révélé d'un coup quand les données sont là (voir « pret » plus haut) */
+.container > main, .container > .site-header, .container > .actu-banner { transition: opacity .35s ease; }
+.container:not(.pret) > main, .container:not(.pret) > .site-header { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .container > main, .container > .site-header { transition: none; } }
 
 /* ensure container expands so footer sticks to bottom reliably */
 .container { flex: 1 0 auto }
