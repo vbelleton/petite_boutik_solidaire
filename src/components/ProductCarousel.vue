@@ -673,7 +673,7 @@ const onSlideChange = (e) => {
 .my-swiper {
   width: 100%;
   max-width: 900px;
-  margin: 0;
+  margin: 0 auto;
   padding-bottom: 40px;
 }
 

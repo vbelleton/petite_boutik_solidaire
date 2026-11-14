@@ -10,7 +10,7 @@
         <a
           v-for="sec in sections"
           :key="sec.id"
-          :href="`#${sec.id}`"
+          :href="`${prefix}#${sec.id}`"
           class="nav-link"
           :class="{ active: activeId === sec.id }"
           @click="onClick(sec.id)"
@@ -29,7 +29,7 @@
       <a
         v-for="sec in sections"
         :key="sec.id"
-        :href="`#${sec.id}`"
+        :href="`${prefix}#${sec.id}`"
         class="dropdown-link"
         :class="{ active: activeId === sec.id, 'touch-active': touchedId === sec.id }"
         @click="onClick(sec.id)"
@@ -41,7 +41,7 @@
     </div>
 
     <!-- Bandeau défilant intégré au menu : ouverture + annonce -->
-    <a class="nav-ticker" :class="{ 'is-open': openToday }" href="#horaires" @click="onClick('calendrier')">
+    <a class="nav-ticker" :class="{ 'is-open': openToday }" :href="`${prefix}#horaires`" @click="onClick('calendrier')">
       <span class="ticker-mask">
         <span class="ticker-track">
           <span class="ticker-seg" v-for="n in 3" :key="n">
@@ -72,6 +72,11 @@ const props = defineProps({
   sections: {
     type: Array,
     required: true
+  },
+  // Sur une autre page que l'accueil (ex. la galerie), les liens ramènent à l'accueil : prefix = '/boutik/'
+  prefix: {
+    type: String,
+    default: ''
   }
 })
 

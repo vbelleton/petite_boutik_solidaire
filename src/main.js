@@ -11,6 +11,7 @@ if (isAdmin) {
     createApp(m.default).mount('#app')
   })
 } else {
+  document.body.classList.add('site')
   createApp(App).mount('#app')
 }
 

@@ -21,6 +21,11 @@
         <div class="login-logo">🚫</div>
         <h1>Accès refusé</h1>
         <p>{{ user.email }} n'est pas autorisé à accéder à cette interface.</p>
+        <!-- Demande d'accès : e-mail à l'association (même adresse que le formulaire de contact) -->
+        <button v-if="!demande.envoyee" class="btn-demande" @click="demanderAcces" :disabled="demande.enCours">
+          ✉️ {{ demande.enCours ? 'Envoi…' : "Demander l'accès" }}
+        </button>
+        <p v-if="demande.message" class="demande-msg" :class="{ ok: demande.envoyee }" role="status">{{ demande.message }}</p>
         <button class="btn-google" @click="switchAccount" :disabled="loading">
           <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
           🔄 {{ loading ? 'Connexion...' : 'Se connecter avec un autre compte' }}
@@ -1691,6 +1696,9 @@ function authErrorMessage(e) {
   if (code === 'auth/popup-blocked') {
     return 'Popup bloquée par votre navigateur. Autorisez les popups pour ce site dans les réglages.'
   }
+  if (code === 'auth/unauthorized-domain') {
+    return `Cette adresse (${window.location.hostname}) n'est pas encore autorisée pour la connexion Google. Ouvrez l'admin depuis https://petite-boutik-solidaire.pages.dev/boutik/admin, ou ajoutez ce domaine dans Firebase (Authentication → Paramètres → Domaines autorisés).`
+  }
   if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
     return 'Connexion annulée.'
   }
@@ -1734,6 +1742,35 @@ const login = async () => {
 }
 
 const logout = () => signOut(auth)
+
+// « Demander l'accès » : la demande part par le site Bras Ouverts (/api/demande-acces), qui vérifie
+// l'identité Google et prévient l'association par e-mail. Personne n'est ajouté automatiquement.
+const demande = ref({ enCours: false, envoyee: false, message: '' })
+const URL_DEMANDE = /(^|\.)petite-boutik-solidaire\.pages\.dev$|^localhost$|^127\./.test(window.location.hostname)
+  ? 'https://bras-ouverts.pages.dev/api/demande-acces'
+  : '/api/demande-acces'
+const demanderAcces = async () => {
+  demande.value = { enCours: true, envoyee: false, message: '' }
+  try {
+    const jeton = await auth.currentUser.getIdToken()
+    const res = await fetch(URL_DEMANDE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ espace: 'boutik', jeton }),
+    })
+    const data = await res.json().catch(() => ({}))
+    if (!res.ok || !data.ok) throw new Error(data.error || '')
+    demande.value = { enCours: false, envoyee: true, message: "Demande envoyée à l'association. Vous aurez accès dès qu'un admin vous aura ajouté : reconnectez-vous alors." }
+  } catch (e) {
+    demande.value = { enCours: false, envoyee: false, message: e?.message || "La demande n'a pas pu partir. Réessayez plus tard, ou contactez l'association." }
+  }
+}
+
+// Lien reçu par e-mail (…/admin?ajouter=adresse) : ouvre l'onglet Admins avec l'adresse préremplie.
+const aAjouter = new URLSearchParams(window.location.search).get('ajouter') || ''
+watch(isAdmin, (oui) => {
+  if (oui && aAjouter) { tab.value = 'admins'; newAdminEmail.value = aAjouter.trim().toLowerCase() }
+}, { immediate: true })
 
 const switchAccount = async () => {
   await signOut(auth)
@@ -2078,6 +2115,10 @@ const loadData = () => {
   transition: all 0.2s;
 }
 .btn-denied-logout:hover { background: #fff0f0; }
+.btn-demande { width: 100%; margin: 6px 0 12px; padding: 12px; border: 0; border-radius: 999px; background: #0f6e67; color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+.btn-demande:disabled { opacity: 0.7; cursor: progress; }
+.demande-msg { margin: 0 0 12px; font-size: 0.92rem; color: #a94631; }
+.demande-msg.ok { color: #0f6e67; font-weight: 700; }
 .btn-google:hover { border-color: #1BA9A8; background: #f0fafa; }
 .btn-google img { width: 20px; height: 20px; }
 /* Mentions editor styles */

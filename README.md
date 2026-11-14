@@ -7,7 +7,8 @@ Site de la boutique solidaire de l'association Bras Ouverts (Morlaix) : Vue 3 + 
 | Élément | Rôle |
 |---|---|
 | `src/App.vue`, `src/components/` | Site public (accueil, calendrier, horaires, galeries, contact…) |
-| `src/components/AdminPanel.vue` | Administration, à l'adresse `/admin` (connexion Google) |
+| `src/components/AdminPanel.vue` | Administration, à l'adresse `/admin` (connexion Google). Un compte non autorisé peut « Demander l'accès » : la demande part par le site Bras Ouverts (`/api/demande-acces`) à l'adresse du formulaire de contact, avec un lien `/boutik/admin?ajouter=…` qui préremplit l'onglet Admins |
+| `src/components/GalleryTeaser.vue` | Aperçu de la galerie sur l'accueil ; la galerie complète est sur sa propre page, `/boutik/galerie` |
 | `src/components/AdminCalendar.vue` | Calendrier de l'admin : fermer, rouvrir, ouvrir exceptionnellement un jour |
 | `src/composables/openingDates.js` | Calcul des dates d'ouverture, partagé par le site et l'admin |
 | `src/composables/photoGallery.js` | Règle unique « Boutique » / « Articles » pour les photos |

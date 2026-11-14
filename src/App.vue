@@ -7,6 +7,8 @@ import Hero from './components/Hero.vue'
 import About from './components/About.vue'
 import Products from './components/Products.vue'
 import Gallery from './components/ProductCarousel.vue'
+import GalleryTeaser from './components/GalleryTeaser.vue'
+import { BASE } from './chemin.js'
 import BoutiqueGallery from './components/BoutiqueGallery.vue'
 import Association from './components/Association.vue'
 import Calendar from './components/Calendar.vue'
@@ -27,6 +29,10 @@ useLocalBusinessJsonLd({ dates: openingDates, plage: openingPlage })
 import MentionsLegales from './components/MentionsLegales.vue'
 
 const blocs = ref({})
+
+// Page « Galerie photos » à part (/boutik/galerie) ; l'accueil n'en montre qu'un aperçu.
+const pageGalerie = window.location.pathname.replace(BASE, '/').replace(/\/+$/, '') === '/galerie'
+if (pageGalerie) document.title = "La P'tite Boutik Solidaire — Galerie photos"
 
 const DEFAULT_ORDER = ['hero', 'about', 'boutique-gallery', 'carousel', 'collection', 'association', 'calendrier', 'engagement', 'contact', 'social']
 
@@ -101,10 +107,20 @@ onMounted(() => {
 <template>
   <div class="container">
     <a href="#contenu" class="skip-link">Aller au contenu</a>
+    <SectionNav v-if="sectionLinks.length" :sections="sectionLinks" :prefix="pageGalerie ? BASE : ''" />
+
+    <main v-if="pageGalerie" id="contenu" tabindex="-1" class="page-galerie">
+      <div class="galerie-titre">
+        <a :href="BASE" class="retour">← Retour à l'accueil</a>
+        <h1>Galerie <em>photos</em></h1>
+        <p>La boutique et les articles : cliquez sur une photo pour la voir en grand, ou ouvrez la grille pour tout voir d'un coup.</p>
+      </div>
+      <Gallery id="carousel" />
+    </main>
+
+    <template v-else>
     <SiteHeader />
     <ActuBanner />
-
-    <SectionNav v-if="sectionLinks.length" :sections="sectionLinks" />
 
     <main id="contenu" tabindex="-1">
     <template v-for="id in blocOrder" :key="id">
@@ -112,7 +128,7 @@ onMounted(() => {
       <About         v-if="id === 'about'            && isVisible('about')"             id="about" :data-lab="KICKERS['about']" />
       <BoutiqueGallery v-if="id === 'boutique-gallery' && isVisible('boutique-gallery')" id="boutique-gallery" :data-lab="KICKERS['boutique-gallery']" />
       <Products      v-if="id === 'collection'       && isVisible('collection')"        id="collection" :data-lab="KICKERS['collection']" />
-      <Gallery       v-if="id === 'carousel'         && isVisible('carousel')"          id="carousel" :data-lab="KICKERS['carousel']" />
+      <GalleryTeaser v-if="id === 'carousel'         && isVisible('carousel')"          id="carousel" :data-lab="KICKERS['carousel']" />
       <FouilleGallery v-if="id === 'fouille'          && isVisible('fouille')"           id="fouille" />
       <Association   v-if="id === 'association'      && isVisible('association')"       id="association" :data-lab="KICKERS['association']" />
       <div         v-if="id === 'calendrier'       && isVisible('calendrier')"        id="calendrier" class="calendrier-section" :data-lab="KICKERS.calendrier">
@@ -124,6 +140,7 @@ onMounted(() => {
       <SocialMedia   v-if="id === 'social'           && isVisible('social')"            id="social" :data-lab="KICKERS['social']" />
     </template>
     </main>
+    </template>
 
     <SiteFooter />
     <MentionsLegales />
@@ -135,7 +152,8 @@ onMounted(() => {
 :root {
   --site-max-width: 1120px;
 }
-body {
+/* Page publique seulement (classe posée par main.js) : l'admin n'a ni menu fixe ni barre du bas. */
+body.site {
   padding-top: 86px;
   padding-bottom: 84px;
   min-height: 100vh;
@@ -163,6 +181,16 @@ body {
 #contenu > #engagement { background: linear-gradient(180deg, transparent, var(--corail-doux) 160%) !important; }
 #contenu h2 { text-align: left; color: var(--ink); margin-bottom: 18px; }
 #calendrier h2 { font-size: clamp(1.5rem, 3vw, 2rem); }
+
+/* Page Galerie */
+.page-galerie { padding: clamp(32px, 6vw, 64px) max(20px, calc((100% - var(--site-max-width)) / 2)); }
+.galerie-titre { display: grid; gap: 10px; justify-items: center; text-align: center; margin: 0 auto 28px; max-width: 760px; }
+.galerie-titre h1 { font-size: clamp(2.2rem, 6vw, 3.6rem); letter-spacing: -0.02em; }
+.galerie-titre h1 em { font-style: italic; color: var(--corail); }
+.galerie-titre p { color: var(--muted); max-width: 60ch; font-size: 1.05rem; }
+.retour { font-weight: 700; color: var(--accent); }
+#contenu.page-galerie > * { padding: 0 !important; border-top: 0 !important; }
+.page-galerie .gallery-container > h2, .page-galerie .gallery-container > .subtitle { display: none; }
 </style>
 
 <style scoped>

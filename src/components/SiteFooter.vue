@@ -12,6 +12,12 @@
           <a :href="'tel:' + phoneRaw" class="footer-link"><span aria-hidden="true">📞 </span>{{ phone }}</a>
         </p>
         <p class="handle"><span aria-hidden="true">📸 </span>{{ handle }}</p>
+        <p><a :href="lienAsso + '#contact'" class="footer-link"><span aria-hidden="true">✉️ </span>Nous écrire</a></p>
+      </div>
+      <div class="footer-section">
+        <h2 class="footer-title">L'association</h2>
+        <p>La P'tite Boutik est portée par Bras Ouverts, qui organise aussi des maraudes à Morlaix.</p>
+        <p><a :href="lienAsso" class="footer-link">Découvrir Bras Ouverts →</a></p>
       </div>
     </div>
     <div class="footer-bottom">
@@ -28,6 +34,10 @@ const phone = '06 20 70 54 96'
 const phoneRaw = '0620705496'
 const handle = '@la_ptite_boutik_morlaix'
 const currentYear = new Date().getFullYear()
+// Sur la propre adresse de la boutique (ou en local), le site de l'association est ailleurs.
+const lienAsso = /(^|\.)petite-boutik-solidaire\.pages\.dev$|^localhost$|^127\./.test(window.location.hostname)
+  ? 'https://bras-ouverts.pages.dev/'
+  : "/"
 </script>
 
 <script>
