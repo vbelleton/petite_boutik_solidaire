@@ -40,14 +40,16 @@ const SECTION_LABELS = {
   hero: 'Accueil',
   about: 'À propos',
   'boutique-gallery': 'Boutique',
-  carousel: 'Galerie photos',
-  collection: 'Nos produits',
+  carousel: 'Photos',
+  collection: 'Produits',
   association: 'Bénévoles',
   calendrier: 'Horaires',
   engagement: 'Engagement',
   contact: 'Contact',
   social: 'Réseaux'
 }
+// Rubriques secondaires : dans le menu du téléphone, mais pas dans la barre du haut (pour qu'elle tienne sur une ligne)
+const SECONDAIRES = new Set(['association', 'engagement', 'social'])
 
 // Surtitres des rubriques (petites capitales au-dessus du titre, comme sur le site Bras Ouverts)
 const KICKERS = {
@@ -80,7 +82,7 @@ const blocOrder = computed(() => {
 const sectionLinks = computed(() =>
   blocOrder.value
     .filter(id => SECTION_LABELS[id] && isVisible(id) && isInNav(id))
-    .map(id => ({ id, label: SECTION_LABELS[id] }))
+    .map(id => ({ id, label: SECTION_LABELS[id], secondaire: SECONDAIRES.has(id) }))
 )
 
 onMounted(() => {

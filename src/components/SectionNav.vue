@@ -8,7 +8,7 @@
 
       <div class="nav-links">
         <a
-          v-for="sec in sections"
+          v-for="sec in sections.filter(x => !x.secondaire)"
           :key="sec.id"
           :href="`${prefix}#${sec.id}`"
           class="nav-link"
