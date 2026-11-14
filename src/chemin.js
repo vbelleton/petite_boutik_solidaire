@@ -14,3 +14,15 @@ export function chemin(p) {
 export const ASSO = typeof window !== 'undefined' && /(^|\.)petite-boutik-solidaire\.pages\.dev$|^localhost$|^127\./.test(window.location.hostname)
   ? 'https://bras-ouverts.pages.dev'
   : ''
+
+// Image de secours quand une photo ne se charge pas. Une seule tentative : si l'image de secours elle-même
+// échoue, on s'arrête (sinon le navigateur la redemande sans fin, des centaines de fois par seconde ; sur le
+// domaine de l'association, chaque tentative passait par le relais /boutik/ et a épuisé le quota Cloudflare).
+export function imageDeSecours(e, repli) {
+  const img = e && e.target
+  if (!img) return
+  const cible = new URL(repli || chemin('/placeholder.jpg'), window.location.href).href
+  if (img.src === cible || img.dataset.secours === cible) return
+  img.dataset.secours = cible
+  img.src = cible
+}
