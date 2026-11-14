@@ -269,6 +269,7 @@ onUnmounted(() => {
 @media (min-width: 1100px) { :root { --rail: 210px; } }
 .container:has(> .rail) { padding-left: var(--rail); }
 .container:has(> .rail) > header.top { margin-left: calc(-1 * var(--rail)); }
-/* Page figée derrière le menu plein écran */
-html.menu-ouvert, html.menu-ouvert body { overflow: hidden; }
+/* Page figée derrière le menu plein écran. Seulement sur <html> : avec aussi « body », le body devenait
+   le conteneur de défilement et l'en-tête collant (donc le menu) remontait tout en haut de la page. */
+html.menu-ouvert { overflow: hidden; }
 </style>
