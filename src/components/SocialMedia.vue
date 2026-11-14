@@ -65,6 +65,7 @@ onMounted(() => {
   font-weight: 700;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   min-width: 240px;
+  flex: 1 1 260px; /* les deux cartes se partagent toute la largeur */
 }
 .social-card:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(31, 42, 58, 0.18); text-decoration: none; }
 .social-card.facebook { background: #1464D2; }

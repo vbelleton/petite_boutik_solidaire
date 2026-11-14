@@ -20,6 +20,7 @@
         <svg v-else viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1.5v2.5M12 20v2.5M1.5 12H4M20 12h2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></g></svg>
       </button>
     </div>
+    <BandeauDefilant :prefix="prefix" />
   </header>
   <!-- Colonne des rubriques de la boutique, à gauche, qui suit la page. Grand écran : icônes et libellés.
        Écran plus étroit : icônes seules, que le bouton du haut déplie par-dessus la page. -->
@@ -43,6 +44,7 @@
 // le site de l'association), même bouton de thème (même mémoire : « bras-ouverts-theme »).
 import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { BASE, ASSO } from '../chemin.js'
+import BandeauDefilant from './BandeauDefilant.vue'
 
 const props = defineProps({
   rubriques: { type: Array, default: () => [] },
@@ -149,8 +151,11 @@ const onClic = (e) => { if (ouvert.value && !e.target.closest('.top')) ouvert.va
 const large = matchMedia('(min-width: 701px)')
 const onLarge = (m) => { if (m.matches) ouvert.value = false }
 
+// La hauteur de l'en-tête change quand le bandeau défilant arrive : la colonne des rubriques suit.
+let obs = null
 onMounted(async () => {
   mesurer()
+  if (window.ResizeObserver && hautEl.value) { obs = new ResizeObserver(mesurer); obs.observe(hautEl.value) }
   window.addEventListener('scroll', suivre, { passive: true })
   window.addEventListener('resize', suivre)
   setTimeout(suivre, 300)
@@ -168,6 +173,7 @@ onMounted(async () => {
   } catch { /* menu par défaut */ }
 })
 onUnmounted(() => {
+  if (obs) obs.disconnect()
   window.removeEventListener('scroll', suivre)
   window.removeEventListener('resize', suivre)
   if (tic) cancelAnimationFrame(tic)
@@ -183,7 +189,7 @@ onUnmounted(() => {
 <style scoped>
 /* Repris de l'en-tête du site Bras Ouverts (src/style.css de bras-ouverts-site) */
 .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 800; background: color-mix(in srgb, var(--bg) 92%, transparent); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
-.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 20px; }
+.wrap { max-width: 1520px; margin: 0 auto; padding-inline: clamp(20px, 3vw, 48px); }
 .top > .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px; padding-block: 10px; position: relative; }
 .marque { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .logo { display: flex; align-items: center; flex: none; }
