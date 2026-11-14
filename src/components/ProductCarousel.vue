@@ -42,7 +42,7 @@
     >
       <swiper-slide v-for="(img, idx) in images" :key="idx">
         <div class="slide-frame" @click="openModal(idx)">
-          <img :src="img.src" :alt="img.alt" class="slide-image" :fetchpriority="idx === 0 ? 'high' : 'auto'" loading="lazy" decoding="async" width="600" height="500" @error="($event.target).src = chemin('/placeholder.jpg')" />
+          <img :src="img.src" :alt="img.alt" class="slide-image" :fetchpriority="idx === 0 ? 'high' : 'auto'" loading="lazy" decoding="async" width="600" height="500" @error="imageDeSecours($event)" />
         </div>
       </swiper-slide>
     </swiper>
@@ -130,7 +130,7 @@
 </template>
 
 <script setup>
-import { chemin } from '../chemin.js'
+import { chemin, imageDeSecours } from '../chemin.js'
 import { isArticles, isBoutique } from '../composables/photoGallery.js'
 import { ref, computed, onMounted, onUnmounted, watchEffect, watch } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'

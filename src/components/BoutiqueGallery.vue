@@ -20,7 +20,7 @@
           :alt="img.alt"
           class="slide-image"
           data-test="slide-image"
-          @error="($event.target).src = img.fallback || chemin('/placeholder.jpg')"
+          @error="imageDeSecours($event, img.fallback)"
         />
       </swiper-slide>
     </swiper>
@@ -36,7 +36,7 @@
 </template>
 
 <script setup>
-import { chemin } from '../chemin.js'
+import { chemin, imageDeSecours } from '../chemin.js'
 import { isBoutique } from '../composables/photoGallery.js'
 import { ref, computed, watch, nextTick, onUnmounted } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'

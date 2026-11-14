@@ -10,7 +10,7 @@
     <ul class="mosaic" v-if="apercu.length">
       <li v-for="(p, i) in apercu" :key="p.id" :class="{ grande: i === 0 }">
         <a :href="lienGalerie" :aria-label="p.alt ? `Voir dans la galerie : ${p.alt}` : 'Voir la galerie photos'">
-          <img :src="p.url" :alt="p.alt || ''" loading="lazy" decoding="async" @error="($event.target).src = chemin('/placeholder.jpg')" />
+          <img :src="p.url" :alt="p.alt || ''" loading="lazy" decoding="async" @error="imageDeSecours($event)" />
         </a>
       </li>
     </ul>
@@ -22,7 +22,7 @@
 import { computed } from 'vue'
 import { usePhotos } from '../composables/usePhotos.js'
 import { isBoutique, isArticles } from '../composables/photoGallery.js'
-import { BASE, chemin } from '../chemin.js'
+import { BASE, chemin, imageDeSecours } from '../chemin.js'
 
 // Aperçu de la galerie sur l'accueil : quelques photos, la galerie complète a sa propre page (/boutik/galerie).
 const photos = usePhotos()
