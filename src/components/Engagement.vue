@@ -36,76 +36,39 @@ const values = [
 </script>
 
 <style scoped>
-.engagement {
-  margin: 40px 0;
-  text-align: center;
-}
-
-.engagement h2 {
-  color: var(--primary-teal);
-  margin-bottom: 16px;
-}
-
 .quote {
-  font-size: 1.1em;
-  line-height: 1.6;
-  color: var(--text-dark);
-  max-width: 560px;
-  margin: 0 auto 28px;
+  font-family: var(--display);
+  font-style: italic;
+  font-size: clamp(1.2rem, 2.6vw, 1.5rem);
+  line-height: 1.45;
+  color: var(--ink);
+  max-width: 40ch;
+  margin: 0 0 32px;
 }
-
 .values {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: 14px;
 }
-
-@media (min-width: 700px) {
+@media (min-width: 760px) {
   .values { grid-template-columns: repeat(4, 1fr); }
 }
-
 .value {
-  background: #fff;
-  border-radius: 16px;
-  padding: 20px 14px 18px;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  padding: 22px 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
 }
-
-.value-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 6px;
-}
-
-.value-icon svg {
-  width: 26px;
-  height: 26px;
-}
-
-.teal .value-icon { background: rgba(27, 169, 168, 0.12); color: var(--primary-teal); }
-.coral .value-icon { background: rgba(233, 94, 94, 0.12); color: var(--primary-coral); }
-
-.value-label {
-  font-size: 1em;
-  margin: 0;
-  color: var(--text-dark);
-}
-
-.value-desc {
-  font-size: 0.88em;
-  line-height: 1.4;
-  color: var(--text-gray);
-  margin: 0;
-}
+.value-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px; margin-bottom: 4px; }
+.value-icon svg { width: 24px; height: 24px; }
+.teal .value-icon { background: var(--lagon-doux); color: var(--accent); }
+.coral .value-icon { background: var(--corail-doux); color: var(--corail); }
+.value-label { font-size: 1.2rem; margin: 0; color: var(--ink); }
+.value-desc { font-size: 0.95rem; line-height: 1.45; color: var(--muted); margin: 0; }
 </style>

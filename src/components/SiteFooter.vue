@@ -12,6 +12,12 @@
           <a :href="'tel:' + phoneRaw" class="footer-link"><span aria-hidden="true">📞 </span>{{ phone }}</a>
         </p>
         <p class="handle"><span aria-hidden="true">📸 </span>{{ handle }}</p>
+        <p><a :href="lienAsso + '#contact'" class="footer-link"><span aria-hidden="true">✉️ </span>Nous écrire</a></p>
+      </div>
+      <div class="footer-section">
+        <h2 class="footer-title">L'association</h2>
+        <p>La P'tite Boutik est portée par Bras Ouverts, qui organise aussi des maraudes à Morlaix.</p>
+        <p><a :href="lienAsso" class="footer-link">Découvrir Bras Ouverts →</a></p>
       </div>
     </div>
     <div class="footer-bottom">
@@ -28,6 +34,10 @@ const phone = '06 20 70 54 96'
 const phoneRaw = '0620705496'
 const handle = '@la_ptite_boutik_morlaix'
 const currentYear = new Date().getFullYear()
+// Sur la propre adresse de la boutique (ou en local), le site de l'association est ailleurs.
+const lienAsso = /(^|\.)petite-boutik-solidaire\.pages\.dev$|^localhost$|^127\./.test(window.location.hostname)
+  ? 'https://bras-ouverts.pages.dev/'
+  : "/"
 </script>
 
 <script>
@@ -43,77 +53,32 @@ export default {
 
 <style scoped>
 .site-footer {
-  background: linear-gradient(135deg, var(--primary-teal) 0%, var(--primary-teal-dark) 100%);
-  color: white;
-  margin-top: 50px;
-  padding-top: 0;
+  background: var(--ink);
+  color: #fff;
+  margin-top: 0;
 }
-
 .footer-content {
-  max-width: var(--site-max-width, 800px);
+  max-width: var(--site-max-width, 1120px);
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: 44px 20px 32px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 25px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 28px;
 }
-
-.footer-section .footer-title {
-  color: var(--secondary-cream);
-  margin-bottom: 12px;
-  font-size: 1.05em;
-}
-
-.footer-section p {
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 0.95em;
-  margin-bottom: 8px;
-  line-height: 1.5;
-}
-
-.footer-link {
-  color: var(--secondary-cream);
-  text-decoration: none;
-  font-weight: 600;
-  transition: opacity 0.2s ease;
-}
-
-.footer-link:hover {
-  opacity: 0.8;
-  text-decoration: underline;
-}
-
-.handle {
-  color: var(--secondary-cream);
-  font-style: italic;
-}
-
-.footer-links {
-  display: flex;
-  gap: 15px;
-}
-
-.footer-mentions {
-  background: transparent;
-  border: none;
-  color: var(--secondary-cream);
-  text-decoration: underline;
-  cursor: pointer;
-  font: inherit;
-  padding: 0;
-}
-.footer-mentions:hover { opacity: 0.9 }
-
+.footer-section .footer-title { font-size: 1.3rem; color: #fff; margin-bottom: 10px; }
+.footer-section p { color: rgba(255, 255, 255, 0.82); font-size: 0.97rem; margin-bottom: 6px; line-height: 1.5; }
+.footer-link { color: #fff; text-decoration: none; font-weight: 700; }
+.footer-link:hover { text-decoration: underline; }
+.handle { color: rgba(255, 255, 255, 0.82); }
+.footer-mentions { background: transparent; border: none; color: #fff; text-decoration: underline; cursor: pointer; font: inherit; padding: 0; }
+.footer-mentions:hover { opacity: 0.9; }
 .footer-bottom {
-  text-align: center;
-  padding: 20px;
-  background: rgba(0, 0, 0, 0.1);
+  max-width: var(--site-max-width, 1120px);
+  margin: 0 auto;
+  padding: 18px 20px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
   color: rgba(255, 255, 255, 0.7);
-  font-size: 0.9em;
-  margin: 0;
+  font-size: 0.9rem;
 }
-
-.footer-bottom p {
-  margin: 0;
-}
+.footer-bottom p { margin: 0; }
 </style>

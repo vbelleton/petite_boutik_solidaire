@@ -42,93 +42,33 @@ const nextDates = computed(() =>
 </script>
 
 <style scoped>
-.calendar {
-  margin: 40px 0;
-  text-align: center;
-}
-
-.calendar h2 {
-  color: var(--primary-teal);
-  margin-bottom: 20px;
-}
-
-.next-dates {
-  background: linear-gradient(135deg, #FFF9F0 0%, #F5E6D3 100%);
-  padding: 25px;
-  border-radius: 12px;
-  border: 2px solid var(--secondary-beige);
-}
-
-.next-dates h3 {
-  color: var(--primary-teal);
-  margin-bottom: 15px;
-  font-size: 1.1em;
-}
-
+.next-dates h3 { font-size: 1.15rem; color: var(--muted); margin-bottom: 14px; }
 .dates-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
 }
-
 .date-item {
-  background: white;
-  border-radius: 10px;
-  padding: 12px 16px;
-  text-align: left;
   display: flex;
   flex-direction: column;
   gap: 2px;
-  border-left: 4px solid var(--primary-teal);
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--accent);
+  border-radius: 12px;
+  text-align: left;
 }
-
-.date-day {
-  font-size: 0.8em;
-  text-transform: capitalize;
-  font-weight: 700;
-  color: var(--primary-teal);
-}
-
-/* Couleurs par label de jour — mercredi = teal, samedi = coral, autres = teal par défaut */
-.date-item.mercredi { border-left-color: var(--primary-teal); }
-.date-item.mercredi .date-day { color: var(--primary-teal); }
-.date-item.samedi { border-left-color: var(--primary-coral); }
-.date-item.samedi .date-day { color: var(--primary-coral); }
-
-.date-full {
-  font-size: 0.95em;
-  color: var(--text-dark);
-  font-weight: 500;
-}
-
-.date-item.closed {
-  opacity: 0.6;
-  background: #fff5f5;
-  border-left-color: #ccc !important;
-}
-
+.date-day { font-size: 0.76rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700; color: var(--accent); }
+.date-full { font-family: var(--display); font-size: 1.15rem; font-weight: 600; color: var(--ink); }
+.date-item.closed { opacity: 0.65; background: #fbf4f1; border-left-color: #c9c1b6 !important; }
 .date-item.closed .date-day,
-.date-item.closed .date-full {
-  text-decoration: line-through;
-  color: var(--text-gray);
-}
-
-.date-exceptional {
-  font-size: 0.8em;
-  font-weight: 700;
-  color: #7B5CC4;
-  margin-top: 2px;
-}
-
-.date-horaires {
-  font-size: 0.8em;
-  color: var(--text-gray);
-}
-
-.date-closed-label {
-  font-size: 0.75em;
-  color: var(--primary-coral);
-  font-style: italic;
-  margin-top: 2px;
+.date-item.closed .date-full { text-decoration: line-through; color: var(--muted) !important; }
+.date-exceptional { font-size: 0.82rem; font-weight: 700; color: #6247a8; margin-top: 2px; }
+.date-horaires { font-size: 0.85rem; color: var(--muted); }
+.date-closed-label { font-size: 0.8rem; color: var(--corail); font-style: italic; margin-top: 2px; }
+@media (max-width: 600px) {
+  .dates-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .date-full { font-size: 1.05rem; }
 }
 </style>

@@ -119,84 +119,52 @@ const values = [
 </script>
 
 <style scoped>
-.association {
-  margin: 40px 0;
-}
-
-.association h2 {
-  color: var(--primary-teal);
-  margin-bottom: 15px;
-}
-
 .association > p {
-  font-size: 1.05em;
+  font-size: 1.1rem;
   line-height: 1.7;
   margin-bottom: 30px;
-  color: var(--text-dark);
+  color: var(--muted);
+  max-width: 68ch;
 }
-
-.association strong {
-  color: var(--primary-coral);
-}
-
 .values {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-  margin-bottom: 35px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
 }
-
 .value-card {
-  background: linear-gradient(135deg, #FFF9F0 0%, #F5E6D3 100%);
-  padding: 25px 20px;
-  border-radius: 12px;
-  text-align: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  border: 2px solid var(--secondary-beige);
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  padding: 24px 22px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
 }
-
-.value-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 16px rgba(27, 169, 168, 0.15);
-}
-
-.value-icon {
-  font-size: 2.5em;
-  margin-bottom: 10px;
-}
-
-.value-card h3 {
-  color: var(--primary-teal);
-  margin-bottom: 8px;
-  font-size: 1.15em;
-}
-
-.value-card p {
-  color: var(--text-gray);
-  font-size: 0.95em;
-  line-height: 1.5;
-}
-
+.value-icon { font-size: 2rem; line-height: 1; }
+.value-card h3 { font-size: 1.25rem; color: var(--ink); }
+.value-card p { color: var(--muted); font-size: 0.97rem; line-height: 1.5; }
+/* Dons : grande carte corail, comme la carte de la boutique sur le site Bras Ouverts */
 .donate-callout {
-  background: #ffffff;
-  border-radius: 10px;
-  padding: 14px;
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 12px;
-  border: 1px solid rgba(0,0,0,0.05);
-  transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease, color 0.18s ease;
-  will-change: transform, box-shadow;
+  padding: clamp(22px, 4vw, 36px);
+  border-radius: calc(var(--r) + 8px);
+  border: 1px solid var(--line);
+  background: linear-gradient(150deg, var(--corail-doux), var(--surface) 70%);
 }
-
-.donate-callout h3 {
-  color: var(--primary-teal);
-  margin-bottom: 10px;
-  font-weight: 700;
-}
-
-.donate-callout p { color: var(--text-dark); line-height: 1.6; margin-bottom: 8px }
-
+.donate-callout h3 { font-size: clamp(1.5rem, 3vw, 2rem); color: var(--ink); }
+.donate-callout p { color: var(--ink); line-height: 1.6; max-width: 68ch; }
+.donate-head { display: flex; align-items: center; gap: 10px; }
+.dons-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 8px; }
+.dons-grid h4 { font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px; }
+.dons-grid ul { list-style: none; padding: 0; margin: 0; color: var(--ink); }
+.dons-grid li { padding: 5px 0; display: flex; gap: 8px; align-items: flex-start; }
+.dons-accepted, .dons-rejected { background: var(--surface); border: 1px solid var(--line); padding: 16px 18px; border-radius: 12px; }
+.dons-accepted { border-top: 5px solid var(--accent); }
+.dons-rejected { border-top: 5px solid var(--corail); }
+.dons-accepted h4 { color: var(--accent); }
+.dons-rejected h4 { color: var(--corail); }
 .recognition {
   margin-top: 35px;
   text-align: center;

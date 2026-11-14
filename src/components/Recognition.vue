@@ -4,7 +4,7 @@
     <div class="badges">
       <template v-for="(r, i) in items" :key="i">
         <button class="badge" type="button" :data-recognition-index="i" @click="openModal(r,i)" :aria-label="r.alt || r.text || 'Badge'">
-          <span class="badge-text">{{ r.text || r.title || r.name }}</span>
+          <span class="badge-ico" aria-hidden="true">{{ r.icon || '📰' }}</span><span class="badge-text">{{ r.text || r.title || r.name }}</span>
         </button>
       </template>
     </div>
@@ -66,12 +66,28 @@ const onModalClose = () => {
 </script>
 
 <style scoped>
-.recognition { margin-top: 35px; text-align: center }
-.badges { display:flex; justify-content:center; gap:15px; flex-wrap:wrap }
-.badge { display:inline-flex; align-items:center; gap:6px; background:white; border:2px solid var(--primary-teal); color:var(--primary-teal); padding:8px 14px; border-radius:24px; font-weight:600; cursor:pointer }
+/* Bandeau « Ils nous font confiance » : titre à gauche, badges à droite, sur une seule carte */
+.recognition {
+  margin-top: 28px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  padding: 18px 22px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  text-align: left;
+}
+.recognition h3 { font-size: 1.25rem; margin: 0; color: var(--ink); }
+.badges { display:flex; gap:10px; flex-wrap:wrap; justify-content: flex-start }
+.badge { display:inline-flex; align-items:center; gap:6px; background:var(--surface); border:1px solid var(--line); color:var(--ink); padding:9px 18px; border-radius:999px; font: inherit; font-weight:700; cursor:pointer }
+.badge:hover { border-color: var(--accent); color: var(--accent) }
 .badge-icon { display:none }
 .badge-image { display:none }
-.badge-text { display:block; max-width: 12rem; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.badge-ico { line-height: 1 }
+.badge-text { display:block; max-width: 22rem; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 @media (max-width:600px) { 
   .badge{ padding:8px 12px }
   .badge-image{ display:none }

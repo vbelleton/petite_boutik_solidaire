@@ -52,75 +52,25 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.social-media {
-  margin: 40px 0;
-  text-align: center;
-}
-
-.social-media h2 {
-  color: var(--primary-teal);
-  margin-bottom: 8px;
-}
-
-.social-subtitle {
-  color: var(--text-gray);
-  font-size: 1em;
-  margin-bottom: 25px;
-}
-
-.social-cards {
-  display: flex;
-  gap: 20px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
+.social-subtitle { color: var(--muted); font-size: 1.05rem; margin-bottom: 22px; }
+.social-cards { display: flex; gap: 14px; flex-wrap: wrap; }
 .social-card {
   display: flex;
   align-items: center;
-  gap: 15px;
-  padding: 20px 30px;
-  border-radius: 12px;
+  gap: 14px;
+  padding: 16px 24px 16px 18px;
+  border-radius: 999px;
   text-decoration: none;
-  color: white;
-  font-weight: 600;
+  color: #fff;
+  font-weight: 700;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   min-width: 240px;
 }
-
-.social-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-  text-decoration: none;
-}
-
-.social-card.facebook {
-  background: #1464D2;
-}
-
-.social-card.instagram {
-  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
-}
-
-.social-icon {
-  width: 36px;
-  height: 36px;
-  flex-shrink: 0;
-}
-
-.social-card-text {
-  display: flex;
-  flex-direction: column;
-  text-align: left;
-}
-
-.social-name {
-  font-size: 1.1em;
-  font-weight: 700;
-}
-
-.social-handle {
-  font-size: 0.85em;
-  font-weight: 400;
-}
+.social-card:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(31, 42, 58, 0.18); text-decoration: none; }
+.social-card.facebook { background: #1464D2; }
+.social-card.instagram { background: linear-gradient(45deg, #c8541d, #dc2743, #bc1888); }
+.social-icon { width: 34px; height: 34px; flex-shrink: 0; }
+.social-card-text { display: flex; flex-direction: column; text-align: left; line-height: 1.3; }
+.social-name { font-size: 1.1em; font-weight: 800; }
+.social-handle { font-size: 0.88em; font-weight: 400; }
 </style>

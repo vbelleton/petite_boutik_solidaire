@@ -10,7 +10,7 @@
         <a
           v-for="sec in sections"
           :key="sec.id"
-          :href="`#${sec.id}`"
+          :href="`${prefix}#${sec.id}`"
           class="nav-link"
           :class="{ active: activeId === sec.id }"
           @click="onClick(sec.id)"
@@ -29,7 +29,7 @@
       <a
         v-for="sec in sections"
         :key="sec.id"
-        :href="`#${sec.id}`"
+        :href="`${prefix}#${sec.id}`"
         class="dropdown-link"
         :class="{ active: activeId === sec.id, 'touch-active': touchedId === sec.id }"
         @click="onClick(sec.id)"
@@ -41,7 +41,7 @@
     </div>
 
     <!-- Bandeau défilant intégré au menu : ouverture + annonce -->
-    <a class="nav-ticker" :class="{ 'is-open': openToday }" href="#horaires" @click="onClick('calendrier')">
+    <a class="nav-ticker" :class="{ 'is-open': openToday }" :href="`${prefix}#horaires`" @click="onClick('calendrier')">
       <span class="ticker-mask">
         <span class="ticker-track">
           <span class="ticker-seg" v-for="n in 3" :key="n">
@@ -72,6 +72,11 @@ const props = defineProps({
   sections: {
     type: Array,
     required: true
+  },
+  // Sur une autre page que l'accueil (ex. la galerie), les liens ramènent à l'accueil : prefix = '/boutik/'
+  prefix: {
+    type: String,
+    default: ''
   }
 })
 
@@ -97,7 +102,7 @@ let clickTimeout = null
 let scrollTick = null
 
 const navEl = ref(null)
-const navH = ref(94)
+const navH = ref(90)
 
 // Menu plein écran (mobile) : il commence juste sous l'en-tête + bandeau défilant, dont on mesure la hauteur,
 // et la page derrière ne défile plus tant qu'il est ouvert.
@@ -195,9 +200,10 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   z-index: 800;
-  background: white;
-  border-bottom: 1px solid #e8e8e8;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  background: color-mix(in srgb, var(--bg) 94%, transparent);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
 }
@@ -207,10 +213,10 @@ onUnmounted(() => {
   align-items: center;
   max-width: var(--site-max-width, 800px);
   margin: 0 auto;
-  padding: 0 8px;
+  padding: 0 20px;
   position: relative;
-  min-height: 48px;
-  gap: 4px;
+  min-height: 56px;
+  gap: 12px;
 }
 
 /* ==================== Brand ==================== */
@@ -221,17 +227,18 @@ onUnmounted(() => {
 }
 
 .nav-logo {
-  width: 28px;
-  height: 28px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   object-fit: cover;
 }
 
 .nav-title {
-  margin-left: 8px;
+  margin-left: 10px;
+  font-family: var(--display);
   font-weight: 700;
-  color: var(--primary-teal-dark);
-  font-size: 0.95em;
+  color: var(--ink);
+  font-size: 1.1rem;
   white-space: nowrap;
 }
 
@@ -239,17 +246,20 @@ onUnmounted(() => {
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 1px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 2px 14px;
   margin-left: auto;
 }
 
 .nav-link {
   flex-shrink: 0;
-  padding: 6px 5px;
-  font-size: 0.7em;
-  color: var(--text-gray);
+  padding: 6px 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--muted);
   text-decoration: none;
-  border-radius: 4px;
+  border-bottom: 2px solid transparent;
   white-space: nowrap;
   cursor: pointer;
   transition: background 0.12s, color 0.12s;
@@ -257,26 +267,24 @@ onUnmounted(() => {
 
 .nav-link:hover,
 .nav-link:focus-visible {
-  color: white;
-  background: var(--primary-teal);
+  color: var(--accent);
   text-decoration: none;
 }
 
 .nav-link.active {
-  color: white;
-  background: var(--primary-teal);
-  font-weight: 600;
+  color: var(--ink);
+  border-bottom-color: var(--corail);
 }
 
 /* ==================== Mobile burger ==================== */
 .nav-burger {
   display: none;
   margin-left: auto;
-  width: 36px;
-  height: 36px;
-  border: none;
-  background: var(--primary-teal);
-  border-radius: 6px;
+  width: 44px;
+  height: 40px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 999px;
   cursor: pointer;
   flex-direction: column;
   align-items: center;
@@ -288,8 +296,8 @@ onUnmounted(() => {
 .burger-line {
   display: block;
   width: 18px;
-  height: 2.5px;
-  background: white;
+  height: 2px;
+  background: var(--ink);
   border-radius: 2px;
 }
 
@@ -304,9 +312,9 @@ onUnmounted(() => {
   top: 100%;
   left: 0;
   right: 0;
-  background: white;
-  border-bottom: 1px solid #e8e8e8;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
   padding: 6px 0;
   max-height: 60vh;
   overflow-y: auto;
@@ -316,14 +324,14 @@ onUnmounted(() => {
   display: block;
 }
 
-.dropdown-link.dropdown-asso { border-top: 1px solid #e8e8e8; font-weight: 600; color: #a94631; }
+.dropdown-link.dropdown-asso { border-top: 1px solid var(--line); font-weight: 700; color: var(--corail); }
 .nav-asso { color: #a94631; }
 
 .dropdown-link {
   display: block;
   padding: 12px 20px;
   font-size: 0.95em;
-  color: var(--text-dark);
+  color: var(--ink);
   text-decoration: none;
   cursor: pointer;
   -webkit-tap-highlight-color: var(--primary-teal);
@@ -343,9 +351,9 @@ onUnmounted(() => {
 }
 
 .dropdown-link.active {
-  background: #e8f3f3;
-  color: var(--primary-teal-dark);
-  font-weight: 600;
+  background: var(--soft);
+  color: var(--ink);
+  font-weight: 700;
 }
 
 .dropdown-link.touch-active {
@@ -358,14 +366,14 @@ onUnmounted(() => {
   display: block;
   overflow: hidden;
   text-decoration: none;
-  background: #eef6f6;
-  color: var(--primary-teal-dark);
-  border-top: 1px solid #e2efef;
-  font-size: 0.78em;
+  background: var(--lagon-doux);
+  color: var(--ink);
+  border-top: 1px solid var(--line);
+  font-size: 0.85rem;
   font-weight: 600;
 }
 .nav-ticker.is-open {
-  background: linear-gradient(90deg, var(--primary-teal) 0%, var(--primary-teal-dark) 100%);
+  background: var(--accent);
   color: #fff;
 }
 .ticker-mask { display: block; overflow: hidden; white-space: nowrap; }
@@ -424,11 +432,13 @@ onUnmounted(() => {
     overscroll-behavior: contain;
   }
   .dropdown-link {
-    padding: 13px 24px;
-    font-size: 1.15em;
-    border-bottom: 1px solid #eef1f1;
+    padding: 14px 24px;
+    font-family: var(--display);
+    font-size: 1.4rem;
+    font-weight: 600;
+    border-bottom: 1px solid var(--line);
   }
-  .dropdown-link.dropdown-asso { margin-top: 10px; font-size: 1.05em; border-top: 2px solid #f1d9d2; border-bottom: 0; background: #fdf3ef; }
+  .dropdown-link.dropdown-asso { margin-top: 10px; font-size: 1.05em; border-top: 2px solid var(--corail-doux); border-bottom: 0; background: var(--corail-doux); }
 }
 @media (max-width: 767px) and (max-height: 640px) {
   .dropdown-link { padding: 10px 24px; font-size: 1.1em; }
@@ -438,8 +448,10 @@ onUnmounted(() => {
   @keyframes menu-apparait { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 }
 
-@media (min-width: 768px) and (max-width: 899px) {
-  .nav-link { padding: 6px 4px; font-size: 0.68em; }
+@media (min-width: 768px) and (max-width: 1099px) {
+  .nav-title { display: none; }
+  .nav-links { gap: 2px 10px; }
+  .nav-link { font-size: 0.85rem; }
 }
 </style>
 
