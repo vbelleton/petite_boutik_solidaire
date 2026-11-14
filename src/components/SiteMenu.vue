@@ -24,7 +24,7 @@
         <svg v-else viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1.5v2.5M12 20v2.5M1.5 12H4M20 12h2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></g></svg>
       </button>
     </div>
-    <!-- Rubriques de la boutique (ordinateur) : petite ligne sous le menu commun -->
+    <!-- Rubriques de la boutique (écran moyen) : petite ligne sous le menu commun ; grand écran : colonne à gauche -->
     <nav v-if="rubriques.length" class="rubriques" aria-label="Rubriques de la boutique">
       <div ref="ligneEl" class="wrap">
         <a v-for="r in rubriques.filter(x => !x.secondaire)" :key="r.id" :href="lienRubrique(r.id)" :data-id="r.id"
@@ -32,6 +32,11 @@
       </div>
     </nav>
   </header>
+  <!-- Grand écran : colonne « Sur cette page » à gauche, toujours visible, qui suit la page -->
+  <nav v-if="rubriques.length" class="rail" :style="{ '--haut': haut + 'px' }" aria-label="Sur cette page">
+    <p class="rail-titre">Sur cette page</p>
+    <a v-for="r in rubriques" :key="r.id" :href="lienRubrique(r.id)" :aria-current="actif === r.id ? 'location' : null" @click="allerA($event, r.id)">{{ r.label }}</a>
+  </nav>
 </template>
 
 <script setup>
@@ -78,7 +83,8 @@ function suivre() {
   tic = requestAnimationFrame(() => {
     tic = null
     if (props.prefix) return
-    const seuil = (hautEl.value?.getBoundingClientRect().height || 100) + 24
+    // Une rubrique atteinte par un lien s’arrête à 100 px du haut (scroll-margin-top) : seuil un peu en dessous.
+    const seuil = Math.max((hautEl.value?.getBoundingClientRect().height || 100) + 24, 112)
     let courant = props.rubriques[0]?.id || ''
     for (const r of props.rubriques) {
       const el = document.getElementById(r.id)
@@ -131,6 +137,7 @@ const large = matchMedia('(min-width: 701px)')
 const onLarge = (m) => { if (m.matches) ouvert.value = false }
 
 onMounted(async () => {
+  mesurer()
   window.addEventListener('scroll', suivre, { passive: true })
   window.addEventListener('resize', suivre)
   setTimeout(suivre, 300)
@@ -200,6 +207,19 @@ onUnmounted(() => {
 .rubriques a[aria-current="location"] { color: var(--corail); border-bottom-color: var(--corail); }
 #menu-principal a.nav-rubrique[aria-current="location"] { color: var(--corail); }
 
+/* Colonne « Sur cette page » (grand écran seulement) */
+.rail { display: none; }
+@media (min-width: 1100px) {
+  .rubriques { display: none; }
+  .rail { position: fixed; z-index: 700; left: 0; top: var(--haut, 62px); bottom: 84px; width: var(--rail); display: flex; flex-direction: column; gap: 2px;
+    padding: 28px 16px 20px 24px; overflow-y: auto; border-right: 1px solid var(--line); background: color-mix(in srgb, var(--bg) 70%, transparent); }
+  .rail-titre { margin: 0 0 10px 12px; font-size: 0.74rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; color: var(--corail); }
+  .rail a { position: relative; padding: 7px 12px; border-radius: 10px; font-weight: 700; font-size: 0.95rem; color: var(--muted); text-decoration: none; transition: color .2s, background .2s; }
+  .rail a:hover { color: var(--ink); background: var(--surface); }
+  .rail a[aria-current="location"] { color: var(--corail); background: var(--corail-doux); }
+  .rail a[aria-current="location"]::before { content: ""; position: absolute; left: -12px; top: 8px; bottom: 8px; width: 3px; border-radius: 3px; background: var(--corail); }
+}
+
 @media (max-width: 1000px) and (min-width: 701px) {
   .sous-site { font-size: 0.92rem; white-space: normal; max-width: 9.5em; }
   #menu-principal { gap: 4px 14px; }
@@ -228,6 +248,12 @@ onUnmounted(() => {
 </style>
 
 <style>
+/* Grand écran : la page laisse la place à la colonne « Sur cette page » ; l'en-tête reste pleine largeur. */
+:root { --rail: 210px; }
+@media (min-width: 1100px) {
+  .container:has(> .rail) { padding-left: var(--rail); }
+  .container:has(> .rail) > header.top { margin-left: calc(-1 * var(--rail)); }
+}
 /* Page figée derrière le menu plein écran */
 html.menu-ouvert, html.menu-ouvert body { overflow: hidden; }
 </style>
