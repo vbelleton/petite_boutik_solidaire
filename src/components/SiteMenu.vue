@@ -13,10 +13,6 @@
       </button>
       <nav id="menu-principal" aria-label="Navigation principale" @click="fermerSiLien">
         <a v-for="l in liens" :key="l.url" :href="lien(l.url)" :aria-current="estBoutik(l.url) ? 'page' : null">{{ l.label }}</a>
-        <template v-if="rubriques.length">
-          <p class="nav-sous-titre">Dans la boutique</p>
-          <a v-for="r in rubriques" :key="r.id" class="nav-rubrique" :href="lienRubrique(r.id)" :aria-current="actif === r.id ? 'location' : null" @click="allerA($event, r.id)">{{ r.label }}</a>
-        </template>
       </nav>
       <button class="theme-toggle" type="button" :aria-pressed="String(sombre)" :aria-label="sombre ? 'Passer au thème clair' : 'Passer au thème sombre'"
         :title="sombre ? 'Passer au thème clair' : 'Passer au thème sombre'" @click="basculerTheme">
@@ -24,14 +20,22 @@
         <svg v-else viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1.5v2.5M12 20v2.5M1.5 12H4M20 12h2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></g></svg>
       </button>
     </div>
-    <!-- Rubriques de la boutique (ordinateur) : petite ligne sous le menu commun -->
-    <nav v-if="rubriques.length" class="rubriques" aria-label="Rubriques de la boutique">
-      <div ref="ligneEl" class="wrap">
-        <a v-for="r in rubriques.filter(x => !x.secondaire)" :key="r.id" :href="lienRubrique(r.id)" :data-id="r.id"
-          :aria-current="actif === r.id ? 'location' : null" @click="allerA($event, r.id)">{{ r.label }}</a>
-      </div>
-    </nav>
   </header>
+  <!-- Colonne des rubriques de la boutique, à gauche, qui suit la page. Grand écran : icônes et libellés.
+       Écran plus étroit : icônes seules, que le bouton du haut déplie par-dessus la page. -->
+  <template v-if="rubriques.length">
+    <div v-if="railOuvert" class="rail-voile" aria-hidden="true" @click="railOuvert = false"></div>
+    <nav ref="railEl" class="rail" :class="{ deplie: railOuvert }" :style="{ '--haut': haut + 'px' }" aria-label="Sur cette page">
+      <button class="rail-bouton" type="button" :aria-expanded="String(railOuvert)" :aria-label="railOuvert ? 'Replier les rubriques' : 'Déplier les rubriques'" @click="railOuvert = !railOuvert">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path :d="railOuvert ? 'M15 6l-6 6 6 6' : 'M9 6l6 6-6 6'"/></svg>
+      </button>
+      <p class="rail-titre">Sur cette page</p>
+      <a v-for="r in rubriques" :key="r.id" :href="lienRubrique(r.id)" :title="r.label" :aria-current="actif === r.id ? 'location' : null" @click="allerA($event, r.id)">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path :d="ICONES[r.id] || ICONES.defaut"/></svg>
+        <span class="rail-txt">{{ r.label }}</span>
+      </a>
+    </nav>
+  </template>
 </template>
 
 <script setup>
@@ -59,10 +63,10 @@ const estBoutik = (url) => url.replace(/\/+$/, '') === BASE.replace(/\/+$/, '')
 
 // Rubrique affichée à l'écran, soulignée dans la ligne des rubriques ; « Accueil » = tout en haut de la page.
 const actif = ref('')
-const ligneEl = ref(null)
 const lienRubrique = (id) => (id === 'hero' ? (props.prefix || '#') : `${props.prefix}#${id}`)
 function allerA(e, id) {
   ouvert.value = false
+  railOuvert.value = false
   if (props.prefix) return // autre page (galerie) : on laisse le lien ramener à l'accueil
   e.preventDefault()
   const cible = id === 'hero' ? null : document.getElementById(id)
@@ -78,7 +82,8 @@ function suivre() {
   tic = requestAnimationFrame(() => {
     tic = null
     if (props.prefix) return
-    const seuil = (hautEl.value?.getBoundingClientRect().height || 100) + 24
+    // Une rubrique atteinte par un lien s’arrête à 100 px du haut (scroll-margin-top) : seuil un peu en dessous.
+    const seuil = Math.max((hautEl.value?.getBoundingClientRect().height || 100) + 24, 112)
     let courant = props.rubriques[0]?.id || ''
     for (const r of props.rubriques) {
       const el = document.getElementById(r.id)
@@ -93,13 +98,23 @@ function suivre() {
     actif.value = courant
   })
 }
-// La rubrique active reste visible dans la ligne (qui défile sur les écrans étroits).
-watch(actif, (id) => {
-  const a = ligneEl.value?.querySelector(`[data-id="${id}"]`)
-  const ligne = ligneEl.value
-  if (!a || !ligne || ligne.scrollWidth <= ligne.clientWidth) return
-  ligne.scrollTo({ left: a.offsetLeft - ligne.clientWidth / 2 + a.offsetWidth / 2, behavior: 'smooth' })
-})
+// Colonne repliée (écrans étroits) : dépliée par le bouton, refermée après un choix, Échap ou clic à côté.
+const railOuvert = ref(false)
+const railEl = ref(null)
+// Icônes des rubriques (traits 24 × 24)
+const ICONES = {
+  hero: 'M3 11l9-7 9 7M5 10v10h5v-6h4v6h5V10',
+  about: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 11v6M12 7.5v.5',
+  'boutique-gallery': 'M4 9l1.5-5h13L20 9M4 9h16M4 9v11h16V9M9 20v-6h6v6',
+  carousel: 'M4 5h16v14H4zM4 15l5-5 4 4 3-3 4 4M15.5 9.5h.01',
+  collection: 'M8 3l-5 3 2 4 2-1v12h10V9l2 1 2-4-5-3a4 4 0 0 1-8 0z',
+  association: 'M7 11V6.8a1.4 1.4 0 0 1 2.8 0V11M9.8 10V5.4a1.4 1.4 0 0 1 2.8 0V10M12.6 10V6.2a1.4 1.4 0 0 1 2.8 0v6.3l1.4-1.6a1.4 1.4 0 0 1 2.1 1.9L15.6 17a5 5 0 0 1-3.8 2H11a5 5 0 0 1-5-5v-2.5a1.4 1.4 0 0 1 2.8 0',
+  calendrier: 'M4 5.5h16V20H4zM4 10h16M8.5 3.5v4M15.5 3.5v4',
+  engagement: 'M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10C19.5 15.4 12 20 12 20z',
+  contact: 'M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11zM12 12.3a2.3 2.3 0 1 0 0-4.6 2.3 2.3 0 0 0 0 4.6z',
+  social: 'M17 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM7 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM17 22a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM9.6 13.5l4.8 3M14.4 6.5l-4.8 3',
+  defaut: 'M5 12h14',
+}
 
 const ouvert = ref(false)
 const hautEl = ref(null)
@@ -125,12 +140,17 @@ function basculerTheme() {
 }
 const surSysteme = () => { sombre.value = courant() === 'dark' }
 
-const onKey = (e) => { if (e.key === 'Escape' && ouvert.value) { ouvert.value = false; hautEl.value?.querySelector('.menu-toggle')?.focus() } }
+const onKey = (e) => {
+  if (e.key !== 'Escape') return
+  if (ouvert.value) { ouvert.value = false; hautEl.value?.querySelector('.menu-toggle')?.focus() }
+  if (railOuvert.value) { railOuvert.value = false; railEl.value?.querySelector('.rail-bouton')?.focus() }
+}
 const onClic = (e) => { if (ouvert.value && !e.target.closest('.top')) ouvert.value = false }
 const large = matchMedia('(min-width: 701px)')
 const onLarge = (m) => { if (m.matches) ouvert.value = false }
 
 onMounted(async () => {
+  mesurer()
   window.addEventListener('scroll', suivre, { passive: true })
   window.addEventListener('resize', suivre)
   setTimeout(suivre, 300)
@@ -177,7 +197,6 @@ onUnmounted(() => {
 #menu-principal a { color: var(--muted); text-decoration: none; font-weight: 700; font-size: 0.95rem; }
 #menu-principal a:hover { color: var(--accent); }
 #menu-principal a[aria-current="page"] { color: var(--ink); box-shadow: inset 0 -2px 0 var(--corail); }
-.nav-sous-titre, .nav-rubrique { display: none; }
 
 .theme-toggle { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); cursor: pointer; flex: none; }
 .theme-toggle:hover { color: var(--accent); border-color: var(--accent); }
@@ -191,14 +210,34 @@ onUnmounted(() => {
 .menu-toggle[aria-expanded="true"] .menu-ico span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
 @media (prefers-reduced-motion: reduce) { .menu-ico span { transition: none; } }
 
-.rubriques { border-top: 1px solid var(--line); }
-.rubriques .wrap { display: flex; gap: 4px 18px; padding-block: 6px; overflow-x: auto; scrollbar-width: none; }
-.rubriques .wrap::-webkit-scrollbar { display: none; }
-.rubriques a { flex: none; font-size: 0.85rem; font-weight: 700; color: var(--corail); text-decoration: none; white-space: nowrap; }
-.rubriques a { padding-block: 3px; color: var(--muted); border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; }
-.rubriques a:hover { color: var(--corail); text-decoration: none; }
-.rubriques a[aria-current="location"] { color: var(--corail); border-bottom-color: var(--corail); }
-#menu-principal a.nav-rubrique[aria-current="location"] { color: var(--corail); }
+
+/* Colonne des rubriques : icônes seules (56 px) sur écran étroit, icônes + libellés sur grand écran */
+.rail { position: fixed; z-index: 700; left: 0; top: var(--haut, 62px); bottom: 84px; width: var(--rail); display: flex; flex-direction: column; gap: 2px;
+  padding: 10px 8px; overflow-x: hidden; overflow-y: auto; scrollbar-width: none; border-right: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 92%, transparent); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); transition: width .2s ease, box-shadow .2s ease; }
+.rail::-webkit-scrollbar { display: none; }
+.rail a { position: relative; display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 8px 9px; border-radius: 10px; font-weight: 700; font-size: 0.95rem; color: var(--muted); text-decoration: none; white-space: nowrap; transition: color .2s, background .2s; }
+.rail a svg { flex: none; }
+.rail a:hover { color: var(--ink); background: var(--surface); }
+.rail a[aria-current="location"] { color: var(--corail); background: var(--corail-doux); }
+.rail-txt, .rail-titre { opacity: 0; transition: opacity .15s; }
+.rail-titre { margin: 4px 0 6px 10px; font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; color: var(--corail); white-space: nowrap; height: 0; overflow: hidden; }
+.rail-bouton { display: grid; place-items: center; width: 40px; height: 36px; margin: 0 0 6px 0; padding: 0; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); cursor: pointer; }
+.rail-bouton:hover { color: var(--accent); border-color: var(--accent); }
+/* Dépliée par le bouton : par-dessus la page, avec un voile derrière */
+.rail.deplie { width: 230px; box-shadow: 8px 0 30px rgba(31, 42, 58, 0.14); }
+.rail.deplie .rail-txt, .rail.deplie .rail-titre { opacity: 1; }
+.rail.deplie .rail-titre { height: auto; }
+.rail-voile { position: fixed; inset: 0; z-index: 690; background: rgba(15, 20, 28, 0.25); }
+@media (min-width: 1100px) {
+  .rail { padding: 24px 14px 20px 18px; }
+  .rail-bouton, .rail-voile { display: none; }
+  .rail-txt, .rail-titre { opacity: 1; }
+  .rail-titre { height: auto; margin-bottom: 10px; }
+  .rail a[aria-current="location"]::before { content: ""; position: absolute; left: -10px; top: 9px; bottom: 9px; width: 3px; border-radius: 3px; background: var(--corail); }
+}
+@media (max-width: 700px) { .rail { bottom: 92px; } }
+@media (prefers-reduced-motion: reduce) { .rail, .rail-txt, .rail-titre { transition: none; } }
 
 @media (max-width: 1000px) and (min-width: 701px) {
   .sous-site { font-size: 0.92rem; white-space: normal; max-width: 9.5em; }
@@ -211,7 +250,6 @@ onUnmounted(() => {
   .marque { gap: 8px; flex: 1 1 auto; }
   .logo img { height: 24px; }
   .sous-site { padding-left: 8px; font-size: 0.82rem; white-space: normal; max-width: 7.5em; }
-  .rubriques { display: none; }
   .menu-toggle { display: inline-flex; margin-left: auto; }
   .menu-txt { display: none; }
   .menu-toggle { padding: 0; width: 40px; justify-content: center; }
@@ -222,12 +260,15 @@ onUnmounted(() => {
   .menu-toggle[aria-expanded="true"] ~ #menu-principal { display: flex; }
   #menu-principal a { flex: none; padding: 16px 4px; font-family: var(--display); font-size: 1.45rem; color: var(--ink); border-bottom: 1px solid var(--line); }
   #menu-principal a[aria-current="page"] { box-shadow: none; color: var(--corail); }
-  .nav-sous-titre { display: block; margin: 22px 4px 2px; font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; color: var(--corail); }
-  #menu-principal a.nav-rubrique { display: block; padding: 12px 4px; font-size: 1.15rem; }
 }
 </style>
 
 <style>
+/* La page laisse la place à la colonne des rubriques ; l'en-tête reste pleine largeur. */
+:root { --rail: 56px; }
+@media (min-width: 1100px) { :root { --rail: 210px; } }
+.container:has(> .rail) { padding-left: var(--rail); }
+.container:has(> .rail) > header.top { margin-left: calc(-1 * var(--rail)); }
 /* Page figée derrière le menu plein écran */
 html.menu-ouvert, html.menu-ouvert body { overflow: hidden; }
 </style>
