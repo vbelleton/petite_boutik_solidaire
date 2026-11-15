@@ -406,23 +406,8 @@
 
                 <!-- Textarea (special-case WYSIWYG for mentions_content) -->
                 <div v-else-if="field.multiline">
-                  <div v-if="field.id === 'mentions_content'" class="mentions-editor-block">
-                    <div class="mentions-toolbar">
-                      <button type="button" @click.prevent="document.execCommand('bold')">B</button>
-                      <button type="button" @click.prevent="document.execCommand('italic')">I</button>
-                      <button type="button" @click.prevent="{ const url = prompt('URL'); if(url) document.execCommand('createLink', false, url) }">🔗</button>
-                      <button type="button" @click.prevent="document.execCommand('insertUnorderedList')">• Liste</button>
-                    </div>
-                    <div
-                      class="mentions-editor"
-                      contenteditable
-                      :inner-html="textesValues[field.id]"
-                      @input="e => textesValues[field.id] = e.target.innerHTML"
-                      v-html="textesValues[field.id] || field.default"
-                    ></div>
-                    <div class="mentions-help">Éditeur simple. Le HTML est sanitizé avant affichage public.</div>
-                  </div>
-                  <textarea v-else v-model="textesValues[field.id]" class="input-textarea" :placeholder="field.default" rows="3"></textarea>
+                  <EditeurTexte v-if="field.riche" v-model="textesValues[field.id]" :placeholder="field.default" />
+                  <textarea v-else v-model="textesValues[field.id]" class="input-textarea full" :placeholder="field.default" rows="3"></textarea>
                 </div>
 
                 <!-- Text par défaut -->
@@ -554,37 +539,23 @@
                 <label>Produits proposés</label>
                 <div class="items-list">
                   <div class="items-row" v-for="(item, i) in textesValues.products_items" :key="i">
-                    <input type="text" v-model="item.emoji" class="input-text" style="width:50px;text-align:center" placeholder="👕" />
                     <input type="text" v-model="item.texte" class="input-text full" placeholder="Description du produit" />
                     <button class="btn-remove-regle" @click="textesValues.products_items.splice(i,1)" title="Supprimer">✕</button>
                   </div>
                 </div>
-                <button class="btn-add-regle" style="margin-top:8px" @click="textesValues.products_items.push({emoji:'👕', texte:''})">+ Ajouter un produit</button>
+                <button class="btn-add-regle" style="margin-top:8px" @click="textesValues.products_items.push({ texte: '' })">+ Ajouter un produit</button>
               </div>
 
               <!-- Marques -->
               <div class="form-block" style="margin-top:16px">
-                <label>Marques (une par ligne)</label>
+                <label>Marques (une par ligne : le site en fait une phrase)</label>
                 <textarea
-                  class="input-textarea"
+                  class="input-textarea full"
                   rows="4"
                   :value="textesValues.products_brands.join('\n')"
                   @input="e => textesValues.products_brands = e.target.value.split('\n').map(s => s.trim()).filter(Boolean)"
                   placeholder="Sergent Major&#10;Okaidi&#10;Jacadi..."
                 ></textarea>
-              </div>
-
-              <!-- Tarifs -->
-              <div class="form-block" style="margin-top:16px">
-                <label>Tarifs</label>
-                <div class="items-list">
-                  <div class="items-row" v-for="(p, i) in textesValues.products_prices" :key="i">
-                    <input type="text" v-model="p.label" class="input-text" style="width:120px" placeholder="Hauts" />
-                    <input type="text" v-model="p.price" class="input-text" style="width:90px" placeholder="1,00 €" />
-                    <button class="btn-remove-regle" @click="textesValues.products_prices.splice(i,1)" title="Supprimer">✕</button>
-                  </div>
-                </div>
-                <button class="btn-add-regle" style="margin-top:8px" @click="textesValues.products_prices.push({label:'',price:''})">+ Ajouter un tarif</button>
               </div>
 
               <div class="bloc-actions" style="margin-top:18px">
@@ -742,6 +713,7 @@ import { allegerImage } from '../allegerImage.js'
 import { HERO_PRESETS, heroBackground } from '../composables/heroGradient.js'
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import PhotoEraser from './PhotoEraser.vue'
+import EditeurTexte from './EditeurTexte.vue'
 import AdminCalendar from './AdminCalendar.vue'
 import { removeBackground } from '@imgly/background-removal'
 import { effectiveGallery } from '../composables/photoGallery.js'
@@ -970,6 +942,9 @@ const loadBlocs = () => {
   association_titre: '',
   dons_texte: '',
   dons_texte2: '',
+  dons_titre: '',
+  dons_acceptes: '',
+  dons_refuses: '',
   dons_visible: true,
   // Header
   header_titre: '',
@@ -1020,25 +995,14 @@ const loadBlocs = () => {
 // Définition des blocs avec leurs champs éditables
 const siteBlocs = ref([
   {
-    id: 'header', icon: '🏷️', label: 'En-tête du site', open: false, saved: false,
-    desc: 'Nom de la boutique et sous-titre affiché en haut',
+    id: 'header', icon: '🏷️', label: 'En-tête et mentions légales', open: false, saved: false,
+    desc: 'Nom de la boutique, sous-titre, mentions légales',
     fields: [
       { id: 'header_titre', label: 'Titre principal', multiline: false, default: 'La P\'tite Boutik Solidaire' },
       { id: 'header_tagline', label: 'Sous-titre', multiline: false, default: 'Association Bras Ouverts de Morlaix' },
-    ]
-  },
-  {
-    id: 'hero', icon: '🎨', label: "Bandeau d'accueil", open: false, saved: false,
-    desc: 'Grande accroche, dégradé de fond et boutons',
-    fields: [
-      { id: 'hero_tagline', label: 'Texte accroche', multiline: true, default: "" },
-      { id: 'hero_gradient_start', label: 'Couleur de début du dégradé', type: 'color', default: '#1BA9A8' },
-      { id: 'hero_gradient_end', label: 'Couleur de fin du dégradé', type: 'color', default: '#E95E5E' },
-      { id: 'hero_gradient_angle', label: 'Angle du dégradé (°)', type: 'number', default: 135 },
-      { id: 'hero_btn1_label', label: 'Bouton 1 — texte', type: 'text', default: 'Horaires' },
-      { id: 'hero_btn1_visible', label: 'Bouton 1 — visible', type: 'toggle', default: true },
-      { id: 'hero_btn2_label', label: 'Bouton 2 — texte', type: 'text', default: 'Nous contacter' },
-      { id: 'hero_btn2_visible', label: 'Bouton 2 — visible', type: 'toggle', default: true },
+      // Mentions légales (lien discret en bas de page)
+      { id: 'mentions_title', label: 'Mentions légales — titre', multiline: false, default: '✅ Mentions légales – La P’tite Boutik Solidaire' },
+      { id: 'mentions_content', label: 'Mentions légales — contenu', multiline: true, riche: true, default: '' },
     ]
   },
   {
@@ -1046,7 +1010,7 @@ const siteBlocs = ref([
     desc: 'Texte de présentation de la boutique',
     fields: [
       { id: 'about_titre', label: 'Titre de section', multiline: false, default: 'À propos' },
-      { id: 'about_texte', label: 'Texte À propos', multiline: true, default: "La P'tite Boutik Solidaire ouvre ses portes au 2, rue Jean-Monnet à Morlaix. Portée par l'Association Bras Ouverts de Morlaix, l'objectif de ce nouveau lieu est d'encourager le recyclage, de favoriser la convivialité à travers la mode enfantine responsable et d'aider les familles." }]
+      { id: 'about_texte', label: 'Texte À propos', multiline: true, riche: true, default: "La P'tite Boutik Solidaire ouvre ses portes au 2, rue Jean-Monnet à Morlaix. Portée par l'Association Bras Ouverts de Morlaix, l'objectif de ce nouveau lieu est d'encourager le recyclage, de favoriser la convivialité à travers la mode enfantine responsable et d'aider les familles." }]
   },
   {
     id: 'carousel', icon: '🖼️', label: 'Galerie photos', open: false, saved: false,
@@ -1055,50 +1019,36 @@ const siteBlocs = ref([
   },
   {
     id: 'collection', icon: '🏷️', label: 'Ce que nous proposons', open: false, saved: false,
-    desc: 'Titre, liste de produits, marques, tarifs',
+    desc: 'Titre, liste de ce que propose la boutique, marques',
     fields: [
       { id: 'products_titre', label: 'Titre de section', multiline: false, default: 'Ce que nous proposons' },
       { id: 'products_sous', label: 'Sous-titre', multiline: false, default: 'Vêtements de seconde main en excellent état :' },
-      { id: 'products_marques_titre', label: 'Titre marques', multiline: false, default: 'Des marques de qualité' },
-      { id: 'products_tarifs_titre', label: 'Titre tarifs', multiline: false, default: 'Exemples de tarifs' },
+      { id: 'products_marques_titre', label: 'Début de la phrase des marques', multiline: false, default: 'On y trouve de belles marques' },
       { id: 'products_bienvenue', label: 'Phrase de bienvenue', multiline: false, default: 'Soyez les bienvenu(e)s !' },
     ]
   },
-      {
-        id: 'association', icon: '🤝', label: 'Bloc Association', open: false, saved: false,
-        desc: 'Texte association Bras Ouverts + appel aux dons',
-        fields: [
-      { id: 'association_titre', label: 'Titre de section', multiline: false, default: "L'Association Bras Ouverts" },
-      { id: 'association_texte', label: 'Texte association', multiline: true, default: "L'Association Bras Ouverts de Morlaix est portée par des bénévoles engagées — mamans, amies et mamies — qui œuvrent chaque jour pour créer du lien social et soutenir les familles du territoire." },
-      { id: 'dons_texte', label: 'Texte appel aux dons (1er §)', multiline: true, default: "Nous acceptons avec gratitude vos dons de vêtements enfants (0-10 ans) en bon état, chaussures, matériel de puériculture et vêtements pour futures mamans." },
-        { id: 'dons_texte2', label: 'Texte appel aux dons (2e §)', multiline: true, default: "Apportez vos dons directement à la boutique aux horaires d'ouverture." },
-        { id: 'dons_visible', label: 'Section « Vous souhaitez donner ? » visible', type: 'toggle', default: true },
-        // Recognition list (Ils nous font confiance)
-        { id: 'recognition_items', label: 'Ils nous font confiance — éléments (JSON liste)', type: 'list', default: [] },
-        // Mentions légales gérées ici
-        { id: 'mentions_title', label: 'Mentions — Titre', multiline: false, default: '✅ Mentions légales – La P’tite Boutik Solidaire' },
-        { id: 'mentions_content', label: 'Mentions — Contenu HTML', multiline: true, default: '' },
-      ]
-      },
+  {
+    id: 'dons', icon: '🎁', label: 'Dons', open: false, saved: false,
+    desc: 'Comment donner à la boutique (rubrique « Dons », aussi dans le menu)',
+    fields: [
+      { id: 'dons_titre', label: 'Titre de section', multiline: false, default: 'Vous souhaitez donner ?' },
+      { id: 'dons_texte', label: 'Texte (1er paragraphe)', multiline: true, riche: true, default: "Nous acceptons avec gratitude vos dons de vêtements enfants (0-10 ans) en bon état, chaussures, matériel de puériculture et vêtements pour futures mamans." },
+      { id: 'dons_texte2', label: 'Texte (2e paragraphe)', multiline: true, riche: true, default: "Apportez vos dons directement à la boutique aux horaires d'ouverture." },
+      { id: 'dons_acceptes', label: 'Ce que nous acceptons', multiline: true, riche: true, default: 'Vêtements enfants (0-10 ans) en bon état, chaussures propres, matériel de puériculture propre et non endommagé, vêtements de maternité.' },
+      { id: 'dons_refuses', label: 'Ce que nous ne pouvons pas prendre', multiline: true, riche: true, default: "Vêtements très usés ou tachés, sièges auto anciens ou non contrôlés, articles cassés ou dangereux, produits d'hygiène entamés." },
+    ]
+  },
   {
     id: 'calendrier', icon: '📅', label: 'Calendrier', open: false, saved: false,
     desc: 'Prochaines dates d\'ouverture (gérez les fermetures dans Fermetures)',
     fields: [{ id: 'horaires_texte', label: 'Horaires (affiché dans Horaires)', multiline: false, default: '10h00 – 17h30 sans interruption' }]
   },
   {
-    id: 'engagement', icon: '💛', label: 'Bloc Engagement', open: false, saved: false,
-    desc: 'Citation et badges de valeurs',
-    fields: [
-      { id: 'engagement_titre', label: 'Titre de section', multiline: false, default: 'Notre engagement' },
-      { id: 'engagement_quote', label: 'Citation', multiline: true, default: 'Nous voulons que chaque visiteur se sente attendu et bienvenu. Ici, on recycle, on partage, on crée du lien.' },
-    ]
-  },
-  {
     id: 'contact', icon: '📍', label: 'Contact', open: false, saved: false,
     desc: 'Adresse, téléphone, lien Google Maps, encart « Nous écrire »',
     fields: [
       { id: 'contact_titre', label: 'Titre de section', multiline: false, default: 'Nous trouver et nous écrire' },
-      { id: 'contact_ecrire', label: 'Texte de l’encart « Nous écrire »', multiline: true, default: 'Une question sur la boutique ou un don ? Laissez-nous un message : nous répondons à tous les messages.' },
+      { id: 'contact_ecrire', label: 'Texte de l’encart « Nous écrire »', multiline: true, riche: true, default: 'Une question sur la boutique ou un don ? Laissez-nous un message : nous répondons à tous les messages.' },
       { id: 'contact_address', label: 'Adresse', multiline: false, default: '2 rue Jean-Monnet, 29600 Morlaix' },
       { id: 'contact_phone', label: 'Téléphone (affichage)', multiline: false, default: '06 20 70 54 96' },
       { id: 'contact_phone_raw', label: 'Téléphone (pour lien tel:)', multiline: false, default: '0620705496' },
@@ -1114,16 +1064,6 @@ const siteBlocs = ref([
       { id: 'social_facebook_handle', label: 'Nom affiché Facebook', multiline: false, default: 'La P\'tite Boutik Solidaire' },
       { id: 'social_instagram_url', label: 'URL Instagram', multiline: false, default: 'https://www.instagram.com/la_ptite_boutik_morlaix/' },
       { id: 'social_instagram_handle', label: 'Nom affiché Instagram', multiline: false, default: '@la_ptite_boutik_morlaix' },
-    ]
-  },
-  {
-    id: 'sticky', icon: '⬇️', label: 'Barre en bas', open: false, saved: false,
-    desc: 'Barre fixe tout en bas de l\'écran (téléphone, adresse, horaires)',
-    fields: [
-      { id: 'sticky_phone', label: 'Téléphone (affichage)', multiline: false, default: '06 20 70 54 96' },
-      { id: 'sticky_phone_raw', label: 'Téléphone (pour lien tel:)', multiline: false, default: '0620705496' },
-      { id: 'sticky_address', label: 'Adresse', multiline: false, default: '2 rue Jean-Monnet, Morlaix' },
-      { id: 'sticky_hours', label: 'Horaires', multiline: false, default: '1er/3e mer. & sam. 10h-17h30' },
     ]
   },
 ])
@@ -2183,11 +2123,6 @@ const loadData = () => {
 .btn-google:hover { border-color: #1BA9A8; background: #f0fafa; }
 .btn-google img { width: 20px; height: 20px; }
 /* Mentions editor styles */
-.mentions-editor-block { border: 1px solid #e6e6e6; border-radius: 8px; padding: 8px }
-.mentions-toolbar { display:flex; gap:8px; margin-bottom:8px }
-.mentions-toolbar button { padding:6px 8px; border-radius:6px; border:1px solid #ddd; background:white; cursor:pointer }
-.mentions-editor { min-height:120px; padding:8px; border-radius:6px; background:white; outline:none }
-.mentions-help { font-size:0.85em; color:#666; margin-top:6px }
 
 /* recognition admin */
 .recognition-admin-item { border:1px solid #eee; padding:10px; border-radius:8px; margin-bottom:10px }
@@ -2275,7 +2210,7 @@ const loadData = () => {
 .admin-nav button:hover { background: #f5f5f5; }
 
 .admin-main {
-  max-width: 700px;
+  max-width: 1100px; /* les champs prennent toute la largeur disponible */
   margin: 0 auto;
   padding: 30px 20px;
   width: 100%;
@@ -2337,6 +2272,7 @@ const loadData = () => {
 .input-text { flex: 1; min-width: 180px; }
 .input-text.full { width: 100%; }
 .input-textarea { resize: vertical; }
+.input-textarea.full { width: 100%; }
 
 .checkbox-label { display: flex; align-items: center; gap: 8px; font-weight: normal !important; cursor: pointer; }
 

@@ -3,23 +3,18 @@ import { ref, computed, onMounted } from 'vue'
 import { onSnapshot, doc } from 'firebase/firestore'
 import { db } from './firebase.js'
 import SiteHeader from './components/SiteHeader.vue'
-import Hero from './components/Hero.vue'
 import About from './components/About.vue'
 import Products from './components/Products.vue'
 import Gallery from './components/ProductCarousel.vue'
 import GalleryTeaser from './components/GalleryTeaser.vue'
 import { BASE } from './chemin.js'
 import BoutiqueGallery from './components/BoutiqueGallery.vue'
-import Association from './components/Association.vue'
 import Calendar from './components/Calendar.vue'
 import Hours from './components/Hours.vue'
-import Engagement from './components/Engagement.vue'
 import Contact from './components/Contact.vue'
 import SocialMedia from './components/SocialMedia.vue'
-import SiteFooter from './components/SiteFooter.vue'
 import ActuBanner from './components/ActuBanner.vue'
 import SiteMenu from './components/SiteMenu.vue'
-import StickyBottomBar from './components/StickyBottomBar.vue'
 import { useOpeningStatus } from './composables/useOpeningStatus.js'
 import { useLocalBusinessJsonLd } from './composables/useLocalBusinessJsonLd.js'
 
@@ -27,29 +22,30 @@ import { useLocalBusinessJsonLd } from './composables/useLocalBusinessJsonLd.js'
 const { dates: openingDates, plage: openingPlage } = useOpeningStatus()
 useLocalBusinessJsonLd({ dates: openingDates, plage: openingPlage })
 import MentionsLegales from './components/MentionsLegales.vue'
+import Dons from './components/Dons.vue'
 
 const blocs = ref({})
 
 // Page « Galerie photos » à part (/boutik/galerie) ; l'accueil n'en montre qu'un aperçu.
 const pageGalerie = window.location.pathname.replace(BASE, '/').replace(/\/+$/, '') === '/galerie'
+const ouvrirMentions = () => window.dispatchEvent(new Event('open-mentions'))
 if (pageGalerie) document.title = "La P'tite Boutik Solidaire — Galerie photos"
 
-const DEFAULT_ORDER = ['hero', 'about', 'boutique-gallery', 'carousel', 'collection', 'association', 'calendrier', 'engagement', 'contact', 'social']
+// Bandeau d'accueil, Association et Engagement retirés (novembre 2026) ; « Dons » ajouté après les produits.
+const DEFAULT_ORDER = ['about', 'boutique-gallery', 'carousel', 'collection', 'dons', 'calendrier', 'contact', 'social']
 
 const SECTION_LABELS = {
-  hero: 'Accueil',
   about: 'À propos',
   'boutique-gallery': 'Boutique',
   carousel: 'Photos',
   collection: 'Produits',
-  association: 'Bénévoles',
+  dons: 'Dons',
   calendrier: 'Horaires',
-  engagement: 'Engagement',
   contact: 'Contact',
   social: 'Réseaux'
 }
 // Rubriques secondaires : dans le menu du téléphone, mais pas dans la ligne des rubriques (pour qu'elle tienne sur une ligne)
-const SECONDAIRES = new Set(['association', 'engagement', 'social'])
+const SECONDAIRES = new Set(['social'])
 
 // Surtitres des rubriques (petites capitales au-dessus du titre, comme sur le site Bras Ouverts)
 const KICKERS = {
@@ -57,9 +53,8 @@ const KICKERS = {
   'boutique-gallery': 'La boutique',
   carousel: 'En images',
   collection: 'Nos produits',
-  association: "L'association",
+  dons: 'Donner',
   calendrier: 'Horaires',
-  engagement: 'Nos valeurs',
   contact: 'Nous trouver · Nous écrire',
   social: 'Réseaux',
 }
@@ -75,8 +70,16 @@ const isInNav = (id) => {
 }
 
 const blocOrder = computed(() => {
-  if (blocs.value._order && Array.isArray(blocs.value._order)) return blocs.value._order
-  return DEFAULT_ORDER
+  const enregistre = blocs.value._order
+  if (!Array.isArray(enregistre) || !enregistre.length) return DEFAULT_ORDER
+  // Ordre choisi dans l'admin ; une rubrique nouvelle (absente de cet ordre) se glisse après sa voisine habituelle.
+  const ordre = enregistre.filter((id) => DEFAULT_ORDER.includes(id) || id === 'fouille')
+  DEFAULT_ORDER.forEach((id, i) => {
+    if (ordre.includes(id)) return
+    const avant = DEFAULT_ORDER.slice(0, i).reverse().find((v) => ordre.includes(v))
+    ordre.splice(avant ? ordre.indexOf(avant) + 1 : 0, 0, id)
+  })
+  return ordre
 })
 
 const sectionLinks = computed(() =>
@@ -142,27 +145,25 @@ onMounted(() => {
 
     <main id="contenu" tabindex="-1">
     <template v-for="id in blocOrder" :key="id">
-      <Hero          v-if="id === 'hero'             && isVisible('hero')"              id="hero" />
       <About         v-if="id === 'about'            && isVisible('about')"             id="about" :data-lab="KICKERS['about']" />
       <BoutiqueGallery v-if="id === 'boutique-gallery' && isVisible('boutique-gallery')" id="boutique-gallery" :data-lab="KICKERS['boutique-gallery']" />
       <Products      v-if="id === 'collection'       && isVisible('collection')"        id="collection" :data-lab="KICKERS['collection']" />
       <GalleryTeaser v-if="id === 'carousel'         && isVisible('carousel')"          id="carousel" :data-lab="KICKERS['carousel']" />
       <FouilleGallery v-if="id === 'fouille'          && isVisible('fouille')"           id="fouille" />
-      <Association   v-if="id === 'association'      && isVisible('association')"       id="association" :data-lab="KICKERS['association']" />
+      <Dons          v-if="id === 'dons'             && isVisible('dons')"              id="dons" :data-lab="KICKERS['dons']" />
       <div         v-if="id === 'calendrier'       && isVisible('calendrier')"        id="calendrier" class="calendrier-section" :data-lab="KICKERS.calendrier">
         <Calendar />
         <Hours />
       </div>
-      <Engagement    v-if="id === 'engagement'       && isVisible('engagement')"        id="engagement" :data-lab="KICKERS['engagement']" />
       <Contact       v-if="id === 'contact'          && isVisible('contact')"           id="contact" :data-lab="KICKERS['contact']" />
       <SocialMedia   v-if="id === 'social'           && isVisible('social')"            id="social" :data-lab="KICKERS['social']" />
     </template>
     </main>
     </template>
 
-    <SiteFooter />
+    <!-- Plus de pied de page ni de barre du bas : seulement l'accès discret aux mentions légales. -->
+    <p class="pied-mentions"><button type="button" @click="ouvrirMentions">Mentions légales</button></p>
     <MentionsLegales />
-    <StickyBottomBar />
   </div>
 </template>
 
@@ -172,7 +173,6 @@ onMounted(() => {
 }
 /* Page publique seulement (classe posée par main.js) : l'admin n'a ni menu ni barre du bas. */
 body.site {
-  padding-bottom: 84px;
   min-height: 100vh;
   min-height: 100dvh;
   display: flex;
@@ -183,6 +183,11 @@ body.site {
 .container > main, .container > .site-header, .container > .actu-banner { transition: opacity .35s ease; }
 .container:not(.pret) > main, .container:not(.pret) > .site-header { opacity: 0; }
 @media (prefers-reduced-motion: reduce) { .container > main, .container > .site-header { transition: none; } }
+
+/* Accès aux mentions légales, en bas de page (remplace le pied de page) */
+.pied-mentions { margin: 0; padding: 18px 20px 28px; text-align: center; border-top: 1px solid var(--line); }
+.pied-mentions button { background: none; border: 0; padding: 4px 8px; font: inherit; font-size: 0.88rem; color: var(--muted); text-decoration: underline; cursor: pointer; }
+.pied-mentions button:hover { color: var(--ink); }
 
 /* ensure container expands so footer sticks to bottom reliably */
 .container { flex: 1 0 auto }

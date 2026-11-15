@@ -20,7 +20,7 @@
         <!-- Nous écrire : le formulaire est celui du site Bras Ouverts (pas d'adresse e-mail affichée) -->
         <div class="ecrire">
           <h3>Nous écrire</h3>
-          <p>{{ ecrireTexte }}</p>
+          <div class="ecrire-texte" v-html="texteRiche(ecrireTexte)"></div>
           <a :href="lienContact" class="btn">Écrire un message</a>
         </div>
       </div>
@@ -49,6 +49,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useTextes } from '../composables/useTextes.js'
+import { texteRiche } from '../texteRiche.js'
 
 const textes = useTextes()
 const titre = computed(() => textes.value.contact_titre || 'Nous trouver et nous écrire')
@@ -87,7 +88,7 @@ const addressEncoded = computed(() => address.value.replace(/ /g, '+'))
   border: 1px solid var(--line);
 }
 .ecrire h3 { font-size: 1.4rem; color: var(--ink); }
-.ecrire p { color: var(--ink); }
+.ecrire p, .ecrire-texte { color: var(--ink); }
 .ecrire .btn { justify-self: start; }
 .contact-map { display: grid; gap: 10px; }
 .contact-map iframe { width: 100%; height: 360px; border: 1px solid var(--line); border-radius: var(--r); background: var(--soft); }
