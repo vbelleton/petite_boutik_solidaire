@@ -1,7 +1,7 @@
 <template>
-  <!-- Bandeau défilant sous l'en-tête : ouverture du jour ou prochaine ouverture, et l'actualité si l'admin
+  <!-- Bandeau défilant sous l'en-tête (masquable dans l'admin, onglet Actualités) : ouverture du jour ou prochaine ouverture, et l'actualité si l'admin
        a coché « Faire défiler le message en haut du site ». Il mène aux horaires. -->
-  <a v-if="texte" class="bandeau" :class="{ ouvert: openToday }" :href="`${prefix}#calendrier`" :aria-label="texte">
+  <a v-if="texte && actu.bandeau !== false" class="bandeau" :class="{ ouvert: openToday }" :href="`${prefix}#calendrier`" :aria-label="texte">
     <span class="masque" aria-hidden="true">
       <span class="piste">
         <span class="seg" v-for="n in 3" :key="n">
@@ -25,7 +25,8 @@ defineProps({ prefix: { type: String, default: '' } })
 
 const { openToday, todayHoraires, nextOpening, plage } = useOpeningStatus()
 
-const actu = ref({ visible: false, titre: '', message: '', defilant: true })
+// actu.bandeau === false (admin, onglet Actualités) : pas de bandeau du tout.
+const actu = ref({ visible: false, titre: '', message: '', defilant: true, bandeau: true })
 const annonce = computed(() => {
   if (!actu.value.visible || actu.value.defilant === false) return ''
   return [actu.value.titre, actu.value.message].filter(Boolean).join(' — ').trim()

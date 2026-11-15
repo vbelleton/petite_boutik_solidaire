@@ -132,9 +132,14 @@
               <input type="checkbox" v-model="actu.visible" />
               Afficher sur le site
             </label>
+            <h3 style="margin-top:18px">Bandeau défilant (sous le menu)</h3>
             <label class="checkbox-label">
-              <input type="checkbox" :checked="actu.defilant !== false" @change="actu.defilant = $event.target.checked" />
-              Faire défiler le message en haut du site (bandeau animé)
+              <input type="checkbox" :checked="actu.bandeau !== false" @change="actu.bandeau = $event.target.checked" />
+              Afficher le bandeau défilant en haut du site (prochaine ouverture)
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" :checked="actu.defilant !== false" :disabled="actu.bandeau === false" @change="actu.defilant = $event.target.checked" />
+              Y ajouter ce message d'actualité
             </label>
 <span class="autosave-msg" :class="actuStatus">
               <template v-if="actuStatus === 'pending' || actuStatus === 'saving'">Enregistrement…</template>

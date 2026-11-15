@@ -14,7 +14,7 @@
           <template v-else>Voir les horaires d'ouverture</template>
         </a>
       </div>
-      <img src="@/assets/logo.jpg" alt="Logo La P'tite Boutik Solidaire" class="logo" width="120" height="120" />
+      <img src="@/assets/logo.jpg" alt="Logo La P'tite Boutik Solidaire" class="logo" width="260" height="260" />
     </div>
   </header>
 </template>
@@ -91,9 +91,9 @@ const titreParts = computed(() => {
 
 .logo {
   flex: none;
-  width: clamp(84px, 14vw, 140px);
+  width: clamp(150px, 22vw, 280px); /* logo bien visible */
   height: auto;
-  border-radius: 28px;
+  border-radius: 32px;
   background: var(--surface);
   padding: 10px;
   border: 1px solid var(--line);
@@ -111,6 +111,6 @@ const titreParts = computed(() => {
   .header-text h1 { grid-column: 1; grid-row: 2; }
   .logo { grid-column: 2; grid-row: 2; }
   .statut { grid-column: 1 / -1; grid-row: 3; display: flex; width: 100%; }
-  .logo { width: 72px; border-radius: 20px; padding: 6px; }
+  .logo { width: 116px; border-radius: 24px; padding: 6px; }
 }
 </style>
