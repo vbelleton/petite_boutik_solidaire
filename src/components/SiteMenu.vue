@@ -20,7 +20,8 @@
         <svg v-else viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1.5v2.5M12 20v2.5M1.5 12H4M20 12h2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></g></svg>
       </button>
     </div>
-    <BandeauDefilant :prefix="prefix" />
+    <!-- Masqué quand le menu mobile est ouvert : le menu prend alors toute la hauteur sous l'en-tête. -->
+    <BandeauDefilant v-show="!ouvert" :prefix="prefix" />
   </header>
   <!-- Colonne des rubriques de la boutique, à gauche, qui suit la page. Grand écran : icônes et libellés.
        Écran plus étroit : icônes seules, que le bouton du haut déplie par-dessus la page. -->
@@ -261,7 +262,8 @@ onUnmounted(() => {
   /* Menu plein écran sous l'en-tête, comme sur le site Bras Ouverts */
   #menu-principal { display: none; position: absolute; top: 100%; left: 0; right: 0; height: calc(100vh - var(--haut)); height: calc(100dvh - var(--haut));
     flex-direction: column; flex-wrap: nowrap; gap: 0; margin: 0; padding: 8px max(20px, env(safe-area-inset-left)) calc(96px + env(safe-area-inset-bottom)); overflow-y: auto; overscroll-behavior: contain;
-    background: var(--bg); border-top: 1px solid var(--line); }
+    background: var(--bg); border-top: 1px solid var(--line); z-index: 2; }
+  /* z-index : le menu passe devant le bandeau défilant (son animation crée un calque qui, sinon, se peignait par-dessus). */
   .menu-toggle[aria-expanded="true"] ~ #menu-principal { display: flex; }
   #menu-principal a { flex: none; padding: 16px 4px; font-family: var(--display); font-size: 1.45rem; color: var(--ink); border-bottom: 1px solid var(--line); }
   #menu-principal a[aria-current="page"] { box-shadow: none; color: var(--corail); }
