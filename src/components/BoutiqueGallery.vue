@@ -1,7 +1,6 @@
 <template>
-  <div class="carousel-container" data-test="boutique-carousel">
-    <h2>Découvrez notre boutique</h2>
-    <p class="subtitle">Un lieu chaleureux pour toute la famille</p>
+  <!-- Photos de la boutique, sans titre ni fond : posées à côté de « À propos » -->
+  <div class="carousel-container" data-test="boutique-carousel" role="region" aria-label="Photos de la boutique">
     <swiper
       :modules="modules"
       :slides-per-view="1"
@@ -148,31 +147,7 @@ onUnmounted(() => {
 
 <style scoped>
 .carousel-container {
-  background: linear-gradient(135deg, var(--surface) 0%, var(--corail-doux) 100%);
-  padding: 25px;
-  border-radius: 12px;
-  margin: 20px 0;
-  border: 2px solid var(--secondary-beige);
-}
-
-@media (max-width: 600px) {
-  .carousel-container {
-    padding: 15px;
-    margin: 12px 0;
-  }
-}
-
-.carousel-container h2 {
-  color: var(--primary-teal);
-  margin-bottom: 8px;
-  text-align: center;
-}
-
-.subtitle {
-  text-align: center;
-  color: var(--text-gray);
-  margin-bottom: 20px;
-  font-size: 0.95em;
+  margin: 0;
 }
 
 .my-swiper {
@@ -211,8 +186,8 @@ onUnmounted(() => {
   width: 100%;
   height: calc(var(--vh, 1vh) * 60);
   max-height: 500px;
-  object-fit: contain;
-  border-radius: 8px;
+  object-fit: cover; /* photo pleine, sans bandes de couleur autour */
+  border-radius: 16px;
   will-change: transform, opacity;
   backface-visibility: hidden;
 }

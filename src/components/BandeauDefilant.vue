@@ -46,8 +46,9 @@ onUnmounted(() => { if (stop) stop() })
 </script>
 
 <style scoped>
-.bandeau { display: block; overflow: hidden; text-decoration: none; background: var(--lagon-doux); color: var(--ink); border-top: 1px solid var(--line); font-size: 0.88rem; font-weight: 600; }
-.bandeau.ouvert { background: var(--accent); color: var(--accent-ink); }
+.bandeau { display: block; overflow: hidden; text-decoration: none; background: var(--bandeau, var(--lagon-doux)); color: var(--bandeau-ink, var(--ink)); border-top: 1px solid var(--line); font-size: 0.88rem; font-weight: 600; }
+/* --bandeau : couleur choisie dans l'admin (couleursPerso.js), thème clair seulement */
+.bandeau.ouvert { background: var(--bandeau, var(--accent)); color: var(--bandeau-ink, var(--accent-ink)); }
 .masque { display: block; overflow: hidden; white-space: nowrap; }
 .piste { display: inline-flex; align-items: center; padding: 6px 0; animation: defile 30s linear infinite; will-change: transform; }
 .bandeau:hover .piste, .bandeau:focus-visible .piste { animation-play-state: paused; }
