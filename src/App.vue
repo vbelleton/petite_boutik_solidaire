@@ -23,11 +23,16 @@ const { dates: openingDates, plage: openingPlage } = useOpeningStatus()
 useLocalBusinessJsonLd({ dates: openingDates, plage: openingPlage })
 import MentionsLegales from './components/MentionsLegales.vue'
 import Dons from './components/Dons.vue'
+import { useTextes } from './composables/useTextes.js'
+import { appliquerCouleurs } from './couleursPerso.js'
 
 const blocs = ref({})
 
 // Page « Galerie photos » à part (/boutik/galerie) ; l'accueil n'en montre qu'un aperçu.
 const pageGalerie = window.location.pathname.replace(BASE, '/').replace(/\/+$/, '') === '/galerie'
+// Couleurs du fond, des textes et du bandeau choisies dans l'admin
+appliquerCouleurs(useTextes())
+
 const ouvrirMentions = () => window.dispatchEvent(new Event('open-mentions'))
 if (pageGalerie) document.title = "La P'tite Boutik Solidaire — Galerie photos"
 

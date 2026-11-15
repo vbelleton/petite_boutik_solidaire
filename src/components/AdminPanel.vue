@@ -353,8 +353,9 @@
 
                 <!-- Color picker -->
                 <div v-else-if="field.type === 'color'" class="color-input-row">
-                  <input type="color" v-model="textesValues[field.id]" class="input-color" @input="onFieldEdited(field.id)" />
+                  <input type="color" :value="textesValues[field.id] || (field.id === 'couleur_fond' ? '#f6efe3' : field.id === 'couleur_texte' ? '#1f2a3a' : field.id === 'couleur_bandeau' ? '#d9efec' : '#000000')" @input="e => { textesValues[field.id] = e.target.value; onFieldEdited(field.id) }" class="input-color" />
                   <input type="text" v-model="textesValues[field.id]" class="input-text" placeholder="#000000" style="width:110px;flex:none" @input="onFieldEdited(field.id)" />
+                  <button v-if="field.id.startsWith('couleur_') && textesValues[field.id]" type="button" class="btn-add-regle" @click="textesValues[field.id] = ''">Couleur d'origine</button>
                   <div class="color-palette">
                     <button
                       v-for="c in COLOR_PALETTE" :key="c"
@@ -954,6 +955,9 @@ const loadBlocs = () => {
   // Header
   header_titre: '',
   header_tagline: '',
+  couleur_fond: '',
+  couleur_texte: '',
+  couleur_bandeau: '',
   // Hero dégradé
   hero_gradient_start: '#1BA9A8',
   hero_gradient_end: '#E95E5E',
@@ -1000,11 +1004,15 @@ const loadBlocs = () => {
 // Définition des blocs avec leurs champs éditables
 const siteBlocs = ref([
   {
-    id: 'header', icon: '🏷️', label: 'En-tête et mentions légales', open: false, saved: false,
-    desc: 'Nom de la boutique, sous-titre, mentions légales',
+    id: 'header', icon: '🏷️', label: 'En-tête, couleurs et mentions légales', open: false, saved: false,
+    desc: 'Nom de la boutique, couleurs du fond, des textes et du bandeau, mentions légales',
     fields: [
       { id: 'header_titre', label: 'Titre principal', multiline: false, default: 'La P\'tite Boutik Solidaire' },
       { id: 'header_tagline', label: 'Sous-titre', multiline: false, default: 'Association Bras Ouverts de Morlaix' },
+      // Couleurs (thème clair ; vide = couleur d'origine)
+      { id: 'couleur_fond', label: 'Couleur du fond de la page', type: 'color', default: '' },
+      { id: 'couleur_texte', label: 'Couleur des textes', type: 'color', default: '' },
+      { id: 'couleur_bandeau', label: 'Couleur du bandeau défilant', type: 'color', default: '' },
       // Mentions légales (lien discret en bas de page)
       { id: 'mentions_title', label: 'Mentions légales — titre', multiline: false, default: '✅ Mentions légales – La P’tite Boutik Solidaire' },
       { id: 'mentions_content', label: 'Mentions légales — contenu', multiline: true, riche: true, default: '' },

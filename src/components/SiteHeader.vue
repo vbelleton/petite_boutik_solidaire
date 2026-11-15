@@ -38,7 +38,7 @@ const titreParts = computed(() => {
 
 <style scoped>
 .site-header {
-  padding: clamp(40px, 8vw, 88px) 20px clamp(28px, 5vw, 48px);
+  padding: clamp(28px, 5vw, 56px) max(20px, calc((100% - var(--site-max-width, 1120px)) / 2)) clamp(24px, 4vw, 40px);
 }
 
 .header-content {
@@ -89,16 +89,19 @@ const titreParts = computed(() => {
 .statut.ouvert { background: var(--accent); border-color: var(--accent); color: #fff; }
 .statut.ouvert .point { background: #fff; box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.25); }
 
+/* Logo intégré au bandeau du haut : son fond blanc se fond dans la page (multiply), sans cadre.
+   Taille mesurée : grand sur ordinateur, raisonnable sur téléphone. */
 .logo {
   flex: none;
-  width: clamp(150px, 22vw, 280px); /* logo bien visible */
+  width: clamp(150px, 20vw, 260px);
   height: auto;
-  border-radius: 32px;
-  background: var(--surface);
-  padding: 10px;
-  border: 1px solid var(--line);
-  box-shadow: 0 10px 30px rgba(31, 42, 58, 0.08);
   object-fit: contain;
+  mix-blend-mode: multiply;
+}
+/* Thème sombre : multiply ferait disparaître le logo, on le pose sur une pastille claire. */
+:global(:root[data-theme="dark"] .site-header .logo) { mix-blend-mode: normal; background: #fff; border-radius: 28px; padding: 8px; }
+@media (prefers-color-scheme: dark) {
+  :global(:root:not([data-theme="light"]) .site-header .logo) { mix-blend-mode: normal; background: #fff; border-radius: 28px; padding: 8px; }
 }
 
 @media (max-width: 600px) {
@@ -111,6 +114,6 @@ const titreParts = computed(() => {
   .header-text h1 { grid-column: 1; grid-row: 2; }
   .logo { grid-column: 2; grid-row: 2; }
   .statut { grid-column: 1 / -1; grid-row: 3; display: flex; width: 100%; }
-  .logo { width: 116px; border-radius: 24px; padding: 6px; }
+  .logo { width: 120px; }
 }
 </style>

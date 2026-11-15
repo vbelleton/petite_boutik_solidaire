@@ -3,7 +3,7 @@
     <div class="wrap">
       <div class="marque">
         <a class="logo" :href="ASSO + '/'" title="Accueil du site Bras Ouverts">
-          <img :src="BASE + 'logo-bras-ouverts.png'" alt="Bras Ouverts" width="178" height="34" />
+          <img :src="BASE + 'logo-bras-ouverts.png'" alt="Bras Ouverts" width="545" height="160" />
         </a>
         <a class="sous-site" :href="BASE">La P'tite Boutik Solidaire</a>
       </div>
@@ -55,8 +55,7 @@ const props = defineProps({
 // Menu par défaut (si /menu.json ne répond pas) : le même que sur le site Bras Ouverts.
 const liens = ref([
   { label: 'Découvrir l’association', url: '/#deux-cotes' },
-  { label: 'Petite boutik', url: '/boutik/' },
-  { label: 'Dons', url: '/boutik/#dons' },
+  { label: 'La P’tite Boutik', url: '/boutik/' },
   { label: 'Maraude', url: '/#maraudes' },
   { label: 'Agenda', url: '/#agenda' },
   { label: 'Contact', url: '/#contact' },
@@ -193,11 +192,11 @@ onUnmounted(() => {
 .top > .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px; padding-block: 10px; position: relative; }
 .marque { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .logo { display: flex; align-items: center; flex: none; }
-.logo img { display: block; height: 34px; width: auto; }
+.logo img { display: block; height: 46px; width: auto; }
 .sous-site { padding-left: 12px; border-left: 1px solid var(--line); font-family: var(--display); font-weight: 700; font-size: 1.02rem; line-height: 1.15; color: var(--corail); text-decoration: none; white-space: nowrap; }
 .sous-site:hover { text-decoration: underline; }
-:root[data-theme="dark"] .logo img { filter: brightness(0) invert(0.94); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .logo img { filter: brightness(0) invert(0.94); } }
+:root[data-theme="dark"] .logo img { background: #f6f1e7; border-radius: 10px; padding: 3px 8px; box-sizing: content-box; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .logo img { background: #f6f1e7; border-radius: 10px; padding: 3px 8px; box-sizing: content-box; } }
 
 #menu-principal { display: flex; flex-wrap: wrap; gap: 4px 20px; margin-left: auto; }
 #menu-principal a { color: var(--muted); text-decoration: none; font-weight: 700; font-size: 0.95rem; }
@@ -254,7 +253,7 @@ onUnmounted(() => {
 @media (max-width: 700px) {
   .top > .wrap { flex-wrap: nowrap; gap: 8px; }
   .marque { gap: 8px; flex: 1 1 auto; }
-  .logo img { height: 24px; }
+  .logo img { height: 34px; }
   .sous-site { padding-left: 8px; font-size: 0.82rem; white-space: normal; max-width: 7.5em; }
   .menu-toggle { display: inline-flex; margin-left: auto; }
   .menu-txt { display: none; }
