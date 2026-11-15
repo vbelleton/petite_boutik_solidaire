@@ -40,7 +40,18 @@
       </div>
 
       <template v-if="current.state === 'open'">
-        <p class="acal-help">La boutique est ouverte ce jour-là (jour habituel). Vous pouvez la fermer exceptionnellement.</p>
+        <p class="acal-help">La boutique est ouverte ce jour-là (jour habituel).</p>
+        <p class="acal-help"><strong>Horaires particuliers ce jour-là</strong> (ex. journée portes ouvertes) : ils remplacent les horaires habituels sur le site, dans le bandeau et dans le calendrier.</p>
+        <label class="acal-label">Mention (facultatif)</label>
+        <input class="acal-input" v-model="form.extraLabel" placeholder="Ex : Journée portes ouvertes" />
+        <label class="acal-label">Horaires ce jour-là</label>
+        <input class="acal-input" v-model="form.horaires" placeholder="Ex : 10h – 18h30" />
+        <div class="acal-actions">
+          <button class="acal-btn primary" @click="saveDayHours" :disabled="busy || !dayHoursChanged">Enregistrer les horaires</button>
+          <button class="acal-btn" v-if="current.extra" @click="removeExtra" :disabled="busy">Remettre les horaires habituels</button>
+        </div>
+        <hr class="acal-sep" />
+        <p class="acal-help">Ou fermer la boutique ce jour-là :</p>
         <label class="acal-label">Motif affiché sur le site</label>
         <input class="acal-input" v-model="form.label" placeholder="Ex : Jour férié, congés…" @keyup.enter="closeDay" />
         <div class="acal-actions">
@@ -116,7 +127,7 @@ const offset = ref(0)
 const selected = ref(null)
 const busy = ref(false)
 const error = ref('')
-const form = ref({ label: '', horaires: '' })
+const form = ref({ label: '', horaires: '', extraLabel: '' })
 
 const monthStart = computed(() => {
   const t = new Date()
@@ -180,13 +191,29 @@ function select(d) {
 }
 
 // Remplit le formulaire quand on change de jour ou que l'état du jour change
-watch(() => current.value && `${current.value.iso}|${current.value.state}`, () => {
+watch(() => current.value && `${current.value.iso}|${current.value.state}|${current.value.extra?.horaires || ''}|${current.value.extra?.label || ''}`, () => {
   const d = current.value
   error.value = ''
   if (!d) return
   if (d.state === 'closed') form.value = { label: d.closure?.label || '', horaires: '' }
   else if (d.state === 'extra') form.value = { label: extraMotif(d.extra?.label), horaires: d.extra?.horaires || '' }
+  else if (d.state === 'open') form.value = { label: '', horaires: d.extra?.horaires || '', extraLabel: extraMotif(d.extra?.label) }
   else form.value = { label: '', horaires: '' }
+})
+
+// Jour habituel avec horaires particuliers : une « ouverture exceptionnelle » posée sur la même date
+const dayHoursChanged = computed(() => {
+  const d = current.value
+  if (!d || d.state !== 'open') return false
+  const e = d.extra
+  const label = (form.value.extraLabel || '').trim(), horaires = (form.value.horaires || '').trim()
+  return e ? (label !== extraMotif(e.label) || horaires !== (e.horaires || '')) : !!(label || horaires)
+})
+const saveDayHours = () => run(() => {
+  const data = { date: current.value.iso, label: (form.value.extraLabel || '').trim(), horaires: (form.value.horaires || '').trim() }
+  return current.value.extra
+    ? setDoc(doc(db, 'ouvertures_exceptionnelles', current.value.extra.id), data)
+    : addDoc(collection(db, 'ouvertures_exceptionnelles'), data)
 })
 
 const extraChanged = computed(() => {
@@ -230,6 +257,7 @@ const removeExtra = () => run(() => deleteDoc(doc(db, 'ouvertures_exceptionnelle
 </script>
 
 <style scoped>
+.acal-sep { border: 0; border-top: 1px solid #eee; margin: 14px 0 8px; }
 .acal { background: #fff; border: 1px solid #e3e8e8; border-radius: 14px; padding: 16px; max-width: 560px; }
 .acal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
 .acal-month { margin: 0; text-transform: capitalize; color: var(--primary-teal); font-size: 1.15em; }

@@ -54,11 +54,11 @@ const props = defineProps({
 
 // Menu par défaut (si /menu.json ne répond pas) : le même que sur le site Bras Ouverts.
 const liens = ref([
-  { label: 'Découvrir l’association', url: '/#deux-cotes' },
-  { label: 'La P’tite Boutik', url: '/boutik/' },
-  { label: 'Maraude', url: '/#maraudes' },
+  { label: 'Accueil', url: '/#accueil' },
+  { label: 'Découvrir l’association', url: '/#tendre-la-main' },
   { label: 'Agenda', url: '/#agenda' },
   { label: 'Contact', url: '/#contact' },
+  { label: 'La P’tite Boutik', url: '/boutik/' },
 ])
 const lien = (url) => (url.startsWith('/') && !url.startsWith('//') ? ASSO + url : url)
 const estBoutik = (url) => url.replace(/\/+$/, '') === BASE.replace(/\/+$/, '')

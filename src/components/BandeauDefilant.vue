@@ -6,7 +6,7 @@
       <span class="piste">
         <span class="seg" v-for="n in 3" :key="n">
           <template v-if="openToday"><span class="point"></span><b>Ouvert aujourd'hui</b>&nbsp;· {{ todayHoraires || plage }}</template>
-          <template v-else-if="nextOpening"><span class="point"></span>Prochaine ouverture :&nbsp;<b>{{ nextOpening }}</b>&nbsp;· {{ plage }}</template>
+          <template v-else-if="nextOpening"><span class="point"></span>Prochaine ouverture :&nbsp;<b>{{ nextOpening }}</b>&nbsp;· {{ nextHoraires || plage }}<template v-if="nextMotif">&nbsp;· {{ nextMotif }}</template></template>
           <template v-if="annonce"><span class="sep">✦</span>{{ annonce }}</template>
           <span class="sep">✦</span>
         </span>
@@ -23,7 +23,7 @@ import { useOpeningStatus } from '../composables/useOpeningStatus.js'
 
 defineProps({ prefix: { type: String, default: '' } })
 
-const { openToday, todayHoraires, nextOpening, plage } = useOpeningStatus()
+const { openToday, todayHoraires, nextOpening, nextHoraires, nextMotif, plage } = useOpeningStatus()
 
 // actu.bandeau === false (admin, onglet Actualités) : pas de bandeau du tout.
 const actu = ref({ visible: false, titre: '', message: '', defilant: true, bandeau: true })
@@ -33,7 +33,7 @@ const annonce = computed(() => {
 })
 const ouverture = computed(() => openToday.value
   ? `Ouvert aujourd'hui · ${todayHoraires.value || plage.value}`
-  : nextOpening.value ? `Prochaine ouverture : ${nextOpening.value} · ${plage.value}` : '')
+  : nextOpening.value ? `Prochaine ouverture : ${nextOpening.value} · ${nextHoraires.value || plage.value}${nextMotif.value ? ` · ${nextMotif.value}` : ''}` : '')
 const texte = computed(() => [ouverture.value, annonce.value].filter(Boolean).join(' — '))
 
 let stop = null
@@ -46,9 +46,9 @@ onUnmounted(() => { if (stop) stop() })
 </script>
 
 <style scoped>
-.bandeau { display: block; overflow: hidden; text-decoration: none; background: var(--bandeau, #0b524d); color: var(--bandeau-ink, #fff); border-top: 1px solid var(--line); font-size: 1.12rem; font-weight: 600; }
-/* Couleur plus foncée par défaut (turquoise profond, texte blanc) ; --bandeau : couleur choisie dans l'admin (couleursPerso.js). */
-.bandeau.ouvert { background: var(--bandeau, #0a4a45); color: var(--bandeau-ink, #fff); }
+.bandeau { display: block; overflow: hidden; text-decoration: none; background: var(--bandeau, var(--accent)); color: var(--bandeau-ink, var(--accent-ink)); border-top: 1px solid var(--line); font-size: 1.12rem; font-weight: 600; }
+/* Par défaut : la couleur de la pastille « Solidaire » du titre (--accent) ; --bandeau : couleur choisie dans l'admin (couleursPerso.js). */
+.bandeau.ouvert { background: var(--bandeau, var(--accent)); color: var(--bandeau-ink, var(--accent-ink)); }
 .masque { display: block; overflow: hidden; white-space: nowrap; }
 .piste { display: inline-flex; align-items: center; padding: 14px 0; animation: defile 30s linear infinite; will-change: transform; }
 .bandeau:hover .piste, .bandeau:focus-visible .piste { animation-play-state: paused; }

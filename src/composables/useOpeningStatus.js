@@ -46,12 +46,16 @@ export function useOpeningStatus() {
   const openToday = computed(() => !!todayEntry.value)
   const todayHoraires = computed(() => todayEntry.value?.horaires || '')
 
-  const nextDate = computed(() => openDates.value.find(d => d.iso !== todayIso())?.date || null)
+  const nextEntry = computed(() => openDates.value.find(d => d.iso !== todayIso()) || null)
+  const nextDate = computed(() => nextEntry.value?.date || null)
+  // Horaires particuliers de la prochaine ouverture (ex. journée portes ouvertes) : sinon les horaires habituels
+  const nextHoraires = computed(() => nextEntry.value?.horaires || '')
+  const nextMotif = computed(() => nextEntry.value?.motif || '')
   const nextOpening = computed(() =>
     nextDate.value
       ? nextDate.value.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
       : ''
   )
 
-  return { openToday, todayHoraires, nextOpening, nextDate, plage, titre, dates, regles, closures, extras }
+  return { openToday, todayHoraires, nextOpening, nextDate, nextHoraires, nextMotif, plage, titre, dates, regles, closures, extras }
 }
