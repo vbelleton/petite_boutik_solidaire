@@ -64,6 +64,9 @@ const isVisible = (id) => {
   return blocs.value[id].visible !== false
 }
 
+// La galerie de la boutique se place à côté de « À propos » quand les deux sont visibles.
+const galerieAcote = computed(() => isVisible('about') && isVisible('boutique-gallery') && blocOrder.value.includes('about'))
+
 const isInNav = (id) => {
   if (blocs.value[id] === undefined) return true
   return blocs.value[id].showInNav !== false
@@ -145,8 +148,14 @@ onMounted(() => {
 
     <main id="contenu" tabindex="-1">
     <template v-for="id in blocOrder" :key="id">
-      <About         v-if="id === 'about'            && isVisible('about')"             id="about" :data-lab="KICKERS['about']" />
-      <BoutiqueGallery v-if="id === 'boutique-gallery' && isVisible('boutique-gallery')" id="boutique-gallery" :data-lab="KICKERS['boutique-gallery']" />
+      <!-- « À propos » et la galerie de la boutique côte à côte (l'une sous l'autre sur téléphone) -->
+      <div           v-if="id === 'about'            && isVisible('about')"             id="about" class="duo" :data-lab="KICKERS['about']">
+        <div class="duo-grille" :class="{ seul: !galerieAcote }">
+          <About />
+          <BoutiqueGallery v-if="galerieAcote" id="boutique-gallery" class="duo-galerie" />
+        </div>
+      </div>
+      <BoutiqueGallery v-if="id === 'boutique-gallery' && isVisible('boutique-gallery') && !galerieAcote" id="boutique-gallery" :data-lab="KICKERS['boutique-gallery']" />
       <Products      v-if="id === 'collection'       && isVisible('collection')"        id="collection" :data-lab="KICKERS['collection']" />
       <GalleryTeaser v-if="id === 'carousel'         && isVisible('carousel')"          id="carousel" :data-lab="KICKERS['carousel']" />
       <FouilleGallery v-if="id === 'fouille'          && isVisible('fouille')"           id="fouille" />
@@ -188,6 +197,13 @@ body.site {
 .pied-mentions { margin: 0; padding: 18px 20px 28px; text-align: center; border-top: 1px solid var(--line); }
 .pied-mentions button { background: none; border: 0; padding: 4px 8px; font: inherit; font-size: 0.88rem; color: var(--muted); text-decoration: underline; cursor: pointer; }
 .pied-mentions button:hover { color: var(--ink); }
+
+/* À propos + galerie côte à côte */
+.duo-grille { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: clamp(24px, 4vw, 56px); align-items: start; }
+.duo-grille.seul { grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 860px) { .duo-grille { grid-template-columns: minmax(0, 1fr); } }
+.duo-grille .duo-galerie.carousel-container { margin: 0; scroll-margin-top: 110px; }
+.duo-grille .duo-galerie .slide-image { height: min(52vh, 420px); }
 
 /* ensure container expands so footer sticks to bottom reliably */
 .container { flex: 1 0 auto }
