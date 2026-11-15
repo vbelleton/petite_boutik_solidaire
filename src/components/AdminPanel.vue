@@ -21,7 +21,7 @@
         <div class="login-logo">🚫</div>
         <h1>Accès refusé</h1>
         <p>{{ user.email }} n'est pas autorisé à accéder à cette interface.</p>
-        <!-- Demande d'accès : e-mail à l'association (même adresse que le formulaire de contact) -->
+        <!-- Demande d'accès : e-mail à l'Association (même adresse que le formulaire de contact) -->
         <button v-if="!demande.envoyee" class="btn-demande" @click="demanderAcces" :disabled="demande.enCours">
           ✉️ {{ demande.enCours ? 'Envoi…' : "Demander l'accès" }}
         </button>
@@ -1084,7 +1084,7 @@ const siteBlocs = ref([
     desc: 'Adresse, téléphone, lien Google Maps, encart « Nous écrire »',
     fields: [
       { id: 'contact_titre', label: 'Titre de section', multiline: false, default: 'Nous trouver et nous écrire' },
-      { id: 'contact_ecrire', label: 'Texte de l’encart « Nous écrire »', multiline: true, riche: true, default: 'Une question sur la boutique ou un don ? Laissez-nous un message : nous répondons à tous les messages.' },
+      { id: 'contact_ecrire', label: 'Texte de l’encart « Nous écrire »', multiline: true, riche: true, default: 'Une question sur la boutique ou un don ? Laissez-nous un message.' },
       { id: 'contact_address', label: 'Adresse', multiline: false, default: '2 rue Jean-Monnet, 29600 Morlaix' },
       { id: 'contact_phone', label: 'Téléphone (affichage)', multiline: false, default: '06 20 70 54 96' },
       { id: 'contact_phone_raw', label: 'Téléphone (pour lien tel:)', multiline: false, default: '0620705496' },
@@ -1801,7 +1801,7 @@ const login = async () => {
 const logout = () => signOut(auth)
 
 // « Demander l'accès » : la demande part par le site Bras Ouverts (/api/demande-acces), qui vérifie
-// l'identité Google et prévient l'association par e-mail. Personne n'est ajouté automatiquement.
+// l'identité Google et prévient l'Association par e-mail. Personne n'est ajouté automatiquement.
 const demande = ref({ enCours: false, envoyee: false, message: '' })
 const URL_DEMANDE = /(^|\.)petite-boutik-solidaire\.pages\.dev$|^localhost$|^127\./.test(window.location.hostname)
   ? 'https://bras-ouverts.pages.dev/api/demande-acces'
@@ -1817,9 +1817,9 @@ const demanderAcces = async () => {
     })
     const data = await res.json().catch(() => ({}))
     if (!res.ok || !data.ok) throw new Error(data.error || '')
-    demande.value = { enCours: false, envoyee: true, message: "Demande envoyée à l'association. Vous aurez accès dès qu'un admin vous aura ajouté : reconnectez-vous alors." }
+    demande.value = { enCours: false, envoyee: true, message: "Demande envoyée à l'Association. Vous aurez accès dès qu'un admin vous aura ajouté : reconnectez-vous alors." }
   } catch (e) {
-    demande.value = { enCours: false, envoyee: false, message: e?.message || "La demande n'a pas pu partir. Réessayez plus tard, ou contactez l'association." }
+    demande.value = { enCours: false, envoyee: false, message: e?.message || "La demande n'a pas pu partir. Réessayez plus tard, ou contactez l'Association." }
   }
 }
 

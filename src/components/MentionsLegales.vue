@@ -27,7 +27,7 @@ Siège social : 2 rue Jean‑Monnet, 29600 Morlaix<br>
 Téléphone : 06 20 70 54 96</p>
 
 <p><strong>Association loi 1901 à but non lucratif.</strong><br>
-L’association ne perçoit pas de subventions publiques et n’emploie pas de salariés.<br>
+L’Association ne perçoit pas de subventions publiques et n’emploie pas de salariés.<br>
 Elle n’exerce aucune activité nécessitant un numéro SIRET ou des obligations fiscales spécifiques.</p>
 
 <p><strong>Responsable de la publication</strong><br>
@@ -40,13 +40,13 @@ Cloudflare, Inc.<br>
 Site : <a href="https://www.cloudflare.com" target="_blank" rel="noopener">https://www.cloudflare.com</a></p>
 
 <p><strong>Propriété intellectuelle</strong><br>
-Les contenus présents sur ce site (textes, images, logos, photographies) sont la propriété de l’association ou de leurs auteurs. Toute reproduction, distribution ou modification nécessite une autorisation préalable.</p>
+Les contenus présents sur ce site (textes, images, logos, photographies) sont la propriété de l’Association ou de leurs auteurs. Toute reproduction, distribution ou modification nécessite une autorisation préalable.</p>
 
 <p><strong>Protection des données</strong><br>
 Le site ne collecte aucune donnée personnelle. Aucune information n’est transmise ou vendue à des tiers.</p>
 
 <p><strong>Responsabilité</strong><br>
-L’association s’efforce de fournir des informations exactes et à jour. Elle ne saurait être tenue responsable en cas d’erreur, d’omission ou d’indisponibilité du site.</p>
+L’Association s’efforce de fournir des informations exactes et à jour. Elle ne saurait être tenue responsable en cas d’erreur, d’omission ou d’indisponibilité du site.</p>
 `)
 
 // Listen for admin-managed textes in Firestore
