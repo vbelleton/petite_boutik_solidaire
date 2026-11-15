@@ -46,19 +46,19 @@ onUnmounted(() => { if (stop) stop() })
 </script>
 
 <style scoped>
-.bandeau { display: block; overflow: hidden; text-decoration: none; background: var(--bandeau, var(--lagon-doux)); color: var(--bandeau-ink, var(--ink)); border-top: 1px solid var(--line); font-size: 0.88rem; font-weight: 600; }
-/* --bandeau : couleur choisie dans l'admin (couleursPerso.js), thème clair seulement */
-.bandeau.ouvert { background: var(--bandeau, var(--accent)); color: var(--bandeau-ink, var(--accent-ink)); }
+.bandeau { display: block; overflow: hidden; text-decoration: none; background: var(--bandeau, #0b524d); color: var(--bandeau-ink, #fff); border-top: 1px solid var(--line); font-size: 1.12rem; font-weight: 600; }
+/* Couleur plus foncée par défaut (turquoise profond, texte blanc) ; --bandeau : couleur choisie dans l'admin (couleursPerso.js). */
+.bandeau.ouvert { background: var(--bandeau, #0a4a45); color: var(--bandeau-ink, #fff); }
 .masque { display: block; overflow: hidden; white-space: nowrap; }
-.piste { display: inline-flex; align-items: center; padding: 6px 0; animation: defile 30s linear infinite; will-change: transform; }
+.piste { display: inline-flex; align-items: center; padding: 14px 0; animation: defile 30s linear infinite; will-change: transform; }
 .bandeau:hover .piste, .bandeau:focus-visible .piste { animation-play-state: paused; }
 .seg { display: inline-flex; align-items: center; }
 .seg b { font-weight: 800; }
 .sep { margin: 0 18px; opacity: 0.55; }
-.point { width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; flex-shrink: 0; background: currentColor; }
+.point { width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; flex-shrink: 0; background: currentColor; }
 .bandeau.ouvert .point { animation: pouls 1.7s infinite; }
 @keyframes defile { from { transform: translateX(0); } to { transform: translateX(-33.333%); } }
-@keyframes pouls { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 70%, transparent); } 70%, 100% { box-shadow: 0 0 0 8px transparent; } }
+@keyframes pouls { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 70%, transparent); } 70%, 100% { box-shadow: 0 0 0 9px transparent; } }
 @media (prefers-reduced-motion: reduce) {
   .piste { animation: none; padding-left: 20px; }
   .bandeau.ouvert .point { animation: none; }

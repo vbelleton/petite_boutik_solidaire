@@ -3,7 +3,7 @@
     <div class="teaser-head">
       <div>
         <h2>Galerie photos</h2>
-        <p class="teaser-sub">La boutique et quelques articles arrivés récemment.</p>
+        <p class="teaser-sub">{{ articlesVisibles ? 'La boutique et quelques articles arrivés récemment.' : 'La boutique en images.' }}</p>
       </div>
       <a :href="lienGalerie" class="btn">Voir toute la galerie<span v-if="total"> ({{ total }} photos)</span> →</a>
     </div>
@@ -23,16 +23,20 @@ import { computed } from 'vue'
 import { usePhotos } from '../composables/usePhotos.js'
 import { isBoutique, isArticles } from '../composables/photoGallery.js'
 import { BASE, chemin, imageDeSecours } from '../chemin.js'
+import { useTextes } from '../composables/useTextes.js'
 
 // Aperçu de la galerie sur l'accueil : quelques photos, la galerie complète a sa propre page (/boutik/galerie).
 const photos = usePhotos()
+// Photos d'articles (vêtements seuls) : masquées par défaut, case dans l'admin (Galerie photos). Rien n'est supprimé.
+const textes = useTextes()
+const articlesVisibles = computed(() => textes.value.galerie_articles === true)
 const lienGalerie = BASE + 'galerie'
 const actives = computed(() => photos.value.filter(p => p.active && p.url))
-const total = computed(() => actives.value.filter(p => isBoutique(p) || isArticles(p)).length)
+const total = computed(() => actives.value.filter(p => isBoutique(p) || (articlesVisibles.value && isArticles(p))).length)
 // Photos de la boutique d'abord (les plus récentes), puis des articles : 5 en tout.
 const apercu = computed(() => {
   const recent = (l) => [...l].reverse()
-  return [...recent(actives.value.filter(isBoutique)), ...recent(actives.value.filter(isArticles))].slice(0, 5)
+  return [...recent(actives.value.filter(isBoutique)), ...(articlesVisibles.value ? recent(actives.value.filter(isArticles)) : [])].slice(0, 5)
 })
 </script>
 

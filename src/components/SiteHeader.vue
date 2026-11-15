@@ -62,12 +62,19 @@ const titreParts = computed(() => {
 .header-text h1 {
   font-size: clamp(2.3rem, 7vw, 4.4rem);
   letter-spacing: -0.02em;
-  max-width: 14ch;
+  max-width: 16ch;
   color: var(--ink);
 }
 .header-text h1 em {
+  /* « Solidaire » comme sur le logo : mot blanc dans une pastille turquoise */
+  display: inline-block;
   font-style: italic;
-  color: var(--corail);
+  color: var(--accent-ink);
+  background: var(--accent);
+  padding: 0.02em 0.32em 0.1em;
+  border-radius: 0.28em;
+  transform: rotate(-2deg);
+  margin-left: 0.04em;
 }
 
 .statut {
@@ -93,7 +100,7 @@ const titreParts = computed(() => {
    Taille mesurée : grand sur ordinateur, raisonnable sur téléphone. */
 .logo {
   flex: none;
-  width: clamp(150px, 20vw, 260px);
+  width: clamp(170px, 30vw, 440px); /* le logo prend la place laissée par le titre */
   height: auto;
   object-fit: contain;
   mix-blend-mode: multiply;
@@ -114,6 +121,6 @@ const titreParts = computed(() => {
   .header-text h1 { grid-column: 1; grid-row: 2; }
   .logo { grid-column: 2; grid-row: 2; }
   .statut { grid-column: 1 / -1; grid-row: 3; display: flex; width: 100%; }
-  .logo { width: 120px; }
+  .logo { width: 150px; }
 }
 </style>

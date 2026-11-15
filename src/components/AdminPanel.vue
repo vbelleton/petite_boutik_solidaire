@@ -344,8 +344,23 @@
               <div class="form-block" v-for="field in bloc.fields" :key="field.id">
                 <label>{{ field.label }}</label>
 
-                <!-- Toggle -->
-                <label v-if="field.type === 'toggle'" class="inline-toggle">
+                <!-- Favicon : image de l'onglet du navigateur -->
+                <div v-if="field.type === 'favicon'" class="favicon-editor">
+                  <select v-model="textesValues.favicon_choix" class="input-select">
+                    <option value="boutik">Logo de la P'tite Boutik (propre à la boutique)</option>
+                    <option value="brasouverts">Étoile Bras Ouverts (même icône que le site Bras Ouverts)</option>
+                    <option value="perso">Mon image</option>
+                  </select>
+                  <div v-if="textesValues.favicon_choix === 'perso'" class="favicon-perso">
+                    <input type="file" accept="image/*" @change="onFaviconFile" />
+                    <span v-if="faviconBusy">Envoi…</span>
+                    <span v-if="faviconErr" class="autosave-msg error">{{ faviconErr }}</span>
+                    <img v-if="textesValues.favicon_url" :src="textesValues.favicon_url" alt="Aperçu du favicon" width="48" height="48" style="border-radius:8px;border:1px solid #ddd;object-fit:contain" />
+                  </div>
+                  <small style="color:#777">Image carrée et en couleur conseillée (au moins 128 px). Le changement apparaît à la prochaine ouverture du site.</small>
+                </div>
+                
+                <label v-else-if="field.type === 'toggle'" class="inline-toggle">
                   <input type="checkbox" :checked="textesValues[field.id] !== false && textesValues[field.id] !== 'false'" @change="e => textesValues[field.id] = e.target.checked" />
                   <span class="toggle-track"><span class="toggle-thumb"></span></span>
                   <span class="toggle-text">{{ (textesValues[field.id] !== false && textesValues[field.id] !== 'false') ? 'Visible' : 'Masqué' }}</span>
@@ -353,7 +368,7 @@
 
                 <!-- Color picker -->
                 <div v-else-if="field.type === 'color'" class="color-input-row">
-                  <input type="color" :value="textesValues[field.id] || (field.id === 'couleur_fond' ? '#f6efe3' : field.id === 'couleur_texte' ? '#1f2a3a' : field.id === 'couleur_bandeau' ? '#d9efec' : '#000000')" @input="e => { textesValues[field.id] = e.target.value; onFieldEdited(field.id) }" class="input-color" />
+                  <input type="color" :value="textesValues[field.id] || (field.id === 'couleur_fond' ? '#f6efe3' : field.id === 'couleur_texte' ? '#1f2a3a' : field.id === 'couleur_bandeau' ? '#0b524d' : '#000000')" @input="e => { textesValues[field.id] = e.target.value; onFieldEdited(field.id) }" class="input-color" />
                   <input type="text" v-model="textesValues[field.id]" class="input-text" placeholder="#000000" style="width:110px;flex:none" @input="onFieldEdited(field.id)" />
                   <button v-if="field.id.startsWith('couleur_') && textesValues[field.id]" type="button" class="btn-add-regle" @click="textesValues[field.id] = ''">Couleur d'origine</button>
                   <div class="color-palette">
@@ -955,7 +970,10 @@ const loadBlocs = () => {
   // Header
   header_titre: '',
   header_tagline: '',
+  favicon_choix: 'boutik',
+  favicon_url: '',
   couleur_fond: '',
+  galerie_articles: false,
   couleur_texte: '',
   couleur_bandeau: '',
   // Hero dégradé
@@ -1009,6 +1027,7 @@ const siteBlocs = ref([
     fields: [
       { id: 'header_titre', label: 'Titre principal', multiline: false, default: 'La P\'tite Boutik Solidaire' },
       { id: 'header_tagline', label: 'Sous-titre', multiline: false, default: 'Association Bras Ouverts de Morlaix' },
+      { id: 'favicon_choix', label: 'Favicon (petite icône de l’onglet du navigateur)', type: 'favicon', default: 'boutik' },
       // Couleurs (thème clair ; vide = couleur d'origine)
       { id: 'couleur_fond', label: 'Couleur du fond de la page', type: 'color', default: '' },
       { id: 'couleur_texte', label: 'Couleur des textes', type: 'color', default: '' },
@@ -1027,8 +1046,10 @@ const siteBlocs = ref([
   },
   {
     id: 'carousel', icon: '🖼️', label: 'Galerie photos', open: false, saved: false,
-    desc: 'Carrousel de photos (gérez les photos dans Galeries)',
-    fields: []
+    desc: 'Photos de la boutique en aperçu (gérez les photos dans Galeries)',
+    fields: [
+      { id: 'galerie_articles', label: "Afficher aussi les photos d'articles (vêtements seuls)", type: 'toggle', default: false },
+    ]
   },
   {
     id: 'collection', icon: '🏷️', label: 'Ce que nous proposons', open: false, saved: false,
@@ -1121,6 +1142,18 @@ const loadTextes = () => {
     }
     textesAutoSave.markSaved()
   })
+}
+
+// Favicon personnalisé : envoyé comme les autres images, l'adresse est enregistrée dans config/textes.
+const faviconBusy = ref(false)
+const faviconErr = ref('')
+const onFaviconFile = async (e) => {
+  const f = e.target.files && e.target.files[0]
+  if (!f) return
+  faviconBusy.value = true; faviconErr.value = ''
+  try { textesValues.value.favicon_url = await uploadToWorker(f) }
+  catch (err) { console.warn('upload favicon error', err); faviconErr.value = "L'image n'a pas pu être envoyée. Réessayez." }
+  finally { faviconBusy.value = false }
 }
 
 const onRecognitionFileChange = async (e, idx) => {
