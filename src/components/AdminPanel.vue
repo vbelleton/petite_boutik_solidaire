@@ -353,6 +353,7 @@
                   </select>
                   <div v-if="textesValues.favicon_choix === 'perso'" class="favicon-perso">
                     <input type="file" accept="image/*" @change="onFaviconFile" />
+                    <RecadrageImage v-if="faviconAcadrer" :fichier="faviconAcadrer" @valide="envoyerFavicon" @annule="faviconAcadrer = null" />
                     <span v-if="faviconBusy">Envoi…</span>
                     <span v-if="faviconErr" class="autosave-msg error">{{ faviconErr }}</span>
                     <img v-if="textesValues.favicon_url" :src="textesValues.favicon_url" alt="Aperçu du favicon" width="48" height="48" style="border-radius:8px;border:1px solid #ddd;object-fit:contain" />
@@ -368,7 +369,7 @@
 
                 <!-- Color picker -->
                 <div v-else-if="field.type === 'color'" class="color-input-row">
-                  <input type="color" :value="textesValues[field.id] || (field.id === 'couleur_fond' ? '#f6efe3' : field.id === 'couleur_texte' ? '#1f2a3a' : field.id === 'couleur_bandeau' ? '#0b524d' : '#000000')" @input="e => { textesValues[field.id] = e.target.value; onFieldEdited(field.id) }" class="input-color" />
+                  <input type="color" :value="textesValues[field.id] || (field.id === 'couleur_fond' ? '#f6efe3' : field.id === 'couleur_texte' ? '#1f2a3a' : field.id === 'couleur_bandeau' ? '#0f6e67' : '#000000')" @input="e => { textesValues[field.id] = e.target.value; onFieldEdited(field.id) }" class="input-color" />
                   <input type="text" v-model="textesValues[field.id]" class="input-text" placeholder="#000000" style="width:110px;flex:none" @input="onFieldEdited(field.id)" />
                   <button v-if="field.id.startsWith('couleur_') && textesValues[field.id]" type="button" class="btn-add-regle" @click="textesValues[field.id] = ''">Couleur d'origine</button>
                   <div class="color-palette">
@@ -735,6 +736,7 @@ import { HERO_PRESETS, heroBackground } from '../composables/heroGradient.js'
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import PhotoEraser from './PhotoEraser.vue'
 import EditeurTexte from './EditeurTexte.vue'
+import RecadrageImage from './RecadrageImage.vue'
 import AdminCalendar from './AdminCalendar.vue'
 import { removeBackground } from '@imgly/background-removal'
 import { effectiveGallery } from '../composables/photoGallery.js'
@@ -1031,7 +1033,7 @@ const siteBlocs = ref([
       // Couleurs (thème clair ; vide = couleur d'origine)
       { id: 'couleur_fond', label: 'Couleur du fond de la page', type: 'color', default: '' },
       { id: 'couleur_texte', label: 'Couleur des textes', type: 'color', default: '' },
-      { id: 'couleur_bandeau', label: 'Couleur du bandeau défilant', type: 'color', default: '' },
+      { id: 'couleur_bandeau', label: 'Couleur du bandeau défilant (par défaut : turquoise de « Solidaire » dans le titre)', type: 'color', default: '' },
       // Mentions légales (lien discret en bas de page)
       { id: 'mentions_title', label: 'Mentions légales — titre', multiline: false, default: '✅ Mentions légales – La P’tite Boutik Solidaire' },
       { id: 'mentions_content', label: 'Mentions légales — contenu', multiline: true, riche: true, default: '' },
@@ -1147,11 +1149,19 @@ const loadTextes = () => {
 // Favicon personnalisé : envoyé comme les autres images, l'adresse est enregistrée dans config/textes.
 const faviconBusy = ref(false)
 const faviconErr = ref('')
-const onFaviconFile = async (e) => {
+const faviconAcadrer = ref(null)
+const onFaviconFile = (e) => {
   const f = e.target.files && e.target.files[0]
-  if (!f) return
+  e.target.value = ''
+  faviconErr.value = ''
+  faviconAcadrer.value = f && /^image\/(png|jpeg|webp|avif)$/i.test(f.type) ? f : null
+  if (f && !faviconAcadrer.value) faviconErr.value = 'Format non pris en charge : utilisez une image PNG, JPEG ou WebP.'
+}
+// Image recadrée (carré 256 px) : envoyée comme les autres images, l'adresse est enregistrée dans config/textes.
+const envoyerFavicon = async (fichier) => {
+  faviconAcadrer.value = null
   faviconBusy.value = true; faviconErr.value = ''
-  try { textesValues.value.favicon_url = await uploadToWorker(f) }
+  try { textesValues.value.favicon_url = await uploadToWorker(fichier) }
   catch (err) { console.warn('upload favicon error', err); faviconErr.value = "L'image n'a pas pu être envoyée. Réessayez." }
   finally { faviconBusy.value = false }
 }
