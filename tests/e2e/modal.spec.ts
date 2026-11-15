@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test'
 test.describe('Modal et galerie', () => {
 
   test.beforeEach(async ({ page }) => {
-    await page.goto('/')
+    await page.goto('/boutik/galerie')
   })
 
   function hasSlides(page) {

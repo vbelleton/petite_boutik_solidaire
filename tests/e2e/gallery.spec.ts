@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 
 test.describe('Public Gallery E2E', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/')
+    await page.goto('/boutik/galerie')
   })
 
   test('page loads with correct title', async ({ page }) => {

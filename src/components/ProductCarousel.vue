@@ -42,7 +42,7 @@
     >
       <swiper-slide v-for="(img, idx) in images" :key="idx">
         <div class="slide-frame" @click="openModal(idx)">
-          <img :src="img.src" :alt="img.alt" class="slide-image" :fetchpriority="idx === 0 ? 'high' : 'auto'" loading="lazy" decoding="async" width="600" height="500" @error="imageDeSecours($event)" />
+          <img :src="img.src" :alt="img.alt" class="slide-image" :fetchpriority="idx === 0 ? 'high' : 'auto'" :loading="idx === 0 ? 'eager' : 'lazy'" decoding="async" width="600" height="500" @error="imageDeSecours($event)" />
         </div>
       </swiper-slide>
     </swiper>
@@ -528,24 +528,24 @@ function preloadImage(src) {
 function preloadAdjacent(idx, list) {
   if (!list || !list.length) return
   const n = list.length
-  for (const offset of [1, 2, -1, -2]) {
+  for (const offset of [1, -1]) {
     const i = (idx + offset + n) % n
     if (list[i]?.fullSrc) preloadImage(list[i].fullSrc)
   }
 }
 
-// preload first N images when photos load
+// Préchargement au chargement de la page : seulement les deux premières photos du diaporama, telles
+// qu'affichées, et une seule fois. Les photos d'origine (vue en grand) ne sont demandées qu'à l'ouverture
+// de la vue en grand : chaque photo est servie par le Worker de la boutique, et chaque demande compte
+// dans le quota Cloudflare du compte (100 000 par jour, partagé avec les autres sites).
+let dejaPrecharge = false
 watch(dynamicPhotos, (photos) => {
-  if (photos.length > 0) {
-    // small delay to not block rendering
-    setTimeout(() => {
-      const imgs = images.value || []
-      for (let i = 0; i < Math.min(imgs.length, 4); i++) {
-        preloadImage(imgs[i]?.src)
-        if (imgs[i]?.fullSrc) preloadImage(imgs[i].fullSrc)
-      }
-    }, 200)
-  }
+  if (dejaPrecharge || !photos.length) return
+  dejaPrecharge = true
+  setTimeout(() => {
+    const imgs = images.value || []
+    for (let i = 0; i < Math.min(imgs.length, 2); i++) preloadImage(imgs[i]?.src)
+  }, 200)
 })
 
 const onSwiper = (swiper) => {
@@ -648,15 +648,11 @@ const onSlideChange = (e) => {
   const s = e && e.realIndex !== undefined ? e : swiperInstance.value
   if (!s) return
   currentIndex.value = typeof s.realIndex !== 'undefined' ? s.realIndex : (typeof s.activeIndex !== 'undefined' ? s.activeIndex : 0)
-  // preload full resolution of current and next slides for modal
+  // Seulement la photo suivante, telle qu'affichée dans le diaporama. Avant, chaque changement de photo
+  // (toutes les 3,5 s) préchargeait aussi les photos d'origine de trois diapositives : laisser la galerie
+  // ouverte téléchargeait tous les originaux en pleine résolution, une demande au Worker chacun.
   const imgs = images.value
-  if (imgs && imgs.length) {
-    const idx = currentIndex.value
-    for (const offset of [0, 1, -1]) {
-      const i = (idx + offset + imgs.length) % imgs.length
-      if (imgs[i]?.fullSrc) preloadImage(imgs[i].fullSrc)
-    }
-  }
+  if (imgs && imgs.length > 1) preloadImage(imgs[(currentIndex.value + 1) % imgs.length]?.src)
 }
 
 </script>

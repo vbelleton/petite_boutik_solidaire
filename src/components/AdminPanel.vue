@@ -254,6 +254,14 @@
           <p class="empty" v-else>{{ dynamicPhotos.length ? 'Aucun résultat.' : 'Aucune photo pour l\'instant.' }}</p>
 
 
+          <!-- Photos envoyées avant l'allègement automatique : les réduire une fois pour toutes -->
+          <div class="upload-block" style="margin-top:24px">
+            <h3>🪶 Alléger les photos déjà en ligne</h3>
+            <p class="section-desc">Les nouvelles photos sont réduites automatiquement avant l'envoi (2000 px au plus). Ce bouton fait de même pour les photos déjà en ligne, une seule fois : la galerie se charge bien plus vite, surtout sur téléphone. Les photos déjà légères ne sont pas touchées.</p>
+            <button class="btn-save" :disabled="allegement.enCours" @click="allegerPhotosExistantes">{{ allegement.enCours ? 'Allègement en cours…' : 'Alléger les photos' }}</button>
+            <p v-if="allegement.message" class="section-desc" role="status" style="margin-top:8px">{{ allegement.message }}</p>
+          </div>
+
           <!-- Zone de danger : suppression massive -->
           <div class="danger-zone">
             <h3>🗑 Zone de danger</h3>
@@ -730,6 +738,7 @@
 
 <script setup>
 import { BASE } from '../chemin.js'
+import { allegerImage } from '../allegerImage.js'
 import { HERO_PRESETS, heroBackground } from '../composables/heroGradient.js'
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import PhotoEraser from './PhotoEraser.vue'
@@ -774,7 +783,7 @@ async function clearBgModelCache() {
 }
 import { signInWithPopup, signInWithRedirect, signOut, onAuthStateChanged, getRedirectResult } from 'firebase/auth'
 import {
-  collection, doc, getDocs, getDoc, addDoc, deleteDoc, setDoc, onSnapshot, query, orderBy
+  collection, doc, getDocs, getDoc, addDoc, deleteDoc, setDoc, updateDoc, onSnapshot, query, orderBy
 } from 'firebase/firestore'
 const STORAGE_WORKER = 'https://petite-boutik-storage.belletonv.workers.dev'
 
@@ -786,7 +795,9 @@ async function authHeaders() {
 
 async function uploadToWorker(file) {
   const formData = new FormData()
-  const f = file instanceof File ? file : new File([file], 'image.png', { type: file.type || 'image/png' })
+  const brut = file instanceof File ? file : new File([file], 'image.png', { type: file.type || 'image/png' })
+  // Photo allégée avant l'envoi (≤ 2000 px, JPEG ou WebP) : la galerie charge bien plus vite
+  const f = await allegerImage(brut)
   formData.append('file', f)
   const res = await fetch(`${STORAGE_WORKER}/upload`, { method: 'POST', body: formData, headers: await authHeaders() })
   if (!res.ok) throw new Error(`Upload failed: ${res.status}`)
@@ -1343,6 +1354,55 @@ const onTagSave = async (photo) => {
   await setDoc(doc(db, 'photos', raw.id), { ...raw, tags })
 }
 
+// Allègement des photos déjà en ligne : télécharge chaque photo (et son original), la réduit comme à l'envoi,
+// renvoie la version allégée, met à jour la fiche puis supprime l'ancien fichier. Une photo déjà légère est
+// laissée telle quelle. Les fichiers sont traités un par un (environ trois demandes au Worker par photo, une seule fois).
+const allegement = ref({ enCours: false, message: '' })
+async function allegerUnFichier(url) {
+  if (!url || !url.startsWith(STORAGE_WORKER + '/files/')) return null
+  const res = await fetch(url, { signal: AbortSignal.timeout(60000) })
+  if (!res.ok) throw new Error(`lecture impossible (${res.status})`)
+  const blob = await res.blob()
+  const brut = new File([blob], url.split('/').pop(), { type: blob.type })
+  const leger = await allegerImage(brut)
+  if (leger === brut) return null
+  return { nouvelle: await uploadToWorker(leger), gain: brut.size - leger.size }
+}
+async function allegerPhotosExistantes() {
+  if (allegement.value.enCours) return
+  if (!confirm('Alléger toutes les photos déjà en ligne ? Cela peut prendre quelques minutes ; gardez cette page ouverte.')) return
+  allegement.value = { enCours: true, message: '' }
+  const liste = [...dynamicPhotos.value]
+  let faites = 0, allegees = 0, erreurs = 0, gain = 0
+  for (const photo of liste) {
+    try {
+      const maj = {}
+      const anciennes = []
+      const u = await allegerUnFichier(photo.url)
+      if (u) { maj.url = u.nouvelle; anciennes.push(photo.url); gain += u.gain }
+      if (photo.originalUrl && photo.originalUrl !== photo.url) {
+        const o = await allegerUnFichier(photo.originalUrl)
+        if (o) { maj.originalUrl = o.nouvelle; anciennes.push(photo.originalUrl); gain += o.gain }
+      }
+      if (Object.keys(maj).length) {
+        await updateDoc(doc(db, 'photos', photo.id), maj)
+        // Ancien fichier supprimé seulement une fois la fiche à jour : rien n'est jamais perdu
+        for (const a of anciennes) await deleteFromWorker(a)
+        allegees++
+      }
+    } catch (e) {
+      erreurs++
+      console.warn('[alléger]', photo.id, e?.message || e)
+    }
+    faites++
+    allegement.value.message = `${faites} / ${liste.length} photos vérifiées…`
+  }
+  allegement.value = {
+    enCours: false,
+    message: `Terminé : ${allegees} photo(s) allégée(s), ${Math.round(gain / 1024 / 1024)} Mo économisés` + (erreurs ? `, ${erreurs} erreur(s) (photos laissées telles quelles)` : '') + '.',
+  }
+}
+
 const mergedPhotos = computed(() =>
   dynamicPhotos.value.map(p => ({
     _key: p.id,
@@ -1473,8 +1533,9 @@ watch(() => upload.value.gallery, (gallery) => {
     }
 
     const processOne = async (i) => {
-      const file = files[i]
-      const alt = upload.value.alts[i] || file.name.replace(/\.[^/.]+$/, '') || 'Photo'
+      // Allégée dès le départ : le détourage travaille aussi sur une image plus petite (bien plus rapide)
+      const file = await allegerImage(files[i])
+      const alt = upload.value.alts[i] || files[i].name.replace(/\.[^/.]+$/, '') || 'Photo'
       let toUpload = file
       let originalUrl = null
 

@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test'
 test.describe('Préchargement images', () => {
 
   test.beforeEach(async ({ page }) => {
-    await page.goto('/')
+    await page.goto('/boutik/galerie')
   })
 
   test('la première image du carrousel a fetchpriority="high"', async ({ page }) => {

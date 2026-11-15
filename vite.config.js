@@ -33,6 +33,12 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
+          // Petits utilitaires communs (chargement différé de Vite, aides CommonJS) : à part. Sinon Rollup les
+          // range dans vendor-admin, et TOUTES les pages publiques (galerie comprise) chargeaient ce fichier de
+          // 880 Ko de l'outil de détourage, réservé à l'admin.
+          if (id.includes('vite/preload-helper') || id.includes('commonjsHelpers') || id.includes('vite/modulepreload-polyfill')) {
+            return 'aides'
+          }
           if (id.includes('@imgly/background-removal') || id.includes('onnxruntime-web')) {
             return 'vendor-admin'
           }
