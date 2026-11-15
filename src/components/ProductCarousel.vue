@@ -3,7 +3,7 @@
     <h2>Galerie photos</h2>
     <p class="subtitle">Cliquez sur une photo pour la voir en grand</p>
     
-    <div class="gallery-filter">
+    <div class="gallery-filter" v-if="articlesVisibles">
       <button
         @click="filter = 'boutique'"
         :class="{ active: filter === 'boutique' }"
@@ -143,6 +143,7 @@ import logoUrl from '@/assets/logo.jpg'
 import Modal from './Modal.vue'
 import { nextTick } from 'vue'
 import { usePhotos } from '../composables/usePhotos.js'
+import { useTextes } from '../composables/useTextes.js'
 
 const modules = [Autoplay, Pagination, Navigation]
 const dynamicPhotos = usePhotos()
@@ -156,6 +157,10 @@ onUnmounted(() => {
 })
 
 const filter = ref('boutique') // 'boutique' | 'articles'
+// Photos d'articles (vêtements seuls) : masquées par défaut (case dans l'admin), rien n'est supprimé.
+const textes = useTextes()
+const articlesVisibles = computed(() => textes.value.galerie_articles === true)
+watch(articlesVisibles, (oui) => { if (!oui) filter.value = 'boutique' }, { immediate: true })
 
 // Vignette = version affichée (détourée pour les articles) ; vue en grand =
 // photo d'origine si elle existe (le détourage peut être imparfait, on montre
@@ -168,7 +173,7 @@ const toImg = (p) => ({ fullSrc: p.originalUrl || p.url, src: p.url, thumb: p.ur
 const baseImages = computed(() =>
   dynamicPhotos.value
     .filter(p => p.active && (
-      filter.value === 'articles'
+      filter.value === 'articles' && articlesVisibles.value
         ? (p.removeBg && isArticles(p))
         : isBoutique(p)
     ))
@@ -177,7 +182,7 @@ const baseImages = computed(() =>
 
 // Grille "Voir toutes" : toutes les photos actives (avec ou sans fond)
 const gridAllImages = computed(() =>
-  dynamicPhotos.value.filter(p => p.active).map(toImg)
+  dynamicPhotos.value.filter(p => p.active && (articlesVisibles.value || !isArticles(p))).map(toImg)
 )
 
 const filterQuery = ref('')
