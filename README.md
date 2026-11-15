@@ -31,6 +31,14 @@ Données Firestore : `config/*` (horaires, textes, actualité, blocs, galeries),
   Variable facultative `ADMIN_EMAILS` (adresses séparées par des virgules) dans Workers → petite-boutik-storage → Settings → Variables.
 - **Règles Firestore** : elles ne sont pas déployées automatiquement. Après une modification de `firestore.rules`, copiez son contenu dans la console Firebase (Firestore Database → Règles → Publier).
 
+
+## Photos et quota Cloudflare
+
+Chaque photo est servie par le Worker `petite-boutik-storage` : chaque demande compte dans les 100 000 appels gratuits par jour **du compte entier** (sites Bras Ouverts et Cieux Ouverts compris). Donc :
+- les photos sont allégées dans le navigateur avant l'envoi (`src/allegerImage.js` : 2000 px au plus, JPEG 82 %, WebP pour les photos détourées) ; les photos plus anciennes s'allègent une fois avec le bouton « Alléger les photos » de l'admin (onglet Galerie, depuis `petite-boutik-solidaire.pages.dev/boutik/admin`, seule adresse acceptée par le Worker) ;
+- la galerie ne précharge que la photo suivante du diaporama ; les photos d'origine ne sont demandées qu'en vue agrandie ;
+- les pages publiques ne chargent jamais `vendor-admin` (outil de détourage, ~880 Ko) : contrôlé au build par `scripts/check-chunks.js`.
+
 ## Application installable (PWA)
 
 Le site peut être ajouté à l'écran d'accueil (Android : « Installer l'application » dans le menu de Chrome ; iPhone : Partager → « Sur l'écran d'accueil »). Le service worker `public/sw.js` demande toujours les pages au réseau d'abord, donc le contenu reste à jour ; le cache ne sert que sans connexion. Les données (Firestore) et les photos (Worker) ne passent jamais par lui, et l'admin n'est pas concerné. Si le comportement du cache doit changer, augmenter `VERSION` dans `sw.js`.

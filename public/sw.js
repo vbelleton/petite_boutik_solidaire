@@ -2,7 +2,7 @@
 // Règle d'or : le contenu doit toujours être à jour. Les pages sont donc demandées au réseau
 // d'abord, et le cache ne sert qu'en secours (pas de réseau). Les données (Firestore, photos
 // du Worker) ne passent jamais par ici.
-const VERSION = 'v2'
+const VERSION = 'v3'
 // Le site vit sous /boutik/ : toutes les adresses partent du dossier de ce fichier.
 const BASE = new URL('./', self.location).pathname
 const SHELL = `ptb-shell-${VERSION}`
@@ -21,7 +21,12 @@ async function trim(cacheName, max) {
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(SHELL).then((c) => c.addAll([BASE, BASE + 'icons/icon-192.png'])).then(() => self.skipWaiting())
+    // Sur le domaine de l'association, l'icône est redirigée vers petite-boutik-solidaire.pages.dev (autre
+    // origine, sans en-tête CORS) : avec addAll, son échec faisait échouer toute l'installation, et le
+    // navigateur la retentait à chaque visite. L'icône est donc facultative.
+    caches.open(SHELL)
+      .then((c) => c.add(BASE).then(() => c.add(BASE + 'icons/icon-192.png').catch(() => {})))
+      .then(() => self.skipWaiting())
   )
 })
 
