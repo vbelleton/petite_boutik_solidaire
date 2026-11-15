@@ -56,6 +56,7 @@ const props = defineProps({
 const liens = ref([
   { label: 'Découvrir l’association', url: '/#deux-cotes' },
   { label: 'Petite boutik', url: '/boutik/' },
+  { label: 'Dons', url: '/boutik/#dons' },
   { label: 'Maraude', url: '/#maraudes' },
   { label: 'Agenda', url: '/#agenda' },
   { label: 'Contact', url: '/#contact' },
@@ -110,9 +111,8 @@ const ICONES = {
   'boutique-gallery': 'M4 9l1.5-5h13L20 9M4 9h16M4 9v11h16V9M9 20v-6h6v6',
   carousel: 'M4 5h16v14H4zM4 15l5-5 4 4 3-3 4 4M15.5 9.5h.01',
   collection: 'M8 3l-5 3 2 4 2-1v12h10V9l2 1 2-4-5-3a4 4 0 0 1-8 0z',
-  association: 'M7 11V6.8a1.4 1.4 0 0 1 2.8 0V11M9.8 10V5.4a1.4 1.4 0 0 1 2.8 0V10M12.6 10V6.2a1.4 1.4 0 0 1 2.8 0v6.3l1.4-1.6a1.4 1.4 0 0 1 2.1 1.9L15.6 17a5 5 0 0 1-3.8 2H11a5 5 0 0 1-5-5v-2.5a1.4 1.4 0 0 1 2.8 0',
+  dons: 'M4 11h16v9H4zM3 7.5h18V11H3zM12 7.5V20M12 7.5C10.5 4 7 4 7.5 6.2 8 7.5 12 7.5 12 7.5zM12 7.5c1.5-3.5 5-3.5 4.5-1.3C16 7.5 12 7.5 12 7.5z',
   calendrier: 'M4 5.5h16V20H4zM4 10h16M8.5 3.5v4M15.5 3.5v4',
-  engagement: 'M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10C19.5 15.4 12 20 12 20z',
   contact: 'M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11zM12 12.3a2.3 2.3 0 1 0 0-4.6 2.3 2.3 0 0 0 0 4.6z',
   social: 'M17 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM7 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM17 22a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM9.6 13.5l4.8 3M14.4 6.5l-4.8 3',
   defaut: 'M5 12h14',
@@ -218,7 +218,7 @@ onUnmounted(() => {
 
 
 /* Colonne des rubriques : icônes seules (56 px) sur écran étroit, icônes + libellés sur grand écran */
-.rail { position: fixed; z-index: 700; left: 0; top: var(--haut, 62px); bottom: 84px; width: var(--rail); display: flex; flex-direction: column; gap: 2px;
+.rail { position: fixed; z-index: 700; left: 0; top: var(--haut, 62px); bottom: 0; width: var(--rail); display: flex; flex-direction: column; gap: 2px;
   padding: 10px 8px; overflow-x: hidden; overflow-y: auto; scrollbar-width: none; border-right: 1px solid var(--line);
   background: color-mix(in srgb, var(--bg) 92%, transparent); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); transition: width .2s ease, box-shadow .2s ease; }
 .rail::-webkit-scrollbar { display: none; }

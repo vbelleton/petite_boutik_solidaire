@@ -46,23 +46,20 @@ test.describe('Responsive layout', () => {
     }
   })
 
-  test('le header et le footer utilisent la même largeur que le container', async ({ page }) => {
+  test('le header utilise la même largeur que le container', async ({ page }) => {
     await gotoAndWait(page)
 
     const widths = await page.evaluate(() => {
       const container = document.querySelector('.container')
       const header = document.querySelector('.header-content')
-      const footer = document.querySelector('.footer-content')
       return {
         container: container?.getBoundingClientRect().width ?? 0,
         header: header?.getBoundingClientRect().width ?? 0,
-        footer: footer?.getBoundingClientRect().width ?? 0,
       }
     })
 
     expect(widths.container).toBeGreaterThan(800)
     expect(widths.header).toBeGreaterThan(800)
-    expect(widths.footer).toBeGreaterThan(800)
   })
 
   test('la variable CSS --site-max-width est définie sur :root', async ({ page }) => {
