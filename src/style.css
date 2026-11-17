@@ -9,12 +9,14 @@
   --ink: #1f2a3a;           /* bleu marine du logo Bras Ouverts */
   --muted: #546071;
   --line: #e0dbd1;
-  --accent: #0f6e67;        /* turquoise assombri : contraste AA sur sable et blanc */
+  --accent: #0e7670;        /* turquoise assombri : contraste AA sur sable et blanc */
   --accent-ink: #ffffff;    /* texte sur fond --accent */
   --nuit: #1f2a3a;          /* fonds bleu nuit (pied de page, encart horaires), texte blanc dessus */
-  --corail: #a94631;        /* couleur de la P'tite Boutik sur le site Bras Ouverts */
-  --corail-doux: #fbe3d9;
-  --lagon-doux: #d9efec;
+  --corail: #b8432c;        /* couleur de la P'tite Boutik sur le site Bras Ouverts */
+  --corail-doux: #ffe6db;
+  --lagon-doux: #d4f1ec;
+  --halo-lagon: #bfeae4;    /* dégradés d'ambiance seulement (jamais derrière du texte seul) */
+  --halo-corail: #ffd3c2;
   --soft: #e6efec;
   --display: "Fraunces", Georgia, serif;
   --body: "Nunito Sans", "Segoe UI", system-ui, sans-serif;
@@ -25,10 +27,10 @@
   --brand-coral: #E95E5E;
   /* Anciens noms, repris par l'admin et les composants : alignés sur l'identité Bras Ouverts
      (contraste d'au moins 4,5:1 sur blanc et sable, RGAA 3.2) */
-  --primary-teal: #0f6e67;
-  --primary-teal-dark: #0b524d;
-  --primary-coral: #a94631;
-  --primary-coral-light: #b9533c;
+  --primary-teal: #0e7670;
+  --primary-teal-dark: #0a5c57;
+  --primary-coral: #b8432c;
+  --primary-coral-light: #c24a33;
   --secondary-beige: #e0dbd1;
   --secondary-brown: #8B6F47;
   --secondary-cream: #fffaf3;
@@ -68,16 +70,16 @@ body {
 @media (prefers-color-scheme: dark) {
   html.site:not([data-theme="light"]) {
     --bg: #131a22; --surface: #1c2631; --ink: #eef2f5; --muted: #a9b5c2; --line: #2b3745;
-    --accent: #3cc5b8; --accent-ink: #131a22; --nuit: #0c1117; --soft: #1a2a30; --corail: #f08a72; --corail-doux: #3a2523; --lagon-doux: #17312f;
-    --primary-teal: #3cc5b8; --primary-teal-dark: #2a9d92; --primary-coral: #f08a72; --primary-coral-light: #f4a08c;
+    --accent: #45d0c2; --accent-ink: #131a22; --nuit: #0c1117; --soft: #1a2a30; --corail: #ff9076; --corail-doux: #3a2523; --lagon-doux: #17312f; --halo-lagon: #17312f; --halo-corail: #3a2523;
+    --primary-teal: #45d0c2; --primary-teal-dark: #33b3a6; --primary-coral: #ff9076; --primary-coral-light: #ffa68f;
     --secondary-beige: #2b3745; --secondary-cream: #1c2631; --text-dark: #eef2f5; --text-gray: #a9b5c2; --text-light: #a9b5c2; --bg-light: #131a22;
     color-scheme: dark;
   }
 }
 html.site[data-theme="dark"] {
   --bg: #131a22; --surface: #1c2631; --ink: #eef2f5; --muted: #a9b5c2; --line: #2b3745;
-  --accent: #3cc5b8; --accent-ink: #131a22; --nuit: #0c1117; --soft: #1a2a30; --corail: #f08a72; --corail-doux: #3a2523; --lagon-doux: #17312f;
-  --primary-teal: #3cc5b8; --primary-teal-dark: #2a9d92; --primary-coral: #f08a72; --primary-coral-light: #f4a08c;
+  --accent: #45d0c2; --accent-ink: #131a22; --nuit: #0c1117; --soft: #1a2a30; --corail: #ff9076; --corail-doux: #3a2523; --lagon-doux: #17312f; --halo-lagon: #17312f; --halo-corail: #3a2523;
+  --primary-teal: #45d0c2; --primary-teal-dark: #33b3a6; --primary-coral: #ff9076; --primary-coral-light: #ffa68f;
   --secondary-beige: #2b3745; --secondary-cream: #1c2631; --text-dark: #eef2f5; --text-gray: #a9b5c2; --text-light: #a9b5c2; --bg-light: #131a22;
   color-scheme: dark;
 }

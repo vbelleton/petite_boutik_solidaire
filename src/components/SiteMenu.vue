@@ -3,7 +3,8 @@
     <div class="wrap">
       <div class="marque">
         <a class="logo" :href="ASSO + '/'" title="Accueil du site Bras Ouverts">
-          <img :src="BASE + 'logo-bras-ouverts.png'" alt="Bras Ouverts" width="545" height="160" />
+          <img class="logo-clair" :src="BASE + 'logo-bras-ouverts.png'" alt="Bras Ouverts" width="545" height="160" />
+          <img class="logo-sombre" :src="BASE + 'logo-bras-ouverts-blanc.png'" alt="" aria-hidden="true" width="545" height="160" />
         </a>
         <a class="sous-site" :href="BASE">La P'tite Boutik Solidaire</a>
       </div>
@@ -196,8 +197,11 @@ onUnmounted(() => {
 .logo img { display: block; height: 46px; width: auto; }
 .sous-site { padding-left: 12px; border-left: 1px solid var(--line); font-family: var(--display); font-weight: 700; font-size: 1.02rem; line-height: 1.15; color: var(--corail); text-decoration: none; white-space: nowrap; }
 .sous-site:hover { text-decoration: underline; }
-:root[data-theme="dark"] .logo img { background: #f6f1e7; border-radius: 10px; padding: 3px 8px; box-sizing: content-box; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .logo img { background: #f6f1e7; border-radius: 10px; padding: 3px 8px; box-sizing: content-box; } }
+/* Thème sombre : logo blanc (comme sur le site Bras Ouverts) */
+.logo .logo-sombre { display: none; }
+:root[data-theme="dark"] .logo-clair { display: none; }
+:root[data-theme="dark"] .logo-sombre { display: block; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .logo-clair { display: none; } :root:not([data-theme="light"]) .logo-sombre { display: block; } }
 
 #menu-principal { display: flex; flex-wrap: wrap; gap: 4px 20px; margin-left: auto; }
 #menu-principal a { color: var(--muted); text-decoration: none; font-weight: 700; font-size: 0.95rem; }

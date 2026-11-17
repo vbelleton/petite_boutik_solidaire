@@ -250,8 +250,8 @@ body.site {
   width: 100%;
   /* Halo turquoise et corail du haut de page, comme l'accueil du site Bras Ouverts */
   background:
-    radial-gradient(70% 520px at 100% 0%, var(--lagon-doux), transparent 70%),
-    radial-gradient(60% 520px at 0% 620px, var(--corail-doux), transparent 70%);
+    radial-gradient(70% 520px at 100% 0%, var(--halo-lagon), transparent 70%),
+    radial-gradient(60% 520px at 0% 620px, var(--halo-corail), transparent 70%);
   background-repeat: no-repeat;
 }
 
