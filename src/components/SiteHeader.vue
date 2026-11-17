@@ -123,4 +123,13 @@ const titreParts = computed(() => {
   .statut { grid-column: 1 / -1; grid-row: 3; display: flex; width: 100%; }
   .logo { width: 150px; }
 }
+
+/* Téléphones étroits (ou texte agrandi dans les réglages) : le titre prend toute la largeur et le logo passe
+   dessous, au lieu de se faire recouvrir par les mots du titre. */
+@media (max-width: 520px) {
+  .header-content { grid-template-columns: minmax(0, 1fr); }
+  .header-text h1 { grid-column: 1; grid-row: 2; max-width: none; overflow-wrap: anywhere; }
+  .logo { grid-column: 1; grid-row: 3; width: min(170px, 46vw); margin: 18px 0 0; justify-self: start; }
+  .statut { grid-row: 4; margin-top: 18px; }
+}
 </style>
