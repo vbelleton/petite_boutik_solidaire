@@ -267,6 +267,17 @@ onUnmounted(() => {
   .menu-toggle[aria-expanded="true"] ~ #menu-principal { display: flex; }
   #menu-principal a { flex: none; padding: 16px 4px; font-family: var(--display); font-size: 1.45rem; color: var(--ink); border-bottom: 1px solid var(--line); }
   #menu-principal a[aria-current="page"] { box-shadow: none; color: var(--corail); }
+  /* Zones tactiles d'au moins 44 px */
+  .menu-toggle, .theme-toggle { width: 44px; height: 44px; flex: none; }
+}
+
+/* Téléphones étroits (360 px et moins, ou texte agrandi dans les réglages) : le nom de la boutique passe
+   sous le logo au lieu de déborder sur les boutons ; sa taille suit la largeur de l'écran. */
+@media (max-width: 560px) {
+  .top > .wrap { padding-inline: max(14px, env(safe-area-inset-left)) max(14px, env(safe-area-inset-right)); }
+  .marque { flex-direction: column; align-items: flex-start; justify-content: center; gap: 3px; flex: 1 1 0; }
+  .logo img { height: 30px; }
+  .sous-site { padding-left: 0; border-left: 0; max-width: 100%; white-space: normal; font-size: clamp(11px, 3.5vw, 0.86rem); line-height: 1.1; }
 }
 </style>
 
