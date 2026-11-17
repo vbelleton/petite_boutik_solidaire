@@ -46,9 +46,9 @@ onUnmounted(() => { if (stop) stop() })
 </script>
 
 <style scoped>
-.bandeau { display: block; overflow: hidden; text-decoration: none; background: var(--bandeau, var(--accent)); color: var(--bandeau-ink, var(--accent-ink)); border-top: 1px solid var(--line); font-size: 1.12rem; font-weight: 600; }
+.bandeau { display: block; overflow: hidden; text-decoration: none; background: var(--bandeau, var(--vif)); color: var(--bandeau-ink, var(--vif-ink)); border-top: 1px solid var(--line); font-size: 1.12rem; font-weight: 600; }
 /* Par défaut : la couleur de la pastille « Solidaire » du titre (--accent) ; --bandeau : couleur choisie dans l'admin (couleursPerso.js). */
-.bandeau.ouvert { background: var(--bandeau, var(--accent)); color: var(--bandeau-ink, var(--accent-ink)); }
+.bandeau.ouvert { background: var(--bandeau, var(--vif)); color: var(--bandeau-ink, var(--vif-ink)); }
 .masque { display: block; overflow: hidden; white-space: nowrap; }
 .piste { display: inline-flex; align-items: center; padding: 14px 0; animation: defile 30s linear infinite; will-change: transform; }
 .bandeau:hover .piste, .bandeau:focus-visible .piste { animation-play-state: paused; }
