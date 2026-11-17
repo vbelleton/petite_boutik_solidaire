@@ -32,7 +32,7 @@ const refuses = computed(() => textes.value.dons_refuses || "Vêtements très us
 
 <style scoped>
 .dons-texte { font-size: 1.1rem; line-height: 1.7; color: var(--muted); margin-bottom: 12px; }
-.dons-colonnes { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 24px; }
+.dons-colonnes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 16px; margin-top: 24px; }
 .dons-col { padding: 20px 22px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); line-height: 1.6; }
 .dons-col h3 { font-size: 1.15rem; margin-bottom: 8px; color: var(--ink); }
 .dons :deep(ul) { padding-left: 1.3em; margin: 6px 0; }
