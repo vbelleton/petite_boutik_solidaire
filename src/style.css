@@ -15,8 +15,11 @@
   --corail: #b8432c;        /* couleur de la P'tite Boutik sur le site Bras Ouverts */
   --corail-doux: #ffe6db;
   --lagon-doux: #d4f1ec;
-  --halo-lagon: #bfeae4;    /* dégradés d'ambiance seulement (jamais derrière du texte seul) */
-  --halo-corail: #ffd3c2;
+  --vif: #2cc7ba;           /* aplats vifs (boutons, pastilles de date…) : texte bleu nuit dessus, contraste ≥ 7:1 */
+  --vif-ink: #10222b;
+  --vif-corail: #ff8f78;
+  --halo-lagon: #b9e9e3;    /* dégradés d'ambiance seulement (jamais derrière du texte seul) */
+  --halo-corail: #ffd2c0;
   --soft: #e6efec;
   --display: "Fraunces", Georgia, serif;
   --body: "Nunito Sans", "Segoe UI", system-ui, sans-serif;
@@ -70,7 +73,7 @@ body {
 @media (prefers-color-scheme: dark) {
   html.site:not([data-theme="light"]) {
     --bg: #131a22; --surface: #1c2631; --ink: #eef2f5; --muted: #a9b5c2; --line: #2b3745;
-    --accent: #45d0c2; --accent-ink: #131a22; --nuit: #0c1117; --soft: #1a2a30; --corail: #ff9076; --corail-doux: #3a2523; --lagon-doux: #17312f; --halo-lagon: #17312f; --halo-corail: #3a2523;
+    --accent: #45d0c2; --accent-ink: #131a22; --nuit: #0c1117; --soft: #1a2a30; --corail: #ff9076; --corail-doux: #3a2523; --lagon-doux: #17312f; --halo-lagon: #17312f; --halo-corail: #3a2523; --vif: #45d0c2; --vif-ink: #131a22; --vif-corail: #ff9076;
     --primary-teal: #45d0c2; --primary-teal-dark: #33b3a6; --primary-coral: #ff9076; --primary-coral-light: #ffa68f;
     --secondary-beige: #2b3745; --secondary-cream: #1c2631; --text-dark: #eef2f5; --text-gray: #a9b5c2; --text-light: #a9b5c2; --bg-light: #131a22;
     color-scheme: dark;
@@ -78,7 +81,7 @@ body {
 }
 html.site[data-theme="dark"] {
   --bg: #131a22; --surface: #1c2631; --ink: #eef2f5; --muted: #a9b5c2; --line: #2b3745;
-  --accent: #45d0c2; --accent-ink: #131a22; --nuit: #0c1117; --soft: #1a2a30; --corail: #ff9076; --corail-doux: #3a2523; --lagon-doux: #17312f; --halo-lagon: #17312f; --halo-corail: #3a2523;
+  --accent: #45d0c2; --accent-ink: #131a22; --nuit: #0c1117; --soft: #1a2a30; --corail: #ff9076; --corail-doux: #3a2523; --lagon-doux: #17312f; --halo-lagon: #17312f; --halo-corail: #3a2523; --vif: #45d0c2; --vif-ink: #131a22; --vif-corail: #ff9076;
   --primary-teal: #45d0c2; --primary-teal-dark: #33b3a6; --primary-coral: #ff9076; --primary-coral-light: #ffa68f;
   --secondary-beige: #2b3745; --secondary-cream: #1c2631; --text-dark: #eef2f5; --text-gray: #a9b5c2; --text-light: #a9b5c2; --bg-light: #131a22;
   color-scheme: dark;
@@ -117,8 +120,8 @@ h2 {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: var(--accent);
-  color: var(--accent-ink);
+  background: var(--vif);
+  color: var(--vif-ink);
   font: inherit;
   font-weight: 700;
   padding: 10px 22px;
@@ -128,7 +131,7 @@ h2 {
   cursor: pointer;
 }
 .btn:hover { filter: brightness(1.08); text-decoration: none; }
-.btn-corail { background: var(--corail); }
+.btn-corail { background: var(--vif-corail); color: var(--vif-ink); }
 .btn-clair { background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
 
 a {

@@ -69,8 +69,8 @@ const titreParts = computed(() => {
   /* « Solidaire » comme sur le logo : mot blanc dans une pastille turquoise */
   display: inline-block;
   font-style: italic;
-  color: var(--accent-ink);
-  background: var(--accent);
+  color: var(--vif-ink);
+  background: var(--vif);
   padding: 0.02em 0.32em 0.1em;
   border-radius: 0.28em;
   transform: rotate(-2deg);
@@ -93,8 +93,8 @@ const titreParts = computed(() => {
 }
 .statut:hover { border-color: var(--accent); text-decoration: none; }
 .statut .point { width: 10px; height: 10px; border-radius: 50%; background: #c3bdb0; flex: none; }
-.statut.ouvert { background: var(--accent); border-color: var(--accent); color: #fff; }
-.statut.ouvert .point { background: #fff; box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.25); }
+.statut.ouvert { background: var(--vif); border-color: var(--vif); color: var(--vif-ink); }
+.statut.ouvert .point { background: var(--vif-ink); box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.25); }
 
 /* Logo intégré au bandeau du haut : son fond blanc se fond dans la page (multiply), sans cadre.
    Taille mesurée : grand sur ordinateur, raisonnable sur téléphone. */

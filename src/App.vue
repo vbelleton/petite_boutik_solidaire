@@ -15,6 +15,7 @@ import Contact from './components/Contact.vue'
 import SocialMedia from './components/SocialMedia.vue'
 import ActuBanner from './components/ActuBanner.vue'
 import SiteMenu from './components/SiteMenu.vue'
+import SiteBarre from './components/SiteBarre.vue'
 import { useOpeningStatus } from './composables/useOpeningStatus.js'
 import { useLocalBusinessJsonLd } from './composables/useLocalBusinessJsonLd.js'
 
@@ -181,6 +182,7 @@ onMounted(() => {
     <!-- Plus de pied de page ni de barre du bas : seulement l'accès discret aux mentions légales. -->
     <p class="pied-mentions"><button type="button" @click="ouvrirMentions">Mentions légales</button></p>
     <MentionsLegales />
+    <SiteBarre />
   </div>
 </template>
 
