@@ -18,6 +18,7 @@
   --vif: #2cc7ba;           /* aplats vifs (boutons, pastilles de date…) : texte bleu nuit dessus, contraste ≥ 7:1 */
   --vif-ink: #10222b;
   --vif-corail: #ff8f78;
+  --vif-bleu: #9fc0f4;      /* pastille bleue de la barre du bas (texte bleu nuit dessus) */
   --halo-lagon: #b9e9e3;    /* dégradés d'ambiance seulement (jamais derrière du texte seul) */
   --halo-corail: #ffd2c0;
   --soft: #e6efec;
@@ -73,7 +74,7 @@ body {
 @media (prefers-color-scheme: dark) {
   html.site:not([data-theme="light"]) {
     --bg: #131a22; --surface: #1c2631; --ink: #eef2f5; --muted: #a9b5c2; --line: #2b3745;
-    --accent: #45d0c2; --accent-ink: #131a22; --nuit: #0c1117; --soft: #1a2a30; --corail: #ff9076; --corail-doux: #3a2523; --lagon-doux: #17312f; --halo-lagon: #17312f; --halo-corail: #3a2523; --vif: #45d0c2; --vif-ink: #131a22; --vif-corail: #ff9076;
+    --accent: #45d0c2; --accent-ink: #131a22; --nuit: #0c1117; --soft: #1a2a30; --corail: #ff9076; --corail-doux: #3a2523; --lagon-doux: #17312f; --halo-lagon: #17312f; --halo-corail: #3a2523; --vif: #45d0c2; --vif-ink: #131a22; --vif-corail: #ff9076; --vif-bleu: #8db4f2;
     --primary-teal: #45d0c2; --primary-teal-dark: #33b3a6; --primary-coral: #ff9076; --primary-coral-light: #ffa68f;
     --secondary-beige: #2b3745; --secondary-cream: #1c2631; --text-dark: #eef2f5; --text-gray: #a9b5c2; --text-light: #a9b5c2; --bg-light: #131a22;
     color-scheme: dark;
@@ -81,7 +82,7 @@ body {
 }
 html.site[data-theme="dark"] {
   --bg: #131a22; --surface: #1c2631; --ink: #eef2f5; --muted: #a9b5c2; --line: #2b3745;
-  --accent: #45d0c2; --accent-ink: #131a22; --nuit: #0c1117; --soft: #1a2a30; --corail: #ff9076; --corail-doux: #3a2523; --lagon-doux: #17312f; --halo-lagon: #17312f; --halo-corail: #3a2523; --vif: #45d0c2; --vif-ink: #131a22; --vif-corail: #ff9076;
+  --accent: #45d0c2; --accent-ink: #131a22; --nuit: #0c1117; --soft: #1a2a30; --corail: #ff9076; --corail-doux: #3a2523; --lagon-doux: #17312f; --halo-lagon: #17312f; --halo-corail: #3a2523; --vif: #45d0c2; --vif-ink: #131a22; --vif-corail: #ff9076; --vif-bleu: #8db4f2;
   --primary-teal: #45d0c2; --primary-teal-dark: #33b3a6; --primary-coral: #ff9076; --primary-coral-light: #ffa68f;
   --secondary-beige: #2b3745; --secondary-cream: #1c2631; --text-dark: #eef2f5; --text-gray: #a9b5c2; --text-light: #a9b5c2; --bg-light: #131a22;
   color-scheme: dark;
@@ -193,3 +194,6 @@ a:hover {
   white-space: nowrap;
   border: 0;
 }
+
+/* « Journée portes ouvertes » toujours en gras (src/portesOuvertes.js) */
+.po { font-weight: 900; }

@@ -246,7 +246,8 @@ onUnmounted(() => {
   .rail-titre { height: auto; margin-bottom: 10px; }
   .rail a[aria-current="location"]::before { content: ""; position: absolute; left: -10px; top: 9px; bottom: 9px; width: 3px; border-radius: 3px; background: var(--corail); }
 }
-@media (max-width: 700px) { .rail { bottom: 92px; } }
+/* Téléphone : la colonne s'arrête 12 px au-dessus de la barre du bas (hauteur mesurée par SiteBarre.vue, encoche comprise) */
+@media (max-width: 700px) { .rail { bottom: calc(var(--barre-h, calc(72px + env(safe-area-inset-bottom, 0px))) + 12px); } }
 @media (prefers-reduced-motion: reduce) { .rail, .rail-txt, .rail-titre { transition: none; } }
 
 @media (max-width: 1000px) and (min-width: 701px) {

@@ -14,8 +14,8 @@
           <span class="date-day" :style="{ color: readableColor(date.color || '#1BA9A8') }">{{ date.day }}</span>
           <span class="date-full">{{ date.label }}</span>
           <span class="date-closed-label" v-if="date.closed">{{ date.closedLabel || 'Fermé exceptionnellement' }}</span>
-          <span class="date-exceptional" v-else-if="date.exceptional">✨ Ouverture exceptionnelle<template v-if="date.motif"> · {{ date.motif }}</template></span>
-          <span class="date-exceptional" v-else-if="date.motif">✨ {{ date.motif }}</span>
+          <span class="date-exceptional" v-else-if="date.exceptional">✨ Ouverture exceptionnelle<template v-if="date.motif"> · <TexteGras :texte="date.motif" /></template></span>
+          <span class="date-exceptional" v-else-if="date.motif">✨ <TexteGras :texte="date.motif" /></span>
           <span class="date-horaires" v-if="!date.closed && date.horaires">{{ date.horaires }}</span>
         </div>
       </div>
@@ -24,6 +24,7 @@
 </template>
 
 <script setup>
+import TexteGras from './TexteGras.vue'
 import { computed } from 'vue'
 import { useOpeningStatus } from '../composables/useOpeningStatus.js'
 import { readableColor } from '../composables/openingDates.js'

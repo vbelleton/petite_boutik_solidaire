@@ -10,7 +10,7 @@
         <a class="statut" :class="{ ouvert: openToday }" href="#calendrier">
           <span class="point" aria-hidden="true"></span>
           <template v-if="openToday"><strong>Ouvert aujourd'hui</strong> · {{ todayHoraires || plage }}</template>
-          <template v-else-if="nextOpening">Prochaine ouverture : <strong>{{ nextOpening }}</strong> · {{ nextHoraires || plage }}<template v-if="nextMotif"> · {{ nextMotif }}</template></template>
+          <template v-else-if="nextOpening">Prochaine ouverture : <strong>{{ nextOpening }}</strong> · {{ nextHoraires || plage }}<template v-if="nextMotif"> · <TexteGras :texte="nextMotif" /></template></template>
           <template v-else>Voir les horaires d'ouverture</template>
         </a>
       </div>
@@ -20,6 +20,7 @@
 </template>
 
 <script setup>
+import TexteGras from './TexteGras.vue'
 import { computed } from 'vue'
 import { useTextes } from '../composables/useTextes.js'
 import { useOpeningStatus } from '../composables/useOpeningStatus.js'

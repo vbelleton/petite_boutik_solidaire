@@ -1,6 +1,6 @@
 <template>
-  <nav class="barre" aria-label="Accès rapide">
-    <a v-for="b in boutons" :key="b.label" :href="lien(b.url)" :aria-current="estBoutik(b.url) ? 'true' : null">
+  <nav ref="barreEl" class="barre" aria-label="Accès rapide">
+    <a v-for="b in boutons" :key="b.label" :href="lien(b.url)" :aria-current="estBoutik(b.url) ? 'true' : null" :data-ico="ICONES[b.icon] ? b.icon : 'coeur'">
       <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path v-for="(d, i) in (ICONES[b.icon] || ICONES.coeur)" :key="i" :d="d" /></svg>
       <span>{{ b.label }}</span>
     </a>
@@ -35,10 +35,21 @@ const estBoutik = (url) => url.replace(/\/+$/, '') === BASE.replace(/\/+$/, '')
 // La barre s'efface pendant la saisie (clavier) ; le menu déplié la masque aussi (voir le style global).
 const champ = (t) => t instanceof Element && t.matches('input:not([type=checkbox]):not([type=radio]), textarea, select')
 const root = document.documentElement
+// Hauteur réelle de la barre (encoche de l'iPhone, texte agrandi, libellé sur deux lignes) publiée dans --barre-h :
+// la colonne des rubriques (SiteMenu.vue) s'arrête au-dessus, sans jamais la chevaucher.
+const barreEl = ref(null)
+let observe = null
+const mesurer = () => {
+  const h = barreEl.value && getComputedStyle(barreEl.value).display !== 'none' ? Math.ceil(barreEl.value.getBoundingClientRect().height) : 0
+  root.style.setProperty('--barre-h', h + 'px')
+}
 const dedans = (e) => { if (champ(e.target)) root.classList.add('clavier') }
 const dehors = (e) => { if (champ(e.target)) root.classList.remove('clavier') }
 onMounted(async () => {
   document.body.classList.add('avec-barre')
+  mesurer()
+  if ('ResizeObserver' in window) { observe = new ResizeObserver(mesurer); observe.observe(barreEl.value, { box: 'border-box' }) }
+  window.addEventListener('resize', mesurer)
   document.addEventListener('focusin', dedans)
   document.addEventListener('focusout', dehors)
   try {
@@ -51,6 +62,9 @@ onMounted(async () => {
 })
 onUnmounted(() => {
   document.body.classList.remove('avec-barre')
+  observe?.disconnect()
+  window.removeEventListener('resize', mesurer)
+  root.style.removeProperty('--barre-h')
   document.removeEventListener('focusin', dedans)
   document.removeEventListener('focusout', dehors)
   root.classList.remove('clavier')
@@ -65,11 +79,15 @@ onUnmounted(() => {
   .barre { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; position: fixed; z-index: 9; left: 0; right: 0; bottom: 0;
     padding: 4px max(4px, env(safe-area-inset-left)) env(safe-area-inset-bottom, 0px); background: color-mix(in srgb, var(--surface) 94%, transparent);
     -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-top: 1px solid var(--line); box-shadow: 0 -4px 18px rgb(0 0 0 / 0.06); }
-  .barre a { display: grid; justify-items: center; gap: 2px; min-height: 56px; padding: 7px 2px 6px; color: var(--muted); text-decoration: none; font-size: 0.72rem; font-weight: 700; line-height: 1.15; border-radius: 12px; text-align: center; text-wrap: balance; }
+  .barre a { display: grid; justify-items: center; align-content: start; gap: 3px; min-height: 56px; padding: 6px 2px 6px; color: var(--ink); text-decoration: none; font-size: 0.72rem; font-weight: 700; line-height: 1.15; border-radius: 12px; text-align: center; text-wrap: balance; }
   .barre a:hover { text-decoration: none; }
-  .barre a[aria-current="true"] { color: var(--accent); }
-  .barre a[aria-current="true"] svg { transform: translateY(-1px); stroke-width: 2.2; }
+  /* Chaque icône sur une pastille vive (turquoise, corail, bleu), texte bleu nuit dessus : contraste ≥ 7:1 dans les deux thèmes */
+  .barre svg { box-sizing: content-box; width: 22px; height: 22px; padding: 4px 13px; border-radius: 999px; background: var(--vif); color: var(--vif-ink); transition: transform .15s; }
+  .barre a[data-ico="boutique"] svg, .barre a[data-ico="contact"] svg { background: var(--vif-corail); }
+  .barre a[data-ico="agenda"] svg { background: var(--vif-bleu); }
+  .barre a[aria-current="true"] svg { transform: translateY(-1px); stroke-width: 2.2; box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--ink); }
   .barre a:active { background: var(--soft); }
+  .barre a:active svg { transform: scale(.94); }
   .clavier .barre, .menu-ouvert .barre { display: none; }
 }
 </style>
