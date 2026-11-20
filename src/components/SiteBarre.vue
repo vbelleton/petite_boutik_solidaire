@@ -77,7 +77,7 @@ onUnmounted(() => {
 /* Repris du site Bras Ouverts (src/style.css de bras-ouverts-site) */
 .barre { display: none; }
 @media (max-width: 700px) {
-  body.avec-barre { padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
+  body.avec-barre { padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); overscroll-behavior-y: none; }
   .barre { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; position: fixed; z-index: 9; left: 0; right: 0; bottom: 0;
     padding: 4px max(4px, env(safe-area-inset-left)) env(safe-area-inset-bottom, 0px); background: color-mix(in srgb, var(--surface) 94%, transparent);
     -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-top: 1px solid var(--line); box-shadow: 0 -4px 18px rgb(0 0 0 / 0.06); }
