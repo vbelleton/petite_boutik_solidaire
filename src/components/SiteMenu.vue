@@ -61,6 +61,7 @@ const liens = ref([
   { label: 'Agenda', url: '/#agenda' },
   { label: 'Contact', url: '/#contact' },
   { label: 'La P’tite Boutik', url: '/boutik/' },
+  { label: 'Nous soutenir', url: '/soutenir/' },
 ])
 const lien = (url) => (url.startsWith('/') && !url.startsWith('//') ? ASSO + url : url)
 const estBoutik = (url) => url.replace(/\/+$/, '') === BASE.replace(/\/+$/, '')
