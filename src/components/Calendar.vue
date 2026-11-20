@@ -66,7 +66,8 @@ const nextDates = computed(() =>
 .date-item.closed { opacity: 0.65; background: color-mix(in srgb, var(--corail-doux) 45%, var(--surface)); border-left-color: var(--line) !important; }
 .date-item.closed .date-day,
 .date-item.closed .date-full { text-decoration: line-through; color: var(--muted) !important; }
-.date-exceptional { font-size: 0.82rem; font-weight: 700; color: #6247a8; margin-top: 2px; }
+/* Motif du jour (ex. Journée portes ouvertes) : pastille corail vive, bien lisible dans la carte blanche (texte bleu nuit, contraste ≥ 7:1) */
+.date-exceptional { display: block; width: fit-content; max-width: 100%; margin: 6px 0 2px; padding: 5px 10px; border-radius: 10px; background: var(--vif-corail); color: var(--vif-ink); font-size: 1rem; font-weight: 800; line-height: 1.2; }
 .date-horaires { font-size: 0.85rem; color: var(--muted); }
 .date-closed-label { font-size: 0.8rem; color: var(--corail); font-style: italic; margin-top: 2px; }
 @media (max-width: 600px) {
