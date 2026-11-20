@@ -10,7 +10,7 @@
         <a class="statut" :class="{ ouvert: openToday }" href="#calendrier">
           <span class="point" aria-hidden="true"></span>
           <template v-if="openToday"><strong>Ouvert aujourd'hui</strong> · {{ todayHoraires || plage }}</template>
-          <template v-else-if="nextOpening">Prochaine ouverture : <strong>{{ nextOpening }}</strong> · {{ nextHoraires || plage }}<template v-if="nextMotif"> · {{ nextMotif }}</template></template>
+          <template v-else-if="nextOpening">Prochaine ouverture : <strong>{{ nextOpening }}</strong> · {{ nextHoraires || plage }}<template v-if="nextMotif"> · <span class="motif"><TexteGras :texte="nextMotif" /></span></template></template>
           <template v-else>Voir les horaires d'ouverture</template>
         </a>
       </div>
@@ -20,6 +20,7 @@
 </template>
 
 <script setup>
+import TexteGras from './TexteGras.vue'
 import { computed } from 'vue'
 import { useTextes } from '../composables/useTextes.js'
 import { useOpeningStatus } from '../composables/useOpeningStatus.js'
@@ -91,6 +92,7 @@ const titreParts = computed(() => {
   font-size: 0.97rem;
   text-decoration: none;
 }
+.statut .motif { display: inline-block; padding: 2px 9px; border-radius: 8px; background: var(--vif-corail); color: var(--vif-ink); font-weight: 800; }
 .statut:hover { border-color: var(--accent); text-decoration: none; }
 .statut .point { width: 10px; height: 10px; border-radius: 50%; background: #c3bdb0; flex: none; }
 .statut.ouvert { background: var(--vif); border-color: var(--vif); color: var(--vif-ink); }

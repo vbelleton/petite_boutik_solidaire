@@ -6,8 +6,8 @@
       <span class="piste">
         <span class="seg" v-for="n in 3" :key="n">
           <template v-if="openToday"><span class="point"></span><b>Ouvert aujourd'hui</b>&nbsp;· {{ todayHoraires || plage }}</template>
-          <template v-else-if="nextOpening"><span class="point"></span>Prochaine ouverture :&nbsp;<b>{{ nextOpening }}</b>&nbsp;· {{ nextHoraires || plage }}<template v-if="nextMotif">&nbsp;· {{ nextMotif }}</template></template>
-          <template v-if="annonce"><span class="sep">✦</span>{{ annonce }}</template>
+          <template v-else-if="nextOpening"><span class="point"></span>Prochaine ouverture :&nbsp;<b>{{ nextOpening }}</b>&nbsp;· {{ nextHoraires || plage }}<template v-if="nextMotif">&nbsp;· <TexteGras :texte="nextMotif" /></template></template>
+          <template v-if="annonce"><span class="sep">✦</span><TexteGras :texte="annonce" /></template>
           <span class="sep">✦</span>
         </span>
       </span>
@@ -16,6 +16,7 @@
 </template>
 
 <script setup>
+import TexteGras from './TexteGras.vue'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { doc, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase.js'
@@ -53,7 +54,7 @@ onUnmounted(() => { if (stop) stop() })
 .piste { display: inline-flex; align-items: center; padding: 14px 0; animation: defile 30s linear infinite; will-change: transform; }
 .bandeau:hover .piste, .bandeau:focus-visible .piste { animation-play-state: paused; }
 .seg { display: inline-flex; align-items: center; }
-.seg b { font-weight: 800; }
+.seg b, .seg .po { font-weight: 800; }
 .sep { margin: 0 18px; opacity: 0.55; }
 .point { width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; flex-shrink: 0; background: currentColor; }
 .bandeau.ouvert .point { animation: pouls 1.7s infinite; }

@@ -53,7 +53,7 @@ import { texteRiche } from '../texteRiche.js'
 
 const textes = useTextes()
 const titre = computed(() => textes.value.contact_titre || 'Nous trouver et nous écrire')
-const ecrireTexte = computed(() => textes.value.contact_ecrire || 'Une question sur la boutique ou un don ? Laissez-nous un message.')
+const ecrireTexte = computed(() => textes.value.contact_ecrire || 'Une question sur la boutik ou un don ? Laissez-nous un message.')
 // Sur brasouverts.bzh (boutique sous /boutik/), le formulaire est sur la même adresse ;
 // sur petite-boutik-solidaire.pages.dev ou en local, on renvoie vers le site Bras Ouverts.
 const surBoutikSeule = typeof window !== 'undefined' && /(^|\.)petite-boutik-solidaire\.pages\.dev$|^localhost$|^127\./.test(window.location.hostname)
