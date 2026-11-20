@@ -70,8 +70,16 @@ const nextDates = computed(() =>
 .date-exceptional { display: block; width: fit-content; max-width: 100%; margin: 6px 0 2px; padding: 5px 10px; border-radius: 10px; background: var(--vif-corail); color: var(--vif-ink); font-size: 1rem; font-weight: 800; line-height: 1.2; }
 .date-horaires { font-size: 0.85rem; color: var(--muted); }
 .date-closed-label { font-size: 0.8rem; color: var(--corail); font-style: italic; margin-top: 2px; }
+/* Aucun texte ne dépasse de sa carte ni de sa pastille (mots longs : « exceptionnelle », « Journées Portes Ouvertes »…) */
+.date-item { min-width: 0; }
+.date-full, .date-exceptional, .date-horaires, .date-closed-label { overflow-wrap: anywhere; }
 @media (max-width: 600px) {
   .dates-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .date-item { padding: 12px 14px; }
   .date-full { font-size: 1.05rem; }
+}
+/* Téléphone étroit : une carte par ligne, pleine largeur, pour que chaque texte tienne dans son cadre */
+@media (max-width: 420px) {
+  .dates-list { grid-template-columns: minmax(0, 1fr); }
 }
 </style>
